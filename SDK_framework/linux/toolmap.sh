@@ -11,5 +11,3 @@ CV_JAM_2_2_5_6=$ENV_DIR/CV_variables/CV_JAM_2_2_5_6/jam_2_2_5_6 ; export CV_JAM_
 CV_PERL_5_005_02=/usr/bin/perl ; export CV_PERL_5_005_02
 CV_SIGNTOOL_1_0=$ENV_DIR/CV_variables/CV_SIGNTOOL_1_0/signtol ; export CV_SIGNTOOL_1_0
 CV_ZIP_2_3_1=$ENV_DIR/CV_variables/CV_ZIP_2_3_1/bin ; export CV_ZIP_2_3_1
-
-

@@ -54,6 +54,10 @@
 #include "params.h"
 #include "stacks.h"
 #include "gstate.h"
+#ifndef PMS_OIL_MERGE_DISABLE_MH
+#include "ricohpaper.h"
+#include "mhwrapper.h"
+#endif
 
 Bool set_printdirection(PCL5Context *pcl5_ctxt, uint32 printdirection);
 void set_vmi_from_formlines(PCL5Context *pcl5_cxt, uint32 value);
@@ -1859,6 +1863,9 @@ int32 round_pcl_internal_to_pcl_unit(PCL5Context *pcl5_ctxt, PCL5Real internal_u
 /* Page Size */
 Bool pcl5op_ampersand_l_A(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numeric value)
 {
+#ifndef PMS_OIL_MERGE_DISABLE_MH
+  int ret;  
+#endif
   /** \todo Are negative values treated as positive? */
   uint32 size = (uint32) value.integer ;
 
@@ -1867,7 +1874,15 @@ Bool pcl5op_ampersand_l_A(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numer
 
   if (pcl5_ctxt->pass_through_mode == PCLXL_SNIPPET_JOB_PASS_THROUGH)
     return TRUE ;
+#ifndef PMS_OIL_MERGE_DISABLE_MH
+  ret = mnSetPaperInfo();
+  if(ret == 1)
+    printf("mnSetPaperInfo Successful \n");
+  else
+    printf("mnSetPaperInfo Failed \n");
 
+  size = getMhPageSize();
+#endif
   if (! set_page_size(pcl5_ctxt, size))
     return FALSE ;
 
@@ -1878,6 +1893,9 @@ Bool pcl5op_ampersand_l_A(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numer
 /* Paper Source */
 Bool pcl5op_ampersand_l_H(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numeric value)
 {
+#ifndef PMS_OIL_MERGE_DISABLE_MH
+ /* int ret;*/
+#endif
   /** \todo Are negative values treated as positive? */
   uint32 paper_source = (uint32) value.integer ;
 
@@ -1887,6 +1905,15 @@ Bool pcl5op_ampersand_l_H(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numer
   if (pcl5_ctxt->pass_through_mode == PCLXL_SNIPPET_JOB_PASS_THROUGH)
     return TRUE ;
 
+#ifndef PMS_OIL_MERGE_DISABLE_MH
+  /*ret = mnSetPaperInfo();
+  if(ret == 1)
+    printf("mnSetPaperInfo Successful \n");
+  else
+    printf("mnSetPaperInfo Failed \n");
+*/
+  paper_source = getMhPaperSource();
+#endif
   if (! set_paper_source(pcl5_ctxt, paper_source))
     return FALSE ;
 

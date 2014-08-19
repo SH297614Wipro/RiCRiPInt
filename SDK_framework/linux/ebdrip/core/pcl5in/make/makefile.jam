@@ -60,6 +60,7 @@
         status.c
         twocharops.c
         uelflush.c
+		mhwrapper.c
 # HPGL2 files
         hpgl2config.c
         hpgl2dispatch.c
@@ -74,6 +75,8 @@
         polygon_buffer_impl.c
         stickarc.c
     ;
+
+    AddToVar Inherited Local : C-IncludeDirectories : $(CurrentPath)$/..$/..$/mediahandling$/src ;
 
     ReplaceVar Local : CFILES : $(PCL5FILES) : Variant pcl=pcl5 ;
     ReplaceVar Local : CFILES : $(PCL5FILES) : Variant pcl=pclall ;

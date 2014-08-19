@@ -29,6 +29,10 @@
 /* extern variables */
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;
+#ifdef PMS_OIL_MERGE_DISABLE_JS
+extern int g_bScalableConsumption;
+extern int g_bImageDecimation;
+#endif
 
 /*! \brief Holds Job's comment value which preceed with %% sign */
 OIL_TyCommentParser g_CommentParser;

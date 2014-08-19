@@ -31,7 +31,11 @@ typedef struct stJobList{
 }OIL_TyJobList;
 
 /* job handler interface */
+#ifdef PMS_OIL_MERGE_DISABLE
 extern OIL_TyJob * CreateOILJob(PMS_TyJob *pms_ptJob, int ePDL);
+#else
+extern OIL_TyJob * CreateOILJob(OIL_TyJob *pms_ptJob, int ePDL);
+#endif
 extern void DeleteOILJob(unsigned int JobID);
 extern OIL_TyJob* GetJobByJobID(unsigned int JobID);
 

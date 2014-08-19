@@ -53,11 +53,19 @@
  *  \c OIL_Set<variable name> for setter functions, or \c OIL_Get<variable name> for getter 
  * functions.
  */
+#ifdef PMS_OIL_MERGE_DISABLE_JS
+#ifdef USE_PJL
+#undef USE_PJL
+#endif
+#endif
 
 #ifdef USE_PJL
 
 #include "oil_pjl.h"
 
+#ifndef PMS_OIL_MERGE_DISABLE
+#include "pms.h"
+#endif
 #include "oil_interface_oil2pms.h"
 #include "oil_job_handler.h"
 #include "oil_malloc.h"
@@ -69,6 +77,10 @@
 
 /* extern variables */
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
+#ifndef PMS_OIL_MERGE_DISABLE
+extern OIL_TyJob g_tJob;
+#endif
+
 
 /* Table of commands we recognise and handle */
 typedef int32 (OilPjlCommandFn)( PjlCommand * pCommand );
@@ -463,12 +475,21 @@ static OilMappedValue       gBlackDetectValues[] =
 };
 static OilEnvVarEnumMappedValue  gBlackDetectEnum = { sizeof( gBlackDetectValues ) / sizeof( gBlackDetectValues[ 0 ] ), gBlackDetectValues };
 
+#ifdef PMS_OIL_MERGE_DISABLE
 static OilMappedValue       gTestPageValues[] =
 {
   { (uint8 *) "CONFIG",  PMS_TESTPAGE_CFG },
   { (uint8 *) "PSFONTLIST",  PMS_TESTPAGE_PS },
   { (uint8 *) "PCLFONTLIST", PMS_TESTPAGE_PCL }
 };
+#else
+static OilMappedValue       gTestPageValues[] =
+{
+  { (uint8 *) "CONFIG",  OIL_TESTPAGE_CFG },
+  { (uint8 *) "PSFONTLIST",  OIL_TESTPAGE_PS },
+  { (uint8 *) "PCLFONTLIST", OIL_TESTPAGE_PCL }
+};
+#endif
 static OilEnvVarEnumMappedValue  gTestPageEnum = { sizeof( gTestPageValues ) / sizeof( gTestPageValues[ 0 ] ), gTestPageValues };
 
 static OilMappedValue       gPrintErrorPageValues[] =
@@ -816,8 +837,13 @@ typedef struct OilPjlContext
 
   int32 ePJLCommentPDL;               /* Any PDL determined by parsing PJL COMMENTs */
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pUserDefaults;
   PMS_TyJob * pCurrentEnvironment;
+#else
+  OIL_TyJob * pUserDefaults;
+  OIL_TyJob * pCurrentEnvironment;
+#endif
 
   OilPjlSettings currentEnvironment;
 
@@ -1117,8 +1143,11 @@ static OilMappedValue * OIL_LookupMappedString( OilEnvVarEnumMappedValue * pEnum
  */
 static void * OIL_PjlMemAllocFn( size_t cbSize, int32 fZero )
 {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   void * pPtr = OIL_malloc( OILMemoryPoolJob, OIL_MemBlock, cbSize );
-
+#else
+  void * pPtr = malloc(cbSize);
+#endif
   if( pPtr != NULL )
   {
     if( fZero )
@@ -1139,7 +1168,11 @@ static void * OIL_PjlMemAllocFn( size_t cbSize, int32 fZero )
  */
 static void OIL_PjlMemFreeFn( void * pMem )
 {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   OIL_free( OILMemoryPoolJob, pMem );
+#else
+  free(pMem);
+#endif
 }
 
 
@@ -1340,6 +1373,7 @@ void OIL_PjlInit( void )
  * taken and held as the user default settings for this job.
  * \param[in]   pms_pstJobCurrent   A structure containing the settings for the current job.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 void OIL_PjlSetEnvironment( PMS_TyJob * pms_pstJobCurrent )
 {
   PMS_TyJob * pms_pstJobUserDefaults;
@@ -1348,22 +1382,50 @@ void OIL_PjlSetEnvironment( PMS_TyJob * pms_pstJobCurrent )
 
   /* Take copy of PMS job defaults to use as user defaults environment */
   PMS_GetJobSettings( &pms_pstJobUserDefaults );
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   pJobUserDefaultsCopy = OIL_malloc( OILMemoryPoolJob, OIL_MemBlock, sizeof(PMS_TyJob) );
+#else
+  pJobUserDefaultsCopy = malloc(sizeof(PMS_TyJob));
+#endif
   memcpy( pJobUserDefaultsCopy, pms_pstJobUserDefaults, sizeof(PMS_TyJob) );
+#else
+void OIL_PjlSetEnvironment( OIL_TyJob * pms_pstJobCurrent )
+{
+  OIL_TyJob * pJobUserDefaultsCopy;
+  PMS_TyPaperInfo * pPaperInfo = NULL;
 
+  /* Take copy of PMS job defaults to use as user defaults environment */
+  pJobUserDefaultsCopy = OIL_malloc( OILMemoryPoolJob, OIL_MemBlock, sizeof(OIL_TyJob) );
+  memcpy( pJobUserDefaultsCopy, &g_tJob, sizeof(OIL_TyJob) );
+#endif
+  
   HQASSERT(gOilPjlContext.pUserDefaults == NULL , "No user defaults");
   gOilPjlContext.pUserDefaults = pJobUserDefaultsCopy;
   if(gOilPjlContext.nColorMode > 0)
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     pms_pstJobCurrent->tDefaultJobMedia.ePaperSize = gOilPjlContext.nPaperSize;
     PMS_GetPaperInfo(gOilPjlContext.nPaperSize, &pPaperInfo);
     pms_pstJobCurrent->tDefaultJobMedia.dWidth = pPaperInfo->dWidth;
     pms_pstJobCurrent->tDefaultJobMedia.dHeight = pPaperInfo->dHeight;
+#else
+    pms_pstJobCurrent->tCurrentJobMedia.ePaperSize = gOilPjlContext.nPaperSize;
+    PMS_GetPaperInfo(gOilPjlContext.nPaperSize, &pPaperInfo);
+    pms_pstJobCurrent->tCurrentJobMedia.dWidth = pPaperInfo->dWidth;
+    pms_pstJobCurrent->tCurrentJobMedia.dHeight = pPaperInfo->dHeight;
+#endif
     pms_pstJobCurrent->uCopyCount = gOilPjlContext.nCopies;
+#ifdef PMS_OIL_MERGE_DISABLE
     if(gOilPjlContext.nColorMode == 1)
       pms_pstJobCurrent->eColorMode = PMS_Mono;
     else
       pms_pstJobCurrent->eColorMode = PMS_RGB_Composite;
+#else
+    if(gOilPjlContext.nColorMode == 1)
+      pms_pstJobCurrent->eColorMode = OIL_Mono;
+    else
+      pms_pstJobCurrent->eColorMode = OIL_RGB_Composite;
+#endif
   }
   gOilPjlContext.pCurrentEnvironment = pms_pstJobCurrent;
 }
@@ -1373,7 +1435,11 @@ void OIL_PjlSetEnvironment( PMS_TyJob * pms_pstJobCurrent )
  * \return      Returns a pointer to the current environment settings as stored in the
                 PJL context.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyJob *OIL_PjlGetEnvironment( void )
+#else
+OIL_TyJob *OIL_PjlGetEnvironment( void )
+#endif
 {
   return gOilPjlContext.pCurrentEnvironment;
 }
@@ -1383,7 +1449,11 @@ PMS_TyJob *OIL_PjlGetEnvironment( void )
  */
 void OIL_PjlClearEnvironment( void )
 {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   OIL_free( OILMemoryPoolJob, gOilPjlContext.pUserDefaults );
+#else
+  free(gOilPjlContext.pUserDefaults);
+#endif
   gOilPjlContext.pUserDefaults = NULL;
 
   gOilPjlContext.ePJLCommentPDL = eUnknown;
@@ -3288,17 +3358,26 @@ static int32 OIL_PjlDoInfo( PjlCommand * pCommand )
   else if( strcmp( (const char *) pCommand->pOptions->pzName, (const char *) "CONFIG" ) == 0 )
   {
     int32            i;
+#ifdef PMS_OIL_MERGE_DISABLE
     int32            nTrays;
-    PMS_TySystem     pmsSysInfo;
     PMS_TyTrayInfo * pPMSTrays;
+#endif
+    PMS_TySystem     pmsSysInfo;
 
     cbLen = sprintf( (char *) aBuffer, "@PJL INFO CONFIG\r\n" );
 
+#ifdef PMS_OIL_MERGE_DISABLE
     nTrays = PMS_GetTrayInfo( &pPMSTrays );
     cbLen += sprintf( (char *) aBuffer + cbLen, "IN TRAYS [%d ENUMERATED]\r\n", nTrays );
     for( i = 0; i < nTrays; i++ )
     {
       switch( pPMSTrays[ i ].eMediaSource )
+#else
+    cbLen += sprintf( (char *) aBuffer + cbLen, "IN TRAYS [%d ENUMERATED]\r\n", g_nInputTrays);
+    for( i = 0; i < g_nInputTrays; i++ )
+    {
+      switch( g_pstTrayInfo[ i ].eMediaSource )
+#endif
       {
       case PMS_TRAY_BYPASS:
         cbLen += sprintf( (char *) aBuffer + cbLen, "\tINTRAYBYPASS\r\n" );
@@ -3447,11 +3526,17 @@ static int32 OIL_PjlDoInitialize( PjlCommand * pCommand )
   if( OIL_InSecureJob() )
   {
     /* Set user default environment to factory settings */
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pFactorySettings;
 
     PMS_SetJobSettingsToDefaults();
     PMS_GetJobSettings( &pFactorySettings );
     memcpy( gOilPjlContext.pUserDefaults, pFactorySettings, sizeof(PMS_TyJob) );
+#else
+    //PMS_SetJobSettingsToDefaults();
+    EngineSetJobDefaults();
+    memcpy( gOilPjlContext.pUserDefaults, &g_tJob, sizeof(OIL_TyJob) );
+#endif
 
     /* Set current environment to user default environment, i.e. RESET */
     result = OIL_PjlDoReset( pCommand );
@@ -3787,7 +3872,11 @@ static int32 OIL_PjlDoUstatusoff( PjlCommand * pCommand )
  *
  * \return Returns a pointer to a structure containing the requested settings.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 static PMS_TyJob * OIL_GetEnvironment( int32 fDefault )
+#else
+static OIL_TyJob * OIL_GetEnvironment( int32 fDefault )
+#endif
 {
   return fDefault ? gOilPjlContext.pUserDefaults : gOilPjlContext.pCurrentEnvironment;
 }
@@ -3803,6 +3892,7 @@ static PMS_TyJob * OIL_GetEnvironment( int32 fDefault )
  * \todo If fDefault is FALSE, the call returns silently without doing any work.  Should it 
  *       actually be updating the current settings?
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 static void OIL_UpdateEnvironment( PMS_TyJob * pEnvironment, int32 fDefault )
 {
   if( fDefault )
@@ -3810,11 +3900,25 @@ static void OIL_UpdateEnvironment( PMS_TyJob * pEnvironment, int32 fDefault )
     PMS_SetJobSettings( pEnvironment );
   }
 }
+#else
+static void OIL_UpdateEnvironment( OIL_TyJob * pEnvironment, int32 fDefault )
+{
+  if( fDefault )
+  {
+    memcpy( &g_tJob, pEnvironment, sizeof(OIL_TyJob) );
+  }
+}
+#endif
+
 
 
 static void OIL_GetBinding( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueAlphanumeric;
 
@@ -3835,7 +3939,11 @@ static int32 OIL_SetBinding( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   if( strcmp( (const char *) pValue->u.pzValue, (const char *) gBindingValues[ 0 ] ) == 0 )
   {
@@ -3859,6 +3967,7 @@ static int32 OIL_SetBinding( PjlValue * pValue, int fSetDefault )
 }
 
 
+#ifdef PMS_OIL_MERGE_DISABLE
 static void OIL_GetBitsPerPixel( PjlValue * pValue, int fGetDefault )
 {
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
@@ -3887,12 +3996,24 @@ static void OIL_GetBitsPerPixel( PjlValue * pValue, int fGetDefault )
     break;
   }
 }
+#else
+static void OIL_GetBitsPerPixel( PjlValue * pValue, int fGetDefault )
+{
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+
+  pValue->eType = eValueInt;
+
+  pValue->u.iValue = pEnvironment->uRIPDepth;
+}
+#endif
+
 
 
 static int32 OIL_SetBitsPerPixel( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
 
   if( pValue->u.iValue == gBitsPerPixelValues[ 0 ] )
@@ -3925,13 +4046,51 @@ static int32 OIL_SetBitsPerPixel( PjlValue * pValue, int fSetDefault )
     result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eUnsupportedOption );
     result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eOptionMissing );
   }
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+
+  if( pValue->u.iValue == gBitsPerPixelValues[ 0 ] )
+  {
+    pEnvironment->uRIPDepth = gBitsPerPixelValues[ 0 ];
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( pValue->u.iValue == gBitsPerPixelValues[ 1 ] )
+  {
+    pEnvironment->uRIPDepth = gBitsPerPixelValues[ 1 ];
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( pValue->u.iValue == gBitsPerPixelValues[ 2 ] )
+  {
+    pEnvironment->uRIPDepth = gBitsPerPixelValues[ 2 ];
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( pValue->u.iValue == gBitsPerPixelValues[ 3 ] )
+  {
+    pEnvironment->uRIPDepth = gBitsPerPixelValues[ 3 ];
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( pValue->u.iValue == gBitsPerPixelValues[ 4 ] )
+  {
+    pEnvironment->uRIPDepth = gBitsPerPixelValues[ 4 ];
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else
+  {
+    result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eUnsupportedOption );
+    result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eOptionMissing );
+  }
+#endif
 
   return result;
 }
 
 static void OIL_GetCopies( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->uCopyCount;
@@ -3942,7 +4101,11 @@ static int32 OIL_SetCopies( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   int32 value = pValue->u.iValue;
 
   if( value < gCopiesRange.min )
@@ -3965,7 +4128,11 @@ static int32 OIL_SetCopies( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetCourier( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gCourierEnum, pEnvironment->bCourierDark, pValue );
 }
@@ -3979,7 +4146,11 @@ static int32 OIL_SetCourier( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->bCourierDark = (unsigned char)pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4015,7 +4186,11 @@ static int32 OIL_SetCustLength( PjlValue * pValue, int fSetDefault )
 
   PMS_TyPaperInfo * pPaperInfo = NULL;
   double value = pValue->u.dValue;
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   if( value < gCustLengthRange.min )
   {
@@ -4057,7 +4232,11 @@ static int32 OIL_SetCustWidth( PjlValue * pValue, int fSetDefault )
 
   PMS_TyPaperInfo * pPaperInfo = NULL;
   double value = pValue->u.dValue;
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
 
 
@@ -4131,7 +4310,11 @@ static int32 OIL_SetDisklock( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetPrintBlankPage( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueAlphanumeric;
 
@@ -4149,7 +4332,11 @@ static int32 OIL_SetPrintBlankPage( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   if( strcmp( (const char *) pValue->u.pzValue, (const char *) gOffOnValues[ 0 ] ) == 0 )
   {
@@ -4220,7 +4407,11 @@ char *OIL_PjlGetFileName(void)
 
 static void OIL_GetDuplex( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueAlphanumeric;
 
@@ -4239,7 +4430,11 @@ static int32 OIL_SetDuplex( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   if( strcmp( (const char *) pValue->u.pzValue, (const char *) gOffOnValues[ 0 ] ) == 0 )
   {
@@ -4263,7 +4458,11 @@ static int32 OIL_SetDuplex( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetFontnumber( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->uFontNumber;
@@ -4283,7 +4482,11 @@ static int32 OIL_SetFontnumber( PjlValue * pValue, int fSetDefault )
   }
   else
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->uFontNumber = value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4295,7 +4498,11 @@ static int32 OIL_SetFontnumber( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetFontsource( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueString;
   pValue->u.pzValue = (uint8 *) pEnvironment->szFontSource;
@@ -4306,7 +4513,11 @@ static int32 OIL_SetFontsource( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   int32 fKnownValue = FALSE;
   int32 i;
 
@@ -4339,8 +4550,30 @@ static int32 OIL_SetFontsource( PjlValue * pValue, int fSetDefault )
   return result;
 }
 
-
+#ifdef PMS_OIL_MERGE_DISABLE
 static double OIL_GetMediaLength( PMS_TyJob * pEnvironment ) 
+{
+  double dMediaLengthPoints;
+
+  if( pEnvironment->uOrientation == 0 )
+  {
+	/* Portrait
+	 * Assume 0.5" margin top and bottom
+	 */
+	dMediaLengthPoints = pEnvironment->tDefaultJobMedia.dHeight - 72.0;
+  }
+  else
+  {
+	/* Landscape
+	 * Assume 0.5" margin top and bottom
+	 */
+	dMediaLengthPoints = pEnvironment->tDefaultJobMedia.dWidth - 72.0;
+  }
+
+  return dMediaLengthPoints / 72.0;
+}
+#else
+static double OIL_GetMediaLength( OIL_TyJob * pEnvironment ) 
 {
   double dMediaLengthPoints;
 
@@ -4349,27 +4582,36 @@ static double OIL_GetMediaLength( PMS_TyJob * pEnvironment )
     /* Portrait
      * Assume 0.5" margin top and bottom
      */
-    dMediaLengthPoints = pEnvironment->tDefaultJobMedia.dHeight - 72.0;
+    dMediaLengthPoints = pEnvironment->tCurrentJobMedia.dHeight - 72.0;
   }
   else
   {
     /* Landscape
      * Assume 0.5" margin top and bottom
      */
-    dMediaLengthPoints = pEnvironment->tDefaultJobMedia.dWidth - 72.0;
+    dMediaLengthPoints = pEnvironment->tCurrentJobMedia.dWidth - 72.0;
   }
 
   return dMediaLengthPoints / 72.0;
 }
+#endif
 
 
 static void OIL_GetFormlines( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
   double dMediaLengthInches = OIL_GetMediaLength( pEnvironment );
 
   pValue->eType = eValueInt;
   pValue->u.iValue = (unsigned int)( dMediaLengthInches * pEnvironment->dLineSpacing );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+  double dMediaLengthInches = OIL_GetMediaLength( pEnvironment );
+
+  pValue->eType = eValueInt;
+  pValue->u.iValue = (unsigned int)( dMediaLengthInches * (48.0 / pEnvironment->dVMI) );
+#endif
 }
 
 
@@ -4379,7 +4621,11 @@ static int32 OIL_SetFormlines( PjlValue * pValue, int fSetDefault )
 
   int32 value = pValue->u.iValue;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   double dMediaLengthInches = OIL_GetMediaLength( pEnvironment );
 
   if( value < gFormlinesRange.min )
@@ -4393,7 +4639,11 @@ static int32 OIL_SetFormlines( PjlValue * pValue, int fSetDefault )
     result = eOptionValueDataLossRange;
   }
 
+#ifdef PMS_OIL_MERGE_DISABLE
   pEnvironment->dLineSpacing = ((double) value) / dMediaLengthInches;
+#else
+  pEnvironment->dVMI = 48.0 / (((double) value) / dMediaLengthInches);
+#endif
   OIL_UpdateEnvironment( pEnvironment, fSetDefault );
 
   return result;
@@ -4528,14 +4778,17 @@ static uint8 * OIL_GetMediaTypeName( PMS_eMediaType eMediaType )
 static void OIL_GetInTray1Size( PjlValue * pValue, int fGetDefault )
 {
   int32            i;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
 
   UNUSED_PARAM( int, fGetDefault );
 
   pValue->eType = eValueAlphanumeric;
   pValue->u.pzValue = gPaperSizeUnknown;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   nTrays = PMS_GetTrayInfo( &pPMSTrays );
   for( i = 0; i < nTrays; i++ )
   {
@@ -4545,15 +4798,27 @@ static void OIL_GetInTray1Size( PjlValue * pValue, int fGetDefault )
       break;
     }
   }
+#else
+  for( i = 0; i < g_nInputTrays; i++ )
+  {
+    if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_TRAY1 )
+    {
+      pValue->u.pzValue = OIL_GetPaperSizeName( g_pstTrayInfo[ i ].ePaperSize );
+      break;
+    }
+  }
+#endif
 }
 
 
 static int32 OIL_SetInTray1Size( PjlValue * pValue, int fSetDefault )
 {
   int32            i;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
-  int32 result = eNoError;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
+  int32 result = eNoError;
 
   PMS_ePaperSize ePaperSize = PMS_SIZE_DONT_KNOW;
 
@@ -4627,7 +4892,8 @@ static int32 OIL_SetInTray1Size( PjlValue * pValue, int fSetDefault )
 
   if( ePaperSize != PMS_SIZE_DONT_KNOW )
   {
-    nTrays = PMS_GetTrayInfo(&pPMSTrays);
+#ifdef PMS_OIL_MERGE_DISABLE
+  nTrays = PMS_GetTrayInfo(&pPMSTrays);
 
     for( i = 0; i < nTrays; i++ )
     {
@@ -4639,6 +4905,16 @@ static int32 OIL_SetInTray1Size( PjlValue * pValue, int fSetDefault )
     }
 
     PMS_SetTrayInfo(&pPMSTrays);
+#else
+    for( i = 0; i < g_nInputTrays; i++ )
+    {
+      if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_TRAY1 )
+      {
+        g_pstTrayInfo[1].ePaperSize = ePaperSize ;
+        break;
+      }
+    }
+#endif
   }
 
   return result;
@@ -4648,14 +4924,17 @@ static int32 OIL_SetInTray1Size( PjlValue * pValue, int fSetDefault )
 static void OIL_GetMTraySize( PjlValue * pValue, int fGetDefault )
 {
   int32            i;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
 
   UNUSED_PARAM( int, fGetDefault );
 
   pValue->eType = eValueAlphanumeric;
   pValue->u.pzValue = gPaperSizeUnknown;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   nTrays = PMS_GetTrayInfo( &pPMSTrays );
 
   for( i = 0; i < nTrays; i++ )
@@ -4666,15 +4945,27 @@ static void OIL_GetMTraySize( PjlValue * pValue, int fGetDefault )
       break;
     }
   }
+#else
+  for( i = 0; i < g_nInputTrays; i++ )
+  {
+    if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_MANUALFEED )
+    {
+      pValue->u.pzValue = OIL_GetPaperSizeName( g_pstTrayInfo[ i ].ePaperSize );
+      break;
+    }
+  }
+#endif
 }
 
 
 static int32 OIL_SetMTraySize( PjlValue * pValue, int fSetDefault )
 {
   int32            i;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
-  int32 result = eNoError;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
+  int32 result = eNoError;
 
   PMS_ePaperSize ePaperSize = PMS_SIZE_DONT_KNOW;
 
@@ -4748,6 +5039,7 @@ static int32 OIL_SetMTraySize( PjlValue * pValue, int fSetDefault )
 
   if( ePaperSize != PMS_SIZE_DONT_KNOW )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     nTrays = PMS_GetTrayInfo(&pPMSTrays);
 
     for( i = 0; i < nTrays; i++ )
@@ -4760,6 +5052,16 @@ static int32 OIL_SetMTraySize( PjlValue * pValue, int fSetDefault )
     }
 
     PMS_SetTrayInfo(&pPMSTrays);
+#else
+    for( i = 0; i < g_nInputTrays; i++ )
+    {
+      if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_MANUALFEED )
+      {
+        g_pstTrayInfo[1].ePaperSize = ePaperSize ;
+        break;
+      }
+    }
+#endif
   }
 
   return result;
@@ -4768,7 +5070,11 @@ static int32 OIL_SetMTraySize( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetJobname( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueString;
   pValue->u.pzValue = (uint8 *) pEnvironment->szPjlJobName;
@@ -4779,7 +5085,11 @@ static int32 OIL_SetJobname( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   strcpy( pEnvironment->szPjlJobName, (char *) pValue->u.pzValue );
   OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4789,7 +5099,11 @@ static int32 OIL_SetJobname( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetImageFile( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueString;
   pValue->u.pzValue = (uint8 *) pEnvironment->szImageFile;
@@ -4800,7 +5114,11 @@ static int32 OIL_SetImageFile( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   strcpy( pEnvironment->szImageFile, (char *) pValue->u.pzValue );
   OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4810,7 +5128,11 @@ static int32 OIL_SetImageFile( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetTestPage( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gOrientationEnum, pEnvironment->eTestPage, pValue );
 }
@@ -4824,7 +5146,11 @@ static int32 OIL_SetTestPage( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->eTestPage = pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4840,7 +5166,11 @@ static int32 OIL_SetTestPage( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetPrintErrorPage( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gOrientationEnum, pEnvironment->uPrintErrorPage, pValue );
 }
@@ -4854,7 +5184,11 @@ static int32 OIL_SetPrintErrorPage( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->uPrintErrorPage = pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4870,7 +5204,11 @@ static int32 OIL_SetPrintErrorPage( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetJobOffset( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gJobOffsetEnum, pEnvironment->uJobOffset, pValue );
 }
@@ -4884,7 +5222,11 @@ static int32 OIL_SetJobOffset( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->uJobOffset = pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4901,7 +5243,11 @@ static int32 OIL_SetJobOffset( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetLineTermination( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->uLineTermination;
@@ -4921,7 +5267,11 @@ static int32 OIL_SetLineTermination( PjlValue * pValue, int fSetDefault )
   }
   else
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->uLineTermination = value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -4933,7 +5283,11 @@ static int32 OIL_SetLineTermination( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetManualFeed( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueAlphanumeric;
 
@@ -4952,7 +5306,11 @@ static int32 OIL_SetManualFeed( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   if( strcmp( (const char *) pValue->u.pzValue, (const char *) gOffOnValues[ 0 ] ) == 0 )
   {
@@ -4976,6 +5334,7 @@ static int32 OIL_SetManualFeed( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetMediaSource( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
 
   unsigned int nTrays;
@@ -4987,6 +5346,14 @@ static void OIL_GetMediaSource( PjlValue * pValue, int fGetDefault )
   {
     OIL_GetMappedValue( &gMediaSourceEnum, pPMSTrays[ pEnvironment->tDefaultJobMedia.uInputTray ].eMediaSource, pValue );
   }
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+  
+  if( pEnvironment->tCurrentJobMedia.uInputTray < g_nInputTrays)
+  {
+    OIL_GetMappedValue( &gMediaSourceEnum, g_pstTrayInfo[ pEnvironment->tCurrentJobMedia.uInputTray ].eMediaSource, pValue );
+  }
+#endif
 }
 
 
@@ -4998,9 +5365,10 @@ static int32 OIL_SetMediaSource( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
-    PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
-
     int iTray;
+#ifdef PMS_OIL_MERGE_DISABLE
+    PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+	
     int nTrays;
     PMS_TyTrayInfo * pPMSTrays;
 
@@ -5009,14 +5377,27 @@ static int32 OIL_SetMediaSource( PjlValue * pValue, int fSetDefault )
     for( iTray = 0; iTray < nTrays; iTray++ )
     {
       if(( pPMSTrays[ iTray ].eMediaSource == pMappedValue->value )||(pMappedValue->value == PMS_TRAY_AUTO))
+	  {
+		pEnvironment->tDefaultJobMedia.uInputTray = pMappedValue->value;
+		OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+		break;
+	  }
+    }
+    if( iTray == nTrays )
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+	
+    for( iTray = 0; iTray < g_nInputTrays; iTray++ )
+    {
+      if(( g_pstTrayInfo[ iTray ].eMediaSource == pMappedValue->value )||(pMappedValue->value == PMS_TRAY_AUTO))
       {
-        pEnvironment->tDefaultJobMedia.uInputTray = pMappedValue->value;
+        pEnvironment->tCurrentJobMedia.uInputTray = pMappedValue->value;
         OIL_UpdateEnvironment( pEnvironment, fSetDefault );
         break;
       }
     }
-
-    if( iTray == nTrays )
+    if( iTray == g_nInputTrays)
+#endif
     {
       result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eUnsupportedOption );
       result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eOptionMissing );
@@ -5032,6 +5413,7 @@ static int32 OIL_SetMediaSource( PjlValue * pValue, int fSetDefault )
 }
 
 
+#ifdef PMS_OIL_MERGE_DISABLE
 static void OIL_GetMediaType( PjlValue * pValue, int fGetDefault )
 {
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
@@ -5079,12 +5461,62 @@ static void OIL_GetMediaType( PjlValue * pValue, int fGetDefault )
     pValue->u.pzValue = gMediaTypeValues[ 0 ];
   }
 }
+#else
+static void OIL_GetMediaType( PjlValue * pValue, int fGetDefault )
+{
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+
+  pValue->eType = eValueAlphanumeric;
+
+  if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Thick" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 1 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Thin" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 2 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Bond" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 3 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Label" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 4 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Transparency" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 5 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Envelope" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 6 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Preprinted" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 7 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Letterhead" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 8 ];
+  }
+  else if( strcmp( (const char *) pEnvironment->tCurrentJobMedia.szMediaType, "Recycled" ) == 0 )
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 9 ];
+  }
+  else
+  {
+    pValue->u.pzValue = gMediaTypeValues[ 0 ];
+  }
+}
+#endif
 
 
 static int32 OIL_SetMediaType( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
 
   if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 0 ] ) == 0 )
@@ -5142,6 +5574,65 @@ static int32 OIL_SetMediaType( PjlValue * pValue, int fSetDefault )
     result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eUnsupportedOption );
     result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eOptionMissing );
   }
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+
+  if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 0 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Plain" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 1 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Thick" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 2 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Thin" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 3 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Bond" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 4 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Label" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 5 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Transparency" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 6 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Envelope" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 7 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Preprinted" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 8 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Letterhead" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else if( strcmp( (const char *) pValue->u.pzValue, (const char *) gMediaTypeValues[ 9 ] ) == 0 )
+  {
+    strcpy( (char *) pEnvironment->tCurrentJobMedia.szMediaType, "Recycled" );
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else
+  {
+    result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eUnsupportedOption );
+    result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eOptionMissing );
+  }
+#endif
 
   return result;
 }
@@ -5150,14 +5641,17 @@ static int32 OIL_SetMediaType( PjlValue * pValue, int fSetDefault )
 static void OIL_GetMediaTypeMTray( PjlValue * pValue, int fGetDefault )
 {
   int32            i;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
 
   UNUSED_PARAM( int, fGetDefault );
 
   pValue->eType = eValueAlphanumeric;
   pValue->u.pzValue = gMediaTypeUnknown;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   nTrays = PMS_GetTrayInfo( &pPMSTrays );
   for( i = 0; i < nTrays; i++ )
   {
@@ -5167,6 +5661,16 @@ static void OIL_GetMediaTypeMTray( PjlValue * pValue, int fGetDefault )
       break;
     }
   }
+#else
+  for( i = 0; i < g_nInputTrays; i++ )
+  {
+    if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_MANUALFEED )
+    {
+      pValue->u.pzValue = OIL_GetMediaTypeName( g_pstTrayInfo[ i ].eMediaType );
+      break;
+    }
+  }
+#endif
 }
 
 
@@ -5174,8 +5678,10 @@ static int32 OIL_SetMediaTypeMTray( PjlValue * pValue, int fSetDefault )
 {
   int32 i;
   int32 result = eNoError;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
   PMS_eMediaType eMediaType = PMS_TYPE_DONT_KNOW;
 
   UNUSED_PARAM( int, fSetDefault );
@@ -5228,6 +5734,7 @@ static int32 OIL_SetMediaTypeMTray( PjlValue * pValue, int fSetDefault )
 
   if( eMediaType != PMS_TYPE_DONT_KNOW )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     nTrays = PMS_GetTrayInfo(&pPMSTrays);
 
     for( i = 0; i < nTrays; i++ )
@@ -5240,6 +5747,16 @@ static int32 OIL_SetMediaTypeMTray( PjlValue * pValue, int fSetDefault )
     }
 
     PMS_SetTrayInfo(&pPMSTrays);
+#else
+    for( i = 0; i < g_nInputTrays; i++ )
+    {
+      if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_MANUALFEED )
+      {
+        g_pstTrayInfo[i].eMediaType = eMediaType ;
+        break;
+      }
+    }
+#endif
   }
 
   return result;
@@ -5249,14 +5766,17 @@ static int32 OIL_SetMediaTypeMTray( PjlValue * pValue, int fSetDefault )
 static void OIL_GetMediaTypeTray1( PjlValue * pValue, int fGetDefault )
 {
   int32            i;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
 
   UNUSED_PARAM( int, fGetDefault );
 
   pValue->eType = eValueAlphanumeric;
   pValue->u.pzValue = gMediaTypeUnknown;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   nTrays = PMS_GetTrayInfo( &pPMSTrays );
   for( i = 0; i < nTrays; i++ )
   {
@@ -5266,6 +5786,16 @@ static void OIL_GetMediaTypeTray1( PjlValue * pValue, int fGetDefault )
       break;
     }
   }
+#else
+  for( i = 0; i < g_nInputTrays; i++ )
+  {
+    if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_TRAY1 )
+    {
+      pValue->u.pzValue = OIL_GetMediaTypeName( g_pstTrayInfo[ i ].eMediaType );
+      break;
+    }
+  }
+#endif
 }
 
 
@@ -5273,8 +5803,10 @@ static int32 OIL_SetMediaTypeTray1( PjlValue * pValue, int fSetDefault )
 {
   int32 i;
   int32 result = eNoError;
+#ifdef PMS_OIL_MERGE_DISABLE
   int32            nTrays;
   PMS_TyTrayInfo * pPMSTrays;
+#endif
   PMS_eMediaType eMediaType = PMS_TYPE_DONT_KNOW;
 
   UNUSED_PARAM( int, fSetDefault );
@@ -5327,6 +5859,7 @@ static int32 OIL_SetMediaTypeTray1( PjlValue * pValue, int fSetDefault )
 
   if( eMediaType != PMS_TYPE_DONT_KNOW )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     nTrays = PMS_GetTrayInfo(&pPMSTrays);
 
     for( i = 0; i < nTrays; i++ )
@@ -5339,6 +5872,16 @@ static int32 OIL_SetMediaTypeTray1( PjlValue * pValue, int fSetDefault )
     }
 
     PMS_SetTrayInfo(&pPMSTrays);
+#else
+    for( i = 0; i < g_nInputTrays; i++ )
+    {
+      if( g_pstTrayInfo[ i ].eMediaSource == PMS_TRAY_TRAY1 )
+      {
+        g_pstTrayInfo[i].eMediaType = eMediaType ;
+        break;
+      }
+    }
+#endif
   }
 
   return result;
@@ -5347,7 +5890,11 @@ static int32 OIL_SetMediaTypeTray1( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetOrientation( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gOrientationEnum, pEnvironment->uOrientation, pValue );
 }
@@ -5361,7 +5908,11 @@ static int32 OIL_SetOrientation( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->uOrientation = pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -5378,9 +5929,15 @@ static int32 OIL_SetOrientation( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetOutBin( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
 
   OIL_GetMappedValue( &gOutBinEnum, pEnvironment->tDefaultJobMedia.eOutputTray, pValue );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+  OIL_GetMappedValue( &gOutBinEnum, pEnvironment->tCurrentJobMedia.uOutputTray, pValue );
+#endif
+
 }
 
 
@@ -5392,9 +5949,15 @@ static int32 OIL_SetOutBin( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
 
     pEnvironment->tDefaultJobMedia.eOutputTray = pMappedValue->value;
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+    pEnvironment->tCurrentJobMedia.uOutputTray = pMappedValue->value;
+#endif
+
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
   }
   else
@@ -5423,10 +5986,18 @@ static void OIL_GetPages( PjlValue * pValue, int fGetDefault )
 
 static void OIL_GetPaper( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
 
   pValue->eType = eValueAlphanumeric;
   pValue->u.pzValue = OIL_GetPaperSizeName( pEnvironment->tDefaultJobMedia.ePaperSize );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+
+  pValue->eType = eValueAlphanumeric;
+  pValue->u.pzValue = OIL_GetPaperSizeName( pEnvironment->tCurrentJobMedia.ePaperSize );
+#endif
+
 }
 
 
@@ -5504,6 +6075,7 @@ static int32 OIL_SetPaper( PjlValue * pValue, int fSetDefault )
 
   if( ePaperSize != PMS_SIZE_DONT_KNOW )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
     PMS_TyPaperInfo * pPaperInfo = NULL;
     PMS_TyPaperInfo * pPaperInfoDK = NULL;
@@ -5515,6 +6087,19 @@ static int32 OIL_SetPaper( PjlValue * pValue, int fSetDefault )
     HQASSERT(pPaperInfo, "No paper info");
     pEnvironment->tDefaultJobMedia.dWidth = pPaperInfo->dWidth;
     pEnvironment->tDefaultJobMedia.dHeight = pPaperInfo->dHeight;
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+    PMS_TyPaperInfo * pPaperInfo = NULL;
+    PMS_TyPaperInfo * pPaperInfoDK = NULL;
+
+    pEnvironment->tCurrentJobMedia.ePaperSize = ePaperSize;
+    gOilPjlContext.nPaperSize = ePaperSize;
+
+    PMS_GetPaperInfo( ePaperSize, &pPaperInfo );
+    HQASSERT(pPaperInfo, "No paper info");
+    pEnvironment->tCurrentJobMedia.dWidth = pPaperInfo->dWidth;
+    pEnvironment->tCurrentJobMedia.dHeight = pPaperInfo->dHeight;
+#endif
 
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
   /* Update the PMS definition as it is used by the PCL procset  for paper selection */
@@ -5660,7 +6245,11 @@ static int32 OIL_SetPersonality( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetPitch( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueDouble;
   pValue->u.dValue = pEnvironment->dPitch;
@@ -5671,7 +6260,11 @@ static int32 OIL_SetPitch( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   double value = pValue->u.dValue;
 
   if( value < gPitchRange.min )
@@ -5694,7 +6287,11 @@ static int32 OIL_SetPitch( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetPtsize( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueDouble;
   pValue->u.dValue = pEnvironment->dPointSize;
@@ -5705,7 +6302,11 @@ static int32 OIL_SetPtsize( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   double value = pValue->u.dValue;
 
   if( value < gPtsizeRange.min )
@@ -5738,7 +6339,11 @@ static int32 OIL_SetPtsize( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetRenderMode( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gRenderModeEnum, pEnvironment->eRenderMode, pValue );
 }
@@ -5752,7 +6357,11 @@ static int32 OIL_SetRenderMode( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->eRenderMode = pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -5769,7 +6378,11 @@ static int32 OIL_SetRenderMode( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetRenderModel( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gRenderModelEnum, pEnvironment->eRenderModel, pValue );
 }
@@ -5783,7 +6396,11 @@ static int32 OIL_SetRenderModel( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->eRenderModel = pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -5800,7 +6417,11 @@ static int32 OIL_SetRenderModel( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetResolution( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->uXResolution; /* TODO: do we need to separate X and Y ? */
@@ -5811,7 +6432,11 @@ static int32 OIL_SetResolution( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   int32 fKnownValue = FALSE;
   int32 i;
 
@@ -5843,7 +6468,11 @@ static int32 OIL_SetResolution( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetSymset( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gSymsetEnum, pEnvironment->uSymbolSet, pValue );
 }
@@ -5857,7 +6486,11 @@ static int32 OIL_SetSymset( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     if( pEnvironment->uSymbolSet != (unsigned int) pMappedValue->value  )
     {
@@ -5882,7 +6515,11 @@ static int32 OIL_SetSymset( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetUsername( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueString;
   pValue->u.pzValue = (uint8 *) pEnvironment->szUserName;
@@ -5893,7 +6530,11 @@ static int32 OIL_SetUsername( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
   strcpy( pEnvironment->szUserName, (char *) pValue->u.pzValue );
   OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -5904,7 +6545,11 @@ static int32 OIL_SetUsername( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetWideA4( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gWideA4Enum, pEnvironment->bWideA4, pValue );
 }
@@ -5918,7 +6563,11 @@ static int32 OIL_SetWideA4( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->bWideA4 = (unsigned char)pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -6154,6 +6803,7 @@ static int32 OIL_SetCMD_A( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetCMD_D( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
 
   pValue->eType = eValueInt;
@@ -6179,6 +6829,12 @@ static void OIL_GetCMD_D( PjlValue * pValue, int fGetDefault )
     HQFAIL("Invalid depth");
     break;
   }
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+
+  pValue->eType = eValueInt;
+  pValue->u.iValue = pEnvironment->uRIPDepth;
+#endif
 }
 
 
@@ -6186,6 +6842,7 @@ static int32 OIL_SetCMD_D( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
 
   if( pValue->u.iValue == gBitsPerPixelValues[ 0 ] )
@@ -6218,6 +6875,20 @@ static int32 OIL_SetCMD_D( PjlValue * pValue, int fSetDefault )
     result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eUnsupportedOption );
     result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eOptionMissing );
   }
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+
+  if( pValue->u.iValue == gBitsPerPixelValues[ 0 ] || pValue->u.iValue == gBitsPerPixelValues[ 1 ] || pValue->u.iValue == gBitsPerPixelValues[ 2 ] || pValue->u.iValue == gBitsPerPixelValues[ 3 ] || pValue->u.iValue == gBitsPerPixelValues[ 4 ] )
+  {
+    pEnvironment->uRIPDepth = pValue->u.iValue;
+    OIL_UpdateEnvironment( pEnvironment, fSetDefault );
+  }
+  else
+  {
+    result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eUnsupportedOption );
+    result = PjlCombineErrors( gOilPjlContext.pParserContext, result, eOptionMissing );
+  }
+#endif
 
   return result;
 }
@@ -6334,7 +7005,11 @@ static int32 OIL_SetCMD_G( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetCMD_H( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->eScreenMode;
@@ -6345,7 +7020,11 @@ static int32 OIL_SetCMD_H( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   int32 value = pValue->u.iValue;
 
   if( value < gCmdIntRange.min )
@@ -6443,7 +7122,11 @@ static int32 OIL_SetCMD_J( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetCMD_K( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   OIL_GetMappedValue( &gBlackDetectEnum, pEnvironment->bForceMonoIfCMYblank, pValue );
 }
@@ -6457,7 +7140,11 @@ static int32 OIL_SetCMD_K( PjlValue * pValue, int fSetDefault )
 
   if( pMappedValue != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+    OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
 
     pEnvironment->bBlackSubstitute = (unsigned char)pMappedValue->value;
     OIL_UpdateEnvironment( pEnvironment, fSetDefault );
@@ -6849,7 +7536,11 @@ static int32 OIL_SetCMD_P( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetCMD_R( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->eColorMode;
@@ -6860,7 +7551,11 @@ static int32 OIL_SetCMD_R( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   int32 value = pValue->u.iValue;
 
   if( value < gCmdIntRange.min )
@@ -6883,7 +7578,11 @@ static int32 OIL_SetCMD_R( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetCMD_X( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->uXResolution;
@@ -6894,7 +7593,11 @@ static int32 OIL_SetCMD_X( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   int32 value = pValue->u.iValue;
 
   if( value < gCmdIntRange.min )
@@ -6917,7 +7620,11 @@ static int32 OIL_SetCMD_X( PjlValue * pValue, int fSetDefault )
 
 static void OIL_GetCMD_Y( PjlValue * pValue, int fGetDefault )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fGetDefault );
+#endif
 
   pValue->eType = eValueInt;
   pValue->u.iValue = pEnvironment->uYResolution;
@@ -6928,7 +7635,11 @@ static int32 OIL_SetCMD_Y( PjlValue * pValue, int fSetDefault )
 {
   int32 result = eNoError;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#else
+  OIL_TyJob * pEnvironment = OIL_GetEnvironment( fSetDefault );
+#endif
   int32 value = pValue->u.iValue;
 
   if( value < gCmdIntRange.min )

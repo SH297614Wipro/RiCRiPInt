@@ -31,7 +31,9 @@
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;
 
-
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+extern void Get_Env_var_From_GPS();
+#endif
 
 /**
  * \brief Entry point for the OIL in a multi-threaded implementation.
@@ -46,10 +48,13 @@ extern OIL_TyJob *g_pstCurrentJob;
  * \param[in]    ePDL       The PDL of the job to be run.
  * \return       Returns TRUE following successful execution, FALSE if an error occurrs.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int OIL_MultiThreadedStart(PMS_TyJob *pms_ptJob, int ePDL)
+#else
+int OIL_MultiThreadedStart(OIL_TyJob *pms_ptJob, int ePDL)
+#endif
 {
   int fSuccess = TRUE;
-
   PDFSPOOL * pdfspool = NULL;
 
   /* Start the RIP. This function won't do a lot if the
@@ -98,8 +103,11 @@ int OIL_MultiThreadedStart(PMS_TyJob *pms_ptJob, int ePDL)
 
       g_pstCurrentJob->eJobStatus = OIL_Job_StreamDone;
     }
-  }
-
+  } 
+#ifdef PMS_OIL_MERGE_DISABLE_JS 
+  if(( ePDL == OIL_PDL_PDF ) && ( g_pstCurrentJob->bFileInput ))
+      fSuccess = FALSE;
+#endif
   /* End of job */
   if(!JobExit(OIL_Sys_Active))
   {

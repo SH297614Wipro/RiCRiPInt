@@ -64,15 +64,25 @@ extern char    *RIPVersion;
 
 int  OIL_Init_Globals(void);
 int  OIL_Init(void (**apfn_funcs[])());
+#ifdef PMS_OIL_MERGE_DISABLE
 int   OIL_Start(PMS_TyJob *pms_ptJob, int * pbSubmittedJob);
+#else
+int   OIL_Start(OIL_TyJob *pms_ptJob, int * pbSubmittedJob);
+#endif
 int  OIL_StartRIP();
 void  OIL_StopRIP(int bForcedShutdown);
 void  OIL_Exit(void);
+#ifdef PMS_OIL_MERGE_DISABLE
 void   OIL_PageDone(PMS_TyPage *ptPMSPage);
+#else
+void   OIL_PageDone(OIL_TyPage *ptPMSPage);
+#endif
 int   OIL_JobDone(void);
 void  OIL_JobCancel(void);
+#ifdef PMS_OIL_MERGE_DISABLE
 int OIL_GetBandData(unsigned int uJobID, unsigned int uPageID, int nColorant, int nBandNo, PMS_TyBand *tBand);
+#endif
 void OIL_ProbeLogFlush(void) ;
-
-
+void setDeviceStatus(int devStatus);
+int getDeviceStatus();
 #endif /* _OIL_ENTRY_H_ */

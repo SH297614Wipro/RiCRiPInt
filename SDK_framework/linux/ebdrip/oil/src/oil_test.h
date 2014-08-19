@@ -22,7 +22,11 @@
 #include "pms_export.h"
 #include "std.h"
 
+#ifdef PMS_OIL_MERGE_DISABLE
 int TestCreateRaster (PMS_TyJob *pms_ptJob, OIL_eColorMode eColorMode);
+#else
+int TestCreateRaster (OIL_TyJob *pms_ptJob, OIL_eColorMode eColorMode);
+#endif
 void TestSetupConfiguration(int);
 
 

@@ -35,16 +35,28 @@
 #include <string.h>
 #include <stdlib.h>
 #include "pms_export.h"
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
 #include "oil_ebd1bpp.h"
 #endif
+//#endif
 #include "oil_test.h"
+#ifdef PMS_OIL_MERGE_DISABLE
 #if defined(SDK_SUPPORT_2BPP_EXT_EG) || defined(SDK_SUPPORT_4BPP_EXT_EG)
 #include "oil_htm.h"
+#endif
 #endif
 #include "oil_psconfig.h"
 #include "oil_virtualfile.h"
 #include "oil_main.h"
+
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#include "gw_gps.h"
+
+#ifdef USE_PJL
+#undef USE_PJL
+#endif
+#endif
 #ifdef USE_PJL
 #include "oil_pjl.h"
 #endif
@@ -54,6 +66,12 @@
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;
 extern OIL_TyPage *g_pstCurrentPage;
+
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+extern gwmsg_client_t     gpsClient;
+extern gwmsg_client_t     *gps_client ;
+extern unsigned int gps_frameid; //VENKAT ADDED for GPS_FrameClose() call...
+#endif
 
 static void * pPdfImgFileHandle;
 
@@ -927,11 +945,11 @@ static int RIPCALL ebd_init_device( DEVICELIST *dev )
     ebd_devparams[i].namelen = (int)strlen( ebd_devparams[i].name );
     ebd_devparams_order[i] = i;
   }
-  qsort(ebd_devparams_order, EBD_MAX_PARAMS, sizeof(uint32), param_sort);
-
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
   ebd_scrn_init();
 #endif
+//#endif
 
   ebd_set_last_error( dev, DeviceNoError );
   return 0;
@@ -1326,6 +1344,7 @@ static void ebd_process_param(int index)
     g_pstCurrentJob->bBlackSubstitute = stEBDDeviceParams.bBlackSubstitute;
     break;
   case EBD_SCRN_ACTIVESCREEN:
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
   stEBDDeviceParams.ScreenTableWidth = Get1bppScreenWidth((char*)stEBDDeviceParams.ActiveScreenName);
     stEBDDeviceParams.ScreenTableHeight = Get1bppScreenHeight((char*)stEBDDeviceParams.ActiveScreenName);
@@ -1334,6 +1353,7 @@ static void ebd_process_param(int index)
     ebd_devparams [EBD_SCRN_SCREENHEIGHT].flags |= PARAM_SET;
     ebd_devparams [EBD_SCRN_SCREENFILENAME].flags |= PARAM_SET;
 #endif
+//#endif
     break;
   case EBD_PARSECOMMENT:
     GG_SHOW(GG_SHOW_EBDDEV, "ParseComment = %s\n", stEBDDeviceParams.ParseComment);
@@ -1349,7 +1369,11 @@ static void ebd_process_param(int index)
 
 void ebddev_EndRender(int page)
 {
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+  int    GPSFrameCloseretval; 
+#endif
   UNUSED_PARAM(int, page);
+//#ifdef PMS_OIL_MERGE_DISABLE_JS
   /* Submit the page to PMS in page delivery model*/
   if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND ||
       g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
@@ -1389,6 +1413,9 @@ void ebddev_EndRender(int page)
   {
     SubmitPageToPMS();
   }
+//#else
+//  DeleteOILPage(g_pstCurrentPage);
+//#endif
   stEBDDeviceParams.bTumbleFromPMS = FALSE;
   if(stEBDDeviceParams.bDuplexFromJob)
   {
@@ -1401,6 +1428,18 @@ void ebddev_EndRender(int page)
   ebd_devparams [EBD_JOB_ORIENTATION].flags |= PARAM_SET;
   ebd_devparams [EBD_PMS_TUMBLE].flags |= PARAM_SET;
   g_pstCurrentPage = NULL;
+#if 0 //sumanth
+//#ifndef PMS_OIL_MERGE_DISABLE_JS
+  GPSFrameCloseretval = GPS_FrameClose(gps_client, gps_frameid);
+  if(!GPSFrameCloseretval)
+  {
+	printf("GPS_FrameClose : Success\n");
+  }
+  else
+  {
+	printf("GPS_FrameClose : Failed\n");
+  }
+#endif
 }
 
 /**
@@ -1438,8 +1477,12 @@ static void ebd_RemapHTTables(OIL_eScreenMode eScreenMode)
 {
   void *pgbdev = NULL ;
   int nRasterDepth ;
+#ifdef PMS_OIL_MERGE_DISABLE
 #if defined(SDK_SUPPORT_2BPP_EXT_EG) || defined(SDK_SUPPORT_4BPP_EXT_EG)
   OIL_eScreenQuality eImageQuality, eGraphicsQuality, eTextQuality;
+#else
+  UNUSED_PARAM(OIL_eScreenMode, eScreenMode);
+#endif
 #else
   UNUSED_PARAM(OIL_eScreenMode, eScreenMode);
 #endif
@@ -1454,7 +1497,7 @@ static void ebd_RemapHTTables(OIL_eScreenMode eScreenMode)
 
   /* get raster depth from the page buffer device */
   SwLeGetIntDevParam( pgbdev, (unsigned char *) "RasterDepth", (int*)&nRasterDepth);
-
+#ifdef PMS_OIL_MERGE_DISABLE
 #if defined(SDK_SUPPORT_2BPP_EXT_EG) || defined(SDK_SUPPORT_4BPP_EXT_EG)
   switch(nRasterDepth)
   {
@@ -1519,6 +1562,7 @@ static void ebd_RemapHTTables(OIL_eScreenMode eScreenMode)
     break;
   }
 #endif
+#endif
 }
 
 /**
@@ -1559,6 +1603,7 @@ static DEVICE_FILEDESCRIPTOR RIPCALL ebd_open_file( DEVICELIST *dev ,
           return filedesc | EBD_FILEDESC_BKCHN;
       }
   }
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
   else if(strncmp((char*)filename, "/Screening/", 11)==0)
   {
@@ -1575,6 +1620,7 @@ static DEVICE_FILEDESCRIPTOR RIPCALL ebd_open_file( DEVICELIST *dev ,
       }
   }
 #endif
+//#endif
   else if((strncmp((char*)filename, "PGB/", 4)==0) ||
           (strncmp((char*)filename, "/VirtFile/", 10)==0) )
   {
@@ -1720,6 +1766,7 @@ static int RIPCALL ebd_read_file( DEVICELIST *dev , DEVICE_FILEDESCRIPTOR descri
     }
     return nRead;
   }
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
   else if(descriptor & EBD_FILEDESC_SCRN)
   {
@@ -1735,6 +1782,7 @@ static int RIPCALL ebd_read_file( DEVICELIST *dev , DEVICE_FILEDESCRIPTOR descri
       }
   }
 #endif
+//#endif
   else if(descriptor & EBD_FILEDESC_PDFIMGINPUT)
   {
     nRead = OIL_FileRead(buff, len, pPdfImgFileHandle);
@@ -1826,6 +1874,7 @@ static int RIPCALL ebd_close_file( DEVICELIST *dev , DEVICE_FILEDESCRIPTOR descr
           return ebd_ioerror(dev);
       }
   }
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
   else if(descriptor & EBD_FILEDESC_SCRN)
   {
@@ -1836,6 +1885,7 @@ static int RIPCALL ebd_close_file( DEVICELIST *dev , DEVICE_FILEDESCRIPTOR descr
       }
   }
 #endif
+//#endif
   else if(descriptor & EBD_FILEDESC_PDFIMGINPUT)
   {
       OIL_FileClose(pPdfImgFileHandle);
@@ -1898,6 +1948,7 @@ static int RIPCALL ebd_seek_file( DEVICELIST *dev , DEVICE_FILEDESCRIPTOR descri
       return FALSE ;
     }
   }
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
   else if(descriptor & EBD_FILEDESC_SCRN)
   {
@@ -1909,6 +1960,7 @@ static int RIPCALL ebd_seek_file( DEVICELIST *dev , DEVICE_FILEDESCRIPTOR descri
       }
   }
 #endif
+//#endif
   else if(descriptor & EBD_FILEDESC_PDFIMGINPUT)
   {
     int nResult;

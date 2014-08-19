@@ -25,6 +25,7 @@
 #include "skinkit.h"
 #include "oil_job_handler.h"
 #include "oil_interface_oil2pms.h"
+
 #ifdef USE_PJL
 #include "oil_pjl.h"
 #endif
@@ -45,6 +46,9 @@ extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;
 extern OIL_TyError g_JobErrorData;
 extern OIL_TyPage *g_pstCurrentPage;
+#ifndef PMS_OIL_MERGE_DISABLE
+extern OIL_TyJob g_tJob;
+#endif
 
 static char SetA4[] = "<< /PageSize [ 595 842 ] /ImagingBBox null >> setpagedevice ";
 static char SetLetter[] = "<< /PageSize [ 612 792 ] /ImagingBBox null >> setpagedevice ";
@@ -308,13 +312,21 @@ PMS_TyBandPacket *CreateBandPacket(int nColorants, int nColorFamilyOffset, int n
   ptBandPacket->uTotalPlanes = nColorants;
   for(j=0; j < OIL_MAX_PLANES_COUNT; j++)
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     ptBandPacket->atColoredBand[j].ePlaneColorant = PMS_INVALID_COLOURANT;
+#else
+    ptBandPacket->atColoredBand[j].ePlaneColorant = OIL_InvalidColor;
+#endif  
   }
 
   if(nSeparations > 1) /* in case of separations there will be only 1 color. Allocate 0th band */
   {
     /* determine the colorants of the planes */
+#ifdef PMS_OIL_MERGE_DISABLE
     ptBandPacket->atColoredBand[0].ePlaneColorant = (PMS_eColourant)(Map[0] + nColorFamilyOffset);
+#else
+    ptBandPacket->atColoredBand[0].ePlaneColorant = (OIL_eColorant)(Map[0] + nColorFamilyOffset);
+#endif
 
     /* in case of separations, the band packet will have data only in first plane 
     irrespective of the colour. so set the mapping table to first plane */
@@ -327,7 +339,11 @@ PMS_TyBandPacket *CreateBandPacket(int nColorants, int nColorFamilyOffset, int n
       if(Map[j] != -1)
       {
         /* determine the colorants of the planes */
+#ifdef PMS_OIL_MERGE_DISABLE
         ptBandPacket->atColoredBand[Map[j]].ePlaneColorant = (PMS_eColourant)(Map[j] + nColorFamilyOffset);
+#else
+        ptBandPacket->atColoredBand[Map[j]].ePlaneColorant = (OIL_eColorant)(Map[j] + nColorFamilyOffset);
+#endif
       }
     }
   }
@@ -339,9 +355,15 @@ PMS_TyBandPacket *CreateBandPacket(int nColorants, int nColorFamilyOffset, int n
     ptBandPacket->atColoredBand[j].cbBandSize = 0;
     /* allocate memory for the band data only in valid planes, if
        we're not in band direct mode */
+#ifdef PMS_OIL_MERGE_DISABLE
     if(g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_SINGLE &&
        g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_FRAME &&
        ptBandPacket->atColoredBand[j].ePlaneColorant != PMS_INVALID_COLOURANT)
+#else
+    if(g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_SINGLE &&
+       g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_FRAME &&
+       ptBandPacket->atColoredBand[j].ePlaneColorant != OIL_InvalidColor)
+#endif
     {
       ptBandPacket->atColoredBand[j].pBandRaster = (unsigned char *)OIL_malloc(OILMemoryPoolJob, OIL_MemBlock, (nReqLinesPerBand * nReqBytesPerLine));
       if(!ptBandPacket->atColoredBand[j].pBandRaster)
@@ -432,8 +454,17 @@ void DeleteOILPage(OIL_TyPage *ptOILPage)
     {
       for(j=0; j < ptOILPage->atPlane[i].uBandTotal; j++)
       {
-        if ( ptOILPage->atPlane[i].atBand[j].pBandRaster)
-          OIL_free(OILMemoryPoolJob, ptOILPage->atPlane[i].atBand[j].pBandRaster);
+        if ( ptOILPage->atPlane[i].atBand[j].pBandRaster )
+          {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+            OIL_free(OILMemoryPoolJob,(void *)ptOILPage->atPlane[i].atBand[j].pBandRaster);
+#else
+            free(ptOILPage->atPlane[i].atBand[j].pBandRaster);
+#endif
+#ifndef PMS_OIL_MERGE_DISABLE
+            ptOILPage->atPlane[i].atBand[j].pBandRaster = NULL;
+#endif
+          }
       }
     }
   }
@@ -451,7 +482,10 @@ void DeleteOILPage(OIL_TyPage *ptOILPage)
         if(ptBandPacket->atColoredBand[j].pBandRaster)
         {
           OIL_free(OILMemoryPoolJob,(void *)ptBandPacket->atColoredBand[j].pBandRaster);
-        }
+#ifndef PMS_OIL_MERGE_DISABLE
+          ptBandPacket->atColoredBand[j].pBandRaster = NULL;
+#endif
+		}
       }
       OIL_free(OILMemoryPoolJob,(void *)ptBandPacket);
     }
@@ -674,13 +708,20 @@ void CreatePSTestPage(unsigned char *sz)
 char *pPaper = SetA4;
 char * p = (char *)sz;
 PMS_TySystem PMS_tTySystem;
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyJob *pms_ptJob = NULL;
+#endif
 
   if(g_pstCurrentJob->bTestPagesComplete == FALSE)
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_GetJobSettings(&pms_ptJob);
     if(pms_ptJob->tDefaultJobMedia.ePaperSize  == PMS_SIZE_LETTER)
       pPaper = SetLetter;
+#else
+    if(g_tJob.tCurrentJobMedia.ePaperSize  == PMS_SIZE_LETTER)
+      pPaper = SetLetter;
+#endif
     PMS_GetSystemInfo(&PMS_tTySystem , PMS_CurrentSettings);
 
     strcpy((char *)p, fontlistHeader); p += strlen((char *)p) ;
@@ -719,7 +760,9 @@ char *pCurrent;
 unsigned int i, k, linesperpage, pagesize = 0;
 static int index, fontindex, pagenum, TotalFonts;
 PMS_TySystem PMS_tTySystem;
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyJob *pms_ptJob = NULL;
+#endif
 
   PMS_GetSystemInfo(&PMS_tTySystem , PMS_CurrentSettings);
 #ifdef USE_FF
@@ -740,9 +783,14 @@ PMS_TyJob *pms_ptJob = NULL;
     if(numpages == 0)
     {
       /* only use two sizes for the font list (letter/A4) */
+#ifdef PMS_OIL_MERGE_DISABLE
       PMS_GetJobSettings(&pms_ptJob);
       if(pms_ptJob->tDefaultJobMedia.ePaperSize != PMS_SIZE_LETTER)
         pagesize = 1;
+#else
+      if(g_tJob.tCurrentJobMedia.ePaperSize != PMS_SIZE_LETTER)
+        pagesize = 1;
+#endif
       /* start with reset page & set page size */
       strcpy((char *)p, "\33E"); p += strlen((char *)p) ;
       strcpy((char *)p, pagesetup[pagesize]); p += strlen((char *)p) ;
@@ -832,13 +880,20 @@ char *pPaper = SetA4;
 char * p = (char *)sz;
 char tempBuffer[OIL_MAX_ERRORMESSAGE_LENGTH + 2];
 unsigned int i, j;
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyJob *pms_ptJob = NULL;
+#endif
 
   if(g_JobErrorData.bErrorPageComplete == FALSE)
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_GetJobSettings(&pms_ptJob);
     if(pms_ptJob->tDefaultJobMedia.ePaperSize  == PMS_SIZE_LETTER)
       pPaper = SetLetter;
+#else
+    if(g_tJob.tCurrentJobMedia.ePaperSize  == PMS_SIZE_LETTER)
+      pPaper = SetLetter;
+#endif
     j = 0;
     for(i = 0; i < strlen(g_JobErrorData.szData); i++)
     {

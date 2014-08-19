@@ -28,10 +28,21 @@
 #include "oil_ebddev.h"
 #include "oil_interface_oil2pms.h"
 #include "oil_psconfig.h"
+#include "gwid_eventhandle.h"
+
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#ifdef USE_PJL
+#undef USE_PJL
+#endif
+#endif
 
 #ifdef USE_PJL
 #include "oil_pjl.h"
 #include "pjlparser.h"
+#endif
+
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+//#define SDK_MODIFY_PDL  1
 #endif
 
 /* extern variables */
@@ -59,6 +70,7 @@ static void dumpJOBconfig(OIL_TyJob *pstJob);
  * \param[in]   ePDL       The PDL for the job.  Should be one of the values defined in OIL_eTyPDLType.    
  * \return      A pointer to the OIL job.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 OIL_TyJob * CreateOILJob(PMS_TyJob *pms_ptJob, int ePDL)
 {
   OIL_TyJob *pstJob;
@@ -94,7 +106,9 @@ OIL_TyJob * CreateOILJob(PMS_TyJob *pms_ptJob, int ePDL)
       pstJob->szJobName[i] = 47; /* forwardslash */
   }
 
+#ifdef SDK_MODIFY_PDL  
   pstJob->ePDLType = ePDL;
+#endif
 
   pstJob->bPDLInitialised = FALSE;
 
@@ -225,6 +239,7 @@ OIL_TyJob * CreateOILJob(PMS_TyJob *pms_ptJob, int ePDL)
   pstJob->bInputIsImage = pms_ptJob->bInputIsImage;
   strcpy(pstJob->szImageFile,pms_ptJob->szImageFile);
 
+#ifdef PMS_OIL_MERGE_DISABLE
   switch(pms_ptJob->eScreenMode)  /* set screen mode */
   {
   case PMS_Scrn_Auto:
@@ -253,6 +268,9 @@ OIL_TyJob * CreateOILJob(PMS_TyJob *pms_ptJob, int ePDL)
     pstJob->eScreenMode = OIL_Scrn_Auto;     /* set to default - auto */
     break;
   }
+#else
+  pstJob->eScreenMode = pms_ptJob->eScreenMode;
+#endif
 
   switch(pms_ptJob->eTestPage)  /* set selected test page */
   {
@@ -310,6 +328,141 @@ OIL_TyJob * CreateOILJob(PMS_TyJob *pms_ptJob, int ePDL)
     dumpJOBconfig(pstJob);        /* debugging aid, display initial job configuration */
   return pstJob;
 }
+#else
+OIL_TyJob * CreateOILJob(OIL_TyJob *pms_ptJob, int ePDL)
+{
+  OIL_TyJob *pstJob;
+  unsigned int i;
+
+//For time being we are creating new job str again. Decide later, pms_ptJob (StartOIL function in pms_main.c) is sufficient.
+  pstJob = (OIL_TyJob *) OIL_malloc(OILMemoryPoolJob, OIL_MemBlock, sizeof(OIL_TyJob));
+  HQASSERTV(pstJob!=NULL,
+            ("CreateOILJob: Failed to allocate %lu bytes", (unsigned long) sizeof(OIL_TyJob)));
+
+  memcpy( pstJob, pms_ptJob, sizeof(OIL_TyJob) );
+  pstJob->eJobStatus = OIL_Job_StreamStart;          /* set job status to signify start of data stream */
+
+  memset(g_CommentParser.szJobTitle,0,OIL_MAX_COMMENTPARSER_LENGTH);
+
+  /* change backslash to forward slash */
+  for(i=0;i<(strlen(pstJob->szJobName));i++)
+  {
+    if(pstJob->szJobName[i] == 92) /* backslash */
+      pstJob->szJobName[i] = 47; /* forwardslash */
+  }
+
+#if 0 //why Vimal???
+  if(gpsJobId!=0)
+  {
+	pstJob->uJobId = gpsJobId;
+  }
+  else
+  {
+	pstJob->uJobId = pms_ptJob->uJobId;  /* assuming that a unique job id is being passed to us by PMS */
+  }
+   if(gpsPDLType)
+   {
+			switch(gpsPDLType)
+	{
+	case GPS_PDL_POSTSCRIPT:
+		pstJob->ePDLType = OIL_PDL_PS;
+                break;	
+
+	case GPS_PDL_PCL:
+		pstJob->ePDLType = OIL_PDL_PCL5c;
+                break;
+
+	case GPS_PDL_PCLXL:
+		pstJob->ePDLType = OIL_PDL_PCLXL;
+                break;
+
+	case GPS_PDL_TIFF:
+		pstJob->ePDLType = OIL_IMG;
+                break;
+
+	case GPS_PDL_PDF:
+		pstJob->ePDLType = OIL_PDL_PDF;
+                break;
+
+	default:
+		pstJob->ePDLType = OIL_PDL_PCL5c;
+                break;
+// GPS Supports many other PDL Types mentioned in "Interp.h". As of now, other PDL types are being redirected to PCL5c.
+	}
+      //pstJob->ePDLType = ( OIL_eTyPDLType )gpsPDLType;
+   }
+   else
+   {
+      pstJob->ePDLType = ePDL;
+   }
+//pstJob->uJobId = pms_ptJob->uJobId;
+#endif
+  pstJob->ePDLType = ePDL;
+  pstJob->bPDLInitialised = FALSE;
+
+  pstJob->uPagesInOIL = 0;
+  pstJob->uPagesParsed = 0;
+  pstJob->uPagesToPrint = 0;
+  pstJob->uPagesPrinted = 0;
+
+  pstJob->tCurrentJobMedia.pUser = NULL;
+  if( pms_ptJob->eRenderMode == PMS_RenderMode_Grayscale )
+  {
+    pstJob->eColorMode = OIL_Mono;
+  }
+
+  /* For PCL5e jobs force to Mono 1bpp.
+     This is optional, but it makes sense to output all PCL5e jobs using 
+     1bpp Mono - anything else is wasteful. */
+  if (ePDL == OIL_PDL_PCL5e) {
+    g_ConfigurableFeatures.nDefaultColorMode = OIL_Mono;
+    pstJob->uRIPDepth = 1;     /* 1bpp */
+  } else {
+    g_ConfigurableFeatures.nDefaultColorMode = pstJob->eColorMode;
+  }
+  /* this function currently usese oil variable values, which is not ideal for a PMS callback !!!*/
+  PMS_SetJobRIPConfig(ePDL, &(pstJob->uRIPDepth), &(g_ConfigurableFeatures.nDefaultColorMode));
+
+  /* OutputDepth can can again if job overrides the RIP bit depth,
+     so pass on the PMS setting to OIL. */
+//  pstJob->bOutputDepthMatchesRIP = pms_ptJob->bOutputBPPMatchesRIP;
+
+  /* Should output match rendered bit depth */
+  if(pms_ptJob->bOutputDepthMatchesRIP)
+  {
+    /* Set the job output bit depth to the RIP depth.
+       Range validity is checked at time of conversion. */
+    pstJob->uOutputDepth = pstJob->uRIPDepth;
+  }
+  else
+  {
+    /* Set the job output bit depth from default PMS value.
+       Range validity is checked at time of conversion. */
+    pstJob->uOutputDepth = pms_ptJob->uOutputBPP;
+  }
+
+  pstJob->bTestPagesComplete = FALSE;
+  pstJob->eImageScreenQuality = OIL_Scrn_LowLPI;
+  pstJob->eGraphicsScreenQuality = OIL_Scrn_MediumLPI;
+  pstJob->eTextScreenQuality = OIL_Scrn_HighLPI;
+
+  pstJob->uPCL5PaperSize = MapPaperSize(OIL_PDL_PCL5c, pms_ptJob->tCurrentJobMedia.ePaperSize);
+  pstJob->uPCLXLPaperSize = MapPaperSize(OIL_PDL_PCLXL, pms_ptJob->tCurrentJobMedia.ePaperSize);
+#ifdef USE_PJL
+  pstJob->uJobStart = OIL_PjlGetJobStart();
+  pstJob->uJobEnd = OIL_PjlGetJobEnd();
+  pstJob->bEojReceived = FALSE;
+  pstJob->szEojJobName[0] = '\0';
+#endif
+
+  pstJob->pPage = NULL;
+  Get_Env_var_From_GPS(pstJob);
+  CreateOILJobNode(pstJob);
+  if((g_ConfigurableFeatures.g_uGGShow & GG_SHOW_JOBCFG) != 0)
+    dumpJOBconfig(pstJob);        /* debugging aid, display initial job configuration */
+  return pstJob;
+}
+#endif
 
 /**
  * \brief Internal function which appends the supplied job node to OIL's job list.

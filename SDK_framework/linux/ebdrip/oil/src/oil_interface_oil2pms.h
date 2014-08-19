@@ -123,8 +123,10 @@ extern int(**g_apfn_pms_calls[PMS_TOTAL_NUMBER_OF_API_FUNCTIONS])();
 #endif
 
 void GetPMSSystemInfo();
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyPage* CreatePMSPage(OIL_TyPage *ptOILPage);
 void DeletePMSPage(PMS_TyPage *ptPMSPage);
+#endif
 void SubmitPageToPMS(void);
 int SubmitBandToPMS(PMS_TyBandPacket *ptBandpacket);
 void GetMediaFromPMS(OIL_TyEBDDeviceParameters *stEBDDeviceParams);

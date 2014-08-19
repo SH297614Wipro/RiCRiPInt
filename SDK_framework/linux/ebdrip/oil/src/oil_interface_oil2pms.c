@@ -20,12 +20,20 @@
 #include "oil.h"
 #include "oil_media.h"
 #include "pms_export.h"
+#ifndef PMS_OIL_MERGE_DISABLE
+#include "pms.h"
+#endif
 #include "oil_malloc.h"
 #include "oil_interface_oil2pms.h"
 #include "oil_ebddev.h"
 #include "oil_interface_skin2oil.h"
 #include "oil_page_handler.h"
 #include "oil_probelog.h"
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#ifdef USE_PJL
+#undef USE_PJL
+#endif
+#endif
 #ifdef USE_PJL
 #include "oil_pjl.h"
 #endif
@@ -37,15 +45,27 @@
 #include <stdio.h>      /* for printf in assert */
 #include <math.h>
 
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#include "gw_gps.h"
+#endif
 /* extern variables */
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;
 extern OIL_TyPage *g_pstCurrentPage;
 extern OIL_TySystem g_SystemState;
 extern int g_bPageChecksum;
+#ifndef PMS_OIL_MERGE_DISABLE
+extern OIL_TyJob g_tJob;
+#endif
 
 extern OIL_TyJob* GetJobByJobID(unsigned int JobID);
 extern OIL_TyError g_JobErrorData;
+
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+extern gwmsg_client_t     *gps_client ;
+#endif
+
+extern unsigned int gps_frameid;
 
 int(**g_apfn_pms_calls[PMS_TOTAL_NUMBER_OF_API_FUNCTIONS])();
 
@@ -69,6 +89,7 @@ void oil_printf(char *str,...)
   va_end(args);
 }
 
+#ifdef PMS_OIL_MERGE_DISABLE
 /**
  * \brief Create a PMS page structure from an OIL page.
  *
@@ -94,7 +115,11 @@ PMS_TyPage* CreatePMSPage(OIL_TyPage *ptOILPage)
             ("CreatePMSPage: Exceeded the limit of maximum bands (%d)", PMS_BAND_LIMIT));
 
   /* allocate the memory */
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   ptPMSPage = (PMS_TyPage *)OIL_malloc(OILMemoryPoolJob, OIL_MemBlock, sizeof(PMS_TyPage));
+#else
+  ptPMSPage = (PMS_TyPage *)malloc(sizeof(PMS_TyPage));
+#endif
   HQASSERTV(ptPMSPage!=NULL,
             ("CreatePMSPage: Failed to allocate %lu bytes", (unsigned long) sizeof(PMS_TyPage)));
 
@@ -216,6 +241,7 @@ PMS_TyPage* CreatePMSPage(OIL_TyPage *ptOILPage)
 
   return ptPMSPage;
 }
+#endif
 
 /**
  * \brief Delete a PMS page structure.
@@ -224,6 +250,7 @@ PMS_TyPage* CreatePMSPage(OIL_TyPage *ptOILPage)
  * the PMS page structure are freed
  * \param       ptPMSPage   A pointer to the page to be deleted.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 void DeletePMSPage(PMS_TyPage *ptPMSPage)
 {
   OIL_ProbeLog(SW_TRACE_OIL_DELETEPMSPAGE, SW_TRACETYPE_ENTER, (intptr_t)0);
@@ -233,10 +260,15 @@ void DeletePMSPage(PMS_TyPage *ptPMSPage)
   {
       PMS_DeletePrintedPage (ptPMSPage);
   }
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   OIL_free(OILMemoryPoolJob, ptPMSPage); /*free the PMS page memory*/
+#else
+  free(ptPMSPage);
+#endif
   ptPMSPage = NULL;
   OIL_ProbeLog(SW_TRACE_OIL_DELETEPMSPAGE, SW_TRACETYPE_EXIT, (intptr_t)0);
 }
+#endif
 
 /**
  * \brief Callback to indicate that a page has been completely processed by the PMS.
@@ -247,9 +279,14 @@ void DeletePMSPage(PMS_TyPage *ptPMSPage)
  * the PMS page structure which was created by OIL in CreatePMSPage().
  *
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 void OIL_PageDone(PMS_TyPage *ptPMSPage)
+#else
+void OIL_PageDone(OIL_TyPage *ptPMSPage)
+#endif
 {
   OIL_ProbeLog(SW_TRACE_OIL_PAGEDONE, SW_TRACETYPE_ENTER, (intptr_t)0);
+#ifdef PMS_OIL_MERGE_DISABLE
   GG_SHOW(GG_SHOW_OIL, "Received PAGEDONE: JobID: %d, PageID: %d \n ", ptPMSPage->JobId, ptPMSPage->PageId);
   GGglobal_timing(SW_TRACE_OIL_PAGEDONE, ptPMSPage->PageId);
 
@@ -258,9 +295,17 @@ void OIL_PageDone(PMS_TyPage *ptPMSPage)
 
   /* free the PMS memory associated with the page */
   DeletePMSPage(ptPMSPage);
+#else
+  GG_SHOW(GG_SHOW_OIL, "Received PAGEDONE: JobID: %d, PageID: %d \n ", ptPMSPage->pstJob->uJobId, ptPMSPage->uPageNo);
+  GGglobal_timing(SW_TRACE_OIL_PAGEDONE, ptPMSPage->uPageNo);
+
+  /* free the OIL memory associated with the page */
+  ProcessPageDone(ptPMSPage->pstJob->uJobId, ptPMSPage->uPageNo);
+#endif
   OIL_ProbeLog(SW_TRACE_OIL_PAGEDONE, SW_TRACETYPE_EXIT, (intptr_t)0);
 }
 
+#ifdef PMS_OIL_MERGE_DISABLE
 /**
  * \brief Callback to enable the PMS to retrieve a band from the OIL.
  *
@@ -323,6 +368,7 @@ int OIL_GetBandData(unsigned int uJobID, unsigned int uPageID, int nColorant, in
 
   return retVal;
 }
+#endif
 
 /**
  * \brief Embedded Device PostScript language backchannel support.
@@ -491,7 +537,11 @@ int SubmitBandToPMS(PMS_TyBandPacket *ptBandpacket)
 
       for(i=0; i < PMS_MAX_PLANES_COUNT; i++)
       {
+#ifdef PMS_OIL_MERGE_DISABLE
         if(ptBandpacket->atColoredBand[i].ePlaneColorant != PMS_INVALID_COLOURANT)
+#else
+        if(ptBandpacket->atColoredBand[i].ePlaneColorant != OIL_InvalidColor)
+#endif
         {
           if ( ptBandpacket->atColoredBand[i].pBandRaster) {
             for(p = ptBandpacket->atColoredBand[i].pBandRaster;
@@ -536,8 +586,15 @@ int SubmitBandToPMS(PMS_TyBandPacket *ptBandpacket)
 void SubmitPageToPMS(void)
 {
   OIL_TyPage **ptLastPage;
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyPage *ptPMSPage;
+#endif
   int bSubmitPage = TRUE;
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+  gps_pageinfo_t pageinfo;
+  int GPSFramePrintretval;
+  int FP_force=GPS_PRINT_NORMAL;
+#endif
 #ifdef DIRECTPRINTPCLOUT
   PMS_TySystem ptPMSSysInfo;
 #endif
@@ -594,10 +651,11 @@ void SubmitPageToPMS(void)
     g_pstCurrentJob->uPagesToPrint++;
     g_pstCurrentJob->uPagesInOIL++;
 
-
+#ifdef PMS_OIL_MERGE_DISABLE
     /* create PMS page from the oil page */
     ptPMSPage = CreatePMSPage(g_pstCurrentPage);
     g_pstCurrentPage->ptPMSpage = ptPMSPage ;
+#endif
     GGglobal_timing(SW_TRACE_OIL_CHECKIN, g_pstCurrentJob->uPagesToPrint);
 
     /* There is no data attached to the page structure when using the push band delivery
@@ -619,6 +677,7 @@ void SubmitPageToPMS(void)
 
       for(uColorant = 0; uColorant < OIL_MAX_PLANES_COUNT; uColorant++)
       {
+#ifdef PMS_OIL_MERGE_DISABLE
         if(ptPMSPage->atPlane[uColorant].ePlaneColorant != PMS_INVALID_COLOURANT)
         {
           for(uBand = 0; uBand < ptPMSPage->atPlane[uColorant].uBandTotal; uBand++)
@@ -632,6 +691,21 @@ void SubmitPageToPMS(void)
             uBandSizeChecksum+=ptPMSPage->atPlane[uColorant].atBand[uBand].cbBandSize;
           }
         }
+#else
+        if(g_pstCurrentPage->atPlane[uColorant].ePlaneColorant != OIL_InvalidColor)
+        {
+          for(uBand = 0; uBand < g_pstCurrentPage->atPlane[uColorant].uBandTotal; uBand++)
+          {
+            for(px = (uint8 *)g_pstCurrentPage->atPlane[uColorant].atBand[uBand].pBandRaster; 
+                px < (uint8 *)(g_pstCurrentPage->atPlane[uColorant].atBand[uBand].pBandRaster + g_pstCurrentPage->atPlane[uColorant].atBand[uBand].cbBandSize);
+                px++)
+            {
+              uPageChecksum+=*px;
+            }
+            uBandSizeChecksum+=g_pstCurrentPage->atPlane[uColorant].atBand[uBand].cbBandSize;
+          }
+        }
+#endif
       }
 
       GG_SHOW(GG_SHOW_CHECKSUM, "Raster checksum: %d, 0x%08X\n", g_pstCurrentJob->uPagesToPrint, uPageChecksum);
@@ -644,7 +718,28 @@ void SubmitPageToPMS(void)
     }
 
     /* checkin the page */
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_CheckinPage(ptPMSPage);
+#else
+//#ifdef PMS_OIL_MERGE_DISABLE_JS
+    PMS_CheckinPage(g_pstCurrentPage);
+//#else
+
+#if 0 //sumanth
+		printf("Before GPS_FramePrint() call, gps_frameid = [%d]\n",gps_frameid);
+	GPSFramePrintretval = GPS_FramePrint(gps_client, gps_frameid /*ptRasterDescription->pageNumber*/, &pageinfo, FP_force);
+	if(!GPSFramePrintretval)
+	{
+		printf("GPS_FramePrint : Success\n");
+	}
+	else
+	{
+		printf("GPS_FramePrint : Failed\n");
+	}
+		printf("After GPS_FramePrint() call, gps_frameid = [%d]\n",gps_frameid);
+#endif
+//#endif
+#endif
 
     /* ready to start the page */
     GGglobal_timing(SW_TRACE_OIL_PAGESTART, 0);
@@ -671,21 +766,34 @@ void SubmitPageToPMS(void)
  */
 void GetMediaFromPMS(OIL_TyEBDDeviceParameters *stEBDDeviceParams)
 {
-  PMS_TyMedia *pstPMSMedia;
   PMS_TyTrayInfo *ptTrayInfo;
   PMS_TyPaperInfo *pPaperInfo;
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob *pCurrentJob;
+  PMS_TyMedia *pstPMSMedia;
+#else
+  OIL_TyMedia *pstPMSMedia;
+#endif
   int rotate;
   float ClipLeft, ClipTop, ClipWidth, ClipHeight;
 
   OIL_ProbeLog(SW_TRACE_OIL_GETMEDIAFROMPMS, SW_TRACETYPE_ENTER, (intptr_t)0);
+
+#ifdef PMS_OIL_MERGE_DISABLE
   pstPMSMedia = OIL_malloc(OILMemoryPoolJob, OIL_MemNonBlock, sizeof(PMS_TyMedia));
   HQASSERTV(pstPMSMedia!=NULL,
             ("GetMediaFromPMS: Failed to allocate %lu bytes", (unsigned long) sizeof(PMS_TyMedia)));
 
   /* Clear the structure to avoid confusion when debugging */
   memset(pstPMSMedia, 0x00, sizeof(PMS_TyMedia));
+#else
+  pstPMSMedia = OIL_malloc(OILMemoryPoolJob, OIL_MemNonBlock, sizeof(OIL_TyMedia));
+  HQASSERTV(pstPMSMedia!=NULL,
+	        ("GetMediaFromPMS: Failed to allocate %lu bytes", (unsigned long) sizeof(OIL_TyMedia)));
 
+  /* Clear the structure to avoid confusion when debugging */
+  memset(pstPMSMedia, 0x00, sizeof(OIL_TyMedia));
+#endif
   /* The parameters in stEBDDeviceParams configured in the (%embedded%) device. 
      see \HqnEbd_SensePageDevice in SW\procsets\HqnEmbedded.
      see ebd_devparams_array in src\oil_ebddev.c  */
@@ -697,9 +805,13 @@ void GetMediaFromPMS(OIL_TyEBDDeviceParameters *stEBDDeviceParams)
   pstPMSMedia->dHeight = stEBDDeviceParams->PageHeightFromJob;
 
   /* Access default job settings */
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_GetJobSettings(&pCurrentJob);
   HQASSERT(pCurrentJob, "GetMediaFromPMS, pCurrentJob is NULL");
   pstPMSMedia->ePaperSize = pCurrentJob->tDefaultJobMedia.ePaperSize;
+#else
+  pstPMSMedia->ePaperSize = g_tJob.tCurrentJobMedia.ePaperSize;
+#endif
 
   /* \todo Populate pstPMSMedia with other parameters that influence tray selection */
 
@@ -831,6 +943,7 @@ void GetPMSSystemInfo()
     g_SystemState.cbRIPMemory = ptPMSSysInfo.cbRIPMemory;
     g_SystemState.nOILconfig = ptPMSSysInfo.nOILconfig;
     g_SystemState.nOutputType = ptPMSSysInfo.eOutputType;
+#ifdef PMS_OIL_MERGE_DISABLE
     switch(ptPMSSysInfo.ePaperSelectMode)
     {
     case PMS_PaperSelNone:
@@ -847,6 +960,9 @@ void GetPMSSystemInfo()
       g_ConfigurableFeatures.g_ePaperSelectMode = OIL_PaperSelNone;
       break;
     }
+#else
+    g_ConfigurableFeatures.g_ePaperSelectMode = ptPMSSysInfo.ePaperSelectMode;
+#endif
     g_ConfigurableFeatures.ePrintableMode = ptPMSSysInfo.nPrintableMode;
     g_ConfigurableFeatures.nStrideBoundaryBytes = ptPMSSysInfo.nStrideBoundaryBytes;
 

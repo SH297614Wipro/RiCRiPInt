@@ -24,6 +24,7 @@ extern PMS_TyScreenInfo g_tGGScreenTbl_1bpp_Gfx[];
 extern PMS_TyScreenInfo g_tGGScreenTbl_1bpp_Image[];
 extern PMS_TyScreenInfo g_tGGScreenTbl_1bpp_Text[];
 #endif
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_2BPP_EXT_EG
 extern PMS_TyScreenInfo g_tGGScreenTbl_2bpp_Gfx[];
 extern PMS_TyScreenInfo g_tGGScreenTbl_2bpp_Image[];
@@ -34,6 +35,7 @@ extern PMS_TyScreenInfo g_tGGScreenTbl_4bpp_Gfx[];
 extern PMS_TyScreenInfo g_tGGScreenTbl_4bpp_Image[];
 extern PMS_TyScreenInfo g_tGGScreenTbl_4bpp_Text[];
 #endif
+//#endif
 
 PMS_TyScreenInfo *l_apScreens[] = {
 #ifdef SDK_SUPPORT_1BPP_EXT_EG
@@ -51,6 +53,7 @@ PMS_TyScreenInfo *l_apScreens[] = {
     &g_tGGScreenTbl_1bpp_Text[2],
     &g_tGGScreenTbl_1bpp_Text[3],
 #endif
+//#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef SDK_SUPPORT_2BPP_EXT_EG
     /* 2-bpp */
     &g_tGGScreenTbl_2bpp_Gfx[0],
@@ -81,6 +84,7 @@ PMS_TyScreenInfo *l_apScreens[] = {
     &g_tGGScreenTbl_4bpp_Text[2],
     &g_tGGScreenTbl_4bpp_Text[3],
 #endif
+//#endif
     NULL
 };
 #define PMS_NUM_SCREENS ((sizeof(l_apScreens) / sizeof(l_apScreens[0]))-1)

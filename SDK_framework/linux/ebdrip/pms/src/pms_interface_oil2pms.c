@@ -17,9 +17,13 @@
 
 #include "pms.h"
 #include "pms_export.h"
+#ifdef PMS_OIL_MERGE_DISABLE
 #include "pms_filesys.h"
+#endif
 #include "pms_file_in.h"
+//#ifdef PMS_OIL_MERGE_DISABLE
 #include "pms_scrn.h"
+//#endif
 #include "pms_platform.h"
 #include "pms_interface_oil2pms.h"
 #include "pms_malloc.h"
@@ -605,7 +609,11 @@ int PMS_WriteDataStream(PMS_eBackChannelWriteTypes eType, void *pContext, unsign
  * If RIP ahead is enabled, this page is appended to the PMS page queue
  * If RIP ahead is not enabled, the page is directly passed on to the Print
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int PMS_CheckinPage(PMS_TyPage *ptPMSPage)
+#else
+int PMS_CheckinPage(OIL_TyPage *ptPMSPage)
+#endif
 {
   g_pstCurrentPMSPage = ptPMSPage;
 
@@ -645,7 +653,11 @@ int PMS_CheckinBand(PMS_TyBandPacket *ThisBand)
 {
   int i, nColorant;
   unsigned char   *pRasterBuffer;
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyPage *pstPageToPrint;
+#else
+  OIL_TyPage *pstPageToPrint;
+#endif
 
   pstPageToPrint = g_pstCurrentPMSPage;
 
@@ -675,12 +687,20 @@ int PMS_CheckinBand(PMS_TyBandPacket *ThisBand)
   if(g_tSystemInfo.eOutputType != PMS_NONE)
   {
     /* How much data do we need to copy for each line? */
+#ifdef PMS_OIL_MERGE_DISABLE
     int lineSize = pstPageToPrint->nRasterWidthBits / 8;
+#else
+    int lineSize = pstPageToPrint->nRasterWidthData / 8;
+#endif
 
     for(i=0; i < PMS_MAX_PLANES_COUNT; i++)
     {
       /* determine valid rasters and hook them to PMS page */
+#ifdef PMS_OIL_MERGE_DISABLE
       if(ThisBand->atColoredBand[i].ePlaneColorant != PMS_INVALID_COLOURANT)
+#else
+      if(ThisBand->atColoredBand[i].ePlaneColorant != OIL_InvalidColor)
+#endif
       {
         int height = ThisBand->atColoredBand[i].uBandHeight;
         int bytesPerBand = height * lineSize;
@@ -740,7 +760,11 @@ int PMS_CheckinBand(PMS_TyBandPacket *ThisBand)
  *
  * Remove the Page raster data from PMS's current page.\n
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int PMS_DeletePrintedPage(PMS_TyPage *pstPageToDelete)
+#else
+int PMS_DeletePrintedPage(OIL_TyPage *pstPageToDelete)
+#endif
 {
   unsigned int i, j;
 
@@ -778,7 +802,11 @@ int PMS_DeletePrintedPage(PMS_TyPage *pstPageToDelete)
  * \param[out] ppTrayInfo Pointer to a tray information structure.
  * \return 1 if tray/media has been selected, 0 otherwise.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int PMS_MediaSelect(PMS_TyMedia *pstPMSMedia, PMS_TyTrayInfo **ppTrayInfo, int *rotate)
+#else
+int PMS_MediaSelect(OIL_TyMedia *pstPMSMedia, PMS_TyTrayInfo **ppTrayInfo, int *rotate)
+#endif
 {
   int bTraySelected=0;
   *rotate = 0;
@@ -1051,6 +1079,7 @@ int PMS_GetMediaColor(PMS_eMediaColor eMediaColor, PMS_TyMediaColor** ppMediaCol
  */
 int PMS_GetScreenInfo(PMS_eScreens eScreen, void** ppScreenInfo)
 {
+//#ifdef PMS_OIL_MERGE_DISABLE
     int i;
 
     for(i=0; i<PMS_NUM_SCREENS; i++)
@@ -1061,7 +1090,7 @@ int PMS_GetScreenInfo(PMS_eScreens eScreen, void** ppScreenInfo)
             return TRUE;
         }
     }
-
+//#endif
     return FALSE;
 }
 
@@ -1262,7 +1291,11 @@ int PMS_RasterLayout(int nPageWidthPixels,
 
     *pValid = TRUE;
 
+#ifdef PMS_OIL_MERGE_DISABLE
     if (g_tSystemInfo.bScanlineInterleave || (g_tJob.eColorMode == PMS_RGB_PixelInterleaved)) {
+#else
+    if (g_tSystemInfo.bScanlineInterleave || (g_tJob.eColorMode == OIL_RGB_PixelInterleaved)) {
+#endif
       /* For scan-line interleaved the stride between lines of the same colorant
        * is lineBytes * num components. The stride between colorants is one line.
        */
@@ -1414,7 +1447,11 @@ int PMS_RasterDestination( int nFrameNumber, unsigned int uBandNum,
   }
   else if (g_tSystemInfo.eBandDeliveryType == PMS_PUSH_BAND_DIRECT_FRAME)
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     if (g_tSystemInfo.bScanlineInterleave || (g_tJob.eColorMode == PMS_RGB_PixelInterleaved))
+#else
+    if (g_tSystemInfo.bScanlineInterleave || (g_tJob.eColorMode == OIL_RGB_PixelInterleaved))
+#endif
     {
       *pMemoryBase = gFrameBuffer + (nFrameNumber * guRIPBytesPerLine) + (uBandSize * uBandNum);
     }
@@ -1463,7 +1500,11 @@ int PMS_GetBandInfo( int nPageWidthPixels,  int nPageHeightPixels,
        ggetiff requires 32bit
        no output can cope with 8 bit
     */
+#ifdef PMS_OIL_MERGE_DISABLE
     if (g_tJob.eColorMode == PMS_RGB_PixelInterleaved) {
+#else
+    if (g_tJob.eColorMode == OIL_RGB_PixelInterleaved) {
+#endif
       ptPMSBandInfo->BytesPerLine = (((nPageWidthPixels * bit_depth * 3) + 31) / 32) * 4;
     } else {
       ptPMSBandInfo->BytesPerLine = (((nPageWidthPixels * bit_depth) + 31) / 32) * 4;
@@ -2104,6 +2145,7 @@ int PMS_GetJobSettings(void** ppstJob)
 /**
  * \brief Note changes to the job settings.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int PMS_SetJobSettings(void* pstJob)
 {
   PMS_TyJob * pNewSettings = (PMS_TyJob *) pstJob;
@@ -2112,13 +2154,25 @@ int PMS_SetJobSettings(void* pstJob)
 
   return 1;
 }
+#else
+int PMS_SetJobSettings(void* pstJob)
+{
+  OIL_TyJob * pNewSettings = (OIL_TyJob *) pstJob;
+
+  memcpy( &g_tJob, pNewSettings, sizeof(OIL_TyJob) );
+
+  return 1;
+}
+#endif
 
 /**
  * \brief Reset job settings to their defaults.
  */
 int PMS_SetJobSettingsToDefaults(void)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   EngineSetJobDefaults();
+#endif
   return 1;
 }
 
@@ -2127,7 +2181,11 @@ int PMS_SetJobSettingsToDefaults(void)
  */
 int PMS_FSInitVolume(unsigned char * pzVolume)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_InitVolume(pzVolume);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2135,7 +2193,11 @@ int PMS_FSInitVolume(unsigned char * pzVolume)
  */
 int PMS_FSMkDir(unsigned char * pzName)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_MakeDir(pzName);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2143,7 +2205,11 @@ int PMS_FSMkDir(unsigned char * pzName)
  */
 int PMS_FSOpen(unsigned char * pzPath, int flags, void ** pHandle)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_Open(pzPath, flags, pHandle);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2151,7 +2217,11 @@ int PMS_FSOpen(unsigned char * pzPath, int flags, void ** pHandle)
  */
 int PMS_FSRead(void * handle, unsigned char * buffer, int bytes, int * pcbRead)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_Read(handle, buffer, bytes, pcbRead);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2159,7 +2229,11 @@ int PMS_FSRead(void * handle, unsigned char * buffer, int bytes, int * pcbRead)
  */
 int PMS_FSWrite(void * handle, unsigned char * buffer, int bytes, int * pcbWritten)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_Write(handle, buffer, bytes, pcbWritten);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2167,7 +2241,11 @@ int PMS_FSWrite(void * handle, unsigned char * buffer, int bytes, int * pcbWritt
  */
 int PMS_FSClose(void * handle)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_Close(handle);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2175,7 +2253,11 @@ int PMS_FSClose(void * handle)
  */
 int PMS_FSSeek(void * handle, int offset, int whence)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_Seek(handle, offset, whence);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2183,6 +2265,7 @@ int PMS_FSSeek(void * handle, int offset, int whence)
  */
 int PMS_FSAppend(unsigned char * pzName, unsigned char * pData, int cbData, int * pcbWritten)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   int eError;
 
   void * handle;
@@ -2202,6 +2285,9 @@ int PMS_FSAppend(unsigned char * pzName, unsigned char * pData, int cbData, int 
   }
 
   return eError;
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2209,7 +2295,11 @@ int PMS_FSAppend(unsigned char * pzName, unsigned char * pData, int cbData, int 
  */
 int PMS_FSDelete(unsigned char * pzName)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_Delete(pzName);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2217,7 +2307,11 @@ int PMS_FSDelete(unsigned char * pzName)
  */
 int PMS_FSDirEntryInfo(unsigned char * pzName, int nEntry, PMS_TyStat * pStat)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_DirEntryStat(pzName, nEntry, pStat);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2225,6 +2319,7 @@ int PMS_FSDirEntryInfo(unsigned char * pzName, int nEntry, PMS_TyStat * pStat)
  */
 int PMS_FSDownload(unsigned char * pzName, unsigned char * pData, int cbData, int * pcbWritten)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   int eError;
 
   void * handle;
@@ -2239,6 +2334,9 @@ int PMS_FSDownload(unsigned char * pzName, unsigned char * pData, int cbData, in
   }
 
   return eError;
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2246,7 +2344,11 @@ int PMS_FSDownload(unsigned char * pzName, unsigned char * pData, int cbData, in
  */
 int PMS_FSQuery(unsigned char * pzName, PMS_TyStat * pStat)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_Stat(pzName, pStat);
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2254,6 +2356,7 @@ int PMS_FSQuery(unsigned char * pzName, PMS_TyStat * pStat)
  */
 int PMS_FSUpload(unsigned char * pzName, int offset, int cbData, unsigned char * pData, int * pcbRead)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   int eError;
 
   void * handle;
@@ -2273,6 +2376,9 @@ int PMS_FSUpload(unsigned char * pzName, int offset, int cbData, unsigned char *
   }
 
   return eError;
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2280,7 +2386,11 @@ int PMS_FSUpload(unsigned char * pzName, int offset, int cbData, unsigned char *
  */
 int PMS_FSFileSystemInfo( int iVolume, int * pnVolumes, PMS_TyFileSystem * pFileSystemInfo )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_FileSystemInfo( iVolume, pnVolumes, pFileSystemInfo );
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2288,7 +2398,11 @@ int PMS_FSFileSystemInfo( int iVolume, int * pnVolumes, PMS_TyFileSystem * pFile
  */
 int PMS_FSGetDisklock( void )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   return PMS_FS_GetDisklock();
+#else
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**
@@ -2296,9 +2410,14 @@ int PMS_FSGetDisklock( void )
  */
 int PMS_FSSetDisklock( int fLocked )
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_FS_SetDisklock( fLocked );
 
   return 1;
+#else
+  printf("Called File system method PMS_FSSetDisklock() \n");
+  return 32000; //eGeneralFileSystemError;
+#endif
 }
 
 /**

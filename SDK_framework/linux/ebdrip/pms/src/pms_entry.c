@@ -78,6 +78,7 @@ int GGSmain(char *szCL)
 }
 #else
 
+#ifdef PMS_OIL_MERGE_DISABLE
 int main(int argc, char *argv[])
 {
   /* store command-line parameters */
@@ -88,5 +89,6 @@ int main(int argc, char *argv[])
 
   return 0;
 } /*main()*/
+#endif
 #endif
 

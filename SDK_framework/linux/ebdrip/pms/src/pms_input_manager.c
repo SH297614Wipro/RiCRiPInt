@@ -29,6 +29,11 @@
 #include "pms_input_socket.h"
 #include "pms_socket.h"
 #endif
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#ifdef PMS_SUPPORT_BUFFER
+#include "pms_input_buffer.h"
+#endif
+#endif
 #ifdef PMS_HOT_FOLDER_SUPPORT
 #include "pms_input_hotfolder.h"
 #endif
@@ -53,6 +58,11 @@ struct input_modules * l_ptModules = NULL;     /*< List of input modules */
 struct input_modules * l_ptModulesTail = NULL; /*< Last module node in the linked list */
 struct input_modules * l_ptActive = NULL;      /*< Active connection */
 
+extern OIL_TyJob g_tJob;
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+extern int g_jobAvailable;
+#endif
+
 /**
  * \brief Add an input module node to the linked list of input modules.
  *
@@ -69,7 +79,11 @@ int Add_Input_Module( int (*pfnInitDataStream)(void),
 
   PMS_ASSERT(pfnOpenDataStream, ("Add_Input_Module: pfnOpenDataStream must be defined for all modules\n"));
 
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   pModuleNode = OSMalloc(sizeof(struct input_modules), PMS_MemoryPoolPMS);
+#else
+  pModuleNode = mmalloc(sizeof(struct input_modules));
+#endif
   if(!pModuleNode) {
     return FALSE;
   }
@@ -158,6 +172,26 @@ int PMS_IM_Initialize()
   }
 #endif
 
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#ifdef PMS_SUPPORT_BUFFER
+
+    nResult = Input_Buffer_Initialize(); 
+    if(!nResult) {
+      return FALSE;
+    }
+
+    nResult = Add_Input_Module( Input_Buffer_InitDataStream,
+                                Input_Buffer_OpenDataStream,
+                                Input_Buffer_CloseDataStream,
+                                Input_Buffer_PeekDataStream,
+                                Input_Buffer_ConsumeDataStream,
+                                NULL );
+    if(!nResult) {
+      return FALSE;
+    }
+  
+#endif
+#endif
   for(pMods = l_ptModules; pMods; pMods = pMods->pNext) {
     /* initialize streams */
     if(pMods->tInput.pfnInitDataStream)
@@ -185,6 +219,12 @@ void PMS_IM_Finalize(){
   Socket_Finalize();
 #endif
 
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#ifdef PMS_SUPPORT_BUFFER
+  Input_Buffer_Finalize();
+#endif
+#endif
+
 #ifdef PMS_HOT_FOLDER_SUPPORT
   HotFolder_Finalize();
 #endif
@@ -194,7 +234,11 @@ void PMS_IM_Finalize(){
   for(pMods = l_ptModules; pMods; pMods = pModsNext) {
     /* initialize streams */
     pModsNext = pMods->pNext;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OSFree(pMods, PMS_MemoryPoolPMS);
+#else
+    mfree(pMods);
+#endif
   }
   l_ptModules = NULL;
   l_ptModulesTail = l_ptModules;
@@ -219,6 +263,10 @@ int PMS_IM_WaitForInput()
   }
 
   while(bWaitingForJob) {
+  
+	if(g_tJob.eTestPage)
+		return TRUE;
+#ifdef PMS_OIL_MERGE_DISABLE_JS
     bWaitingForJob = 0; /* Assume all modules are only tried to open once... file on command line etc.
                            If socket, or hot folder or any other input that waits for a job then it will get set again. */
                            
@@ -238,6 +286,35 @@ int PMS_IM_WaitForInput()
       }
     }
     PMS_Delay(200); /* /todo Is this delay reasonable? */
+#else
+      if(g_jobAvailable==1)
+      {
+        bWaitingForJob = 1; /* Assume all modules are only tried to open once... file on command line etc.
+                           If socket, or hot folder or any other input that waits for a job then it will get set again. */
+         for(pMods = l_ptModules; pMods; pMods = pMods->pNext) {
+         /* Get a job */
+         if(pMods->tInput.pfnOpenDataStream) {
+         nResult = (*pMods->tInput.pfnOpenDataStream)();
+         if(nResult > 0) {
+          l_ptActive = pMods; /* l_ptActive is the connected module until PMS_CloseDataStream */
+		  bWaitingForJob=0;
+		  return TRUE;
+          } else if(nResult < 0) {
+          /* Don't try this module again... used for files on command, could be used for a once only folder (sd card or similar) */
+             pMods->tInput.pfnOpenDataStream = NULL; /* \todo This could be a bit tidier */
+           } else {
+          bWaitingForJob = 1; /* Try again in a bit */
+           }
+          }
+         }
+      }
+      else
+       { 
+           bWaitingForJob=1;
+       }
+                           
+       PMS_Delay(1); /* /todo Is this delay reasonable? */
+#endif
   }
 
   return FALSE;

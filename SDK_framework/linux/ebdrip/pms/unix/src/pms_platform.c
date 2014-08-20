@@ -268,7 +268,11 @@ void *PMS_BeginThread(void( *start_address )( void * ), unsigned int stack_size,
 {
   pthread_attr_t attr;
   unsigned int result;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   PMS_TyThreadFunction *ptThreadInfo = OSMalloc(sizeof(PMS_TyThreadFunction), PMS_MemoryPoolPMS);
+#else
+  PMS_TyThreadFunction *ptThreadInfo = mmalloc(sizeof(PMS_TyThreadFunction));
+#endif
 
   if(!ptThreadInfo) {
     return (NULL);
@@ -308,7 +312,11 @@ thread_cond_destroy:
 thread_mutex_destroy:
   (void)pthread_mutex_destroy(&ptThreadInfo->mutexThread) ;
 thread_info_destroy:
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   OSFree(ptThreadInfo, PMS_MemoryPoolPMS);
+#else
+  mfree(ptThreadInfo);
+#endif
   return (NULL);
 }
 
@@ -385,7 +393,11 @@ int PMS_CloseThread(void *pThread, int nWaitForThreadToExit)
 
   (void)pthread_cond_destroy(&pTInfo->condThread) ;
   (void)pthread_mutex_destroy(&pTInfo->mutexThread) ;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   OSFree(pTInfo, PMS_MemoryPoolPMS);
+#else
+  mfree(pTInfo);
+#endif
 
   return nRetVal;
 }
@@ -428,13 +440,19 @@ void * PMS_CreateSemaphore(int initialValue)
   sem_count++;
 #else
   sem_t *sem;
-
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   sem = (sem_t *) OSMalloc(sizeof(sem_t), PMS_MemoryPoolPMS);
-
+#else
+  sem = (sem_t *) mmalloc(sizeof(sem_t));
+#endif
   if (sem == NULL)
     return NULL;
   if (sem_init(sem, 0, initialValue)) {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OSFree(sem, PMS_MemoryPoolPMS);
+#else
+	mfree(sem);
+#endif
     return NULL;
   }
 #endif
@@ -557,7 +575,11 @@ void PMS_DestroySemaphore(void * semaHandle)
     if (sem_post(sem)) break;
   }
   /* No option to return an error - just free sem and hope. */
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   OSFree(sem,PMS_MemoryPoolPMS);
+#else
+  mfree(sem);
+#endif
 #endif
 }
 
@@ -576,7 +598,11 @@ void * PMS_CreateCriticalSection(void)
   pthread_mutex_t * ptCS;          /* Mutex for critical section */
   pthread_mutexattr_t mutexattr;   /* Mutex attribute variable */
 
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   ptCS = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+#else
+  ptCS = (pthread_mutex_t *)mmalloc(sizeof(pthread_mutex_t));
+#endif
   if(!ptCS) {
     PMS_SHOW_ERROR("Failed to allocation critical section structure\n");
     return NULL;
@@ -641,7 +667,11 @@ void PMS_DestroyCriticalSection(void * ptCritical_Section)
 {
   pthread_mutex_t *ptCS = (pthread_mutex_t *)ptCritical_Section;
   pthread_mutex_destroy(ptCS);
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   free(ptCS);
+#else
+  mfree(ptCS);
+#endif
 }
 /**********************************************
  * HDD Directoty Search Functions Functions.

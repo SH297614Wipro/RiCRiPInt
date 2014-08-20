@@ -19,11 +19,20 @@
 #define _PMS_PAGE_HANDLER_H_
 
 #define MAX_PAGE_IN_PAGEBUFFER  3
+#ifdef PMS_OIL_MERGE_DISABLE
 void AppendToPageQueue(PMS_TyPage *ptPMSPage);
+#else
+void AppendToPageQueue(OIL_TyPage *ptPMSPage);
+#endif
 void ShufflePageList();
 void PrintPageList();
+#ifdef PMS_OIL_MERGE_DISABLE
 void PrintPage(PMS_TyPage * pstPageToPrint);
 void RemovePage(PMS_TyPage *pstPageToDelete);
+#else
+void PrintPage(OIL_TyPage * pstPageToPrint);
+void RemovePage(OIL_TyPage *pstPageToDelete);
+#endif
 int IsEngineIdle();
 
 #endif /* _PMS_PAGE_HANDLER_H_ */

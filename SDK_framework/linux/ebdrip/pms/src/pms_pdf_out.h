@@ -25,6 +25,10 @@ enum {
 };
 typedef int PMS_ePDF_Errors;
 
+#ifdef PMS_OIL_MERGE_DISABLE
 int PDF_PageHandler( PMS_TyPage *ptPMSPage );
+#else
+int PDF_PageHandler( OIL_TyPage *ptPMSPage );
+#endif
 
 #endif /* _PMS_PDF_OUT_H_ */

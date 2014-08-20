@@ -207,17 +207,29 @@ static PMS_TySocket * AddSocket()
   PMS_TySocket * pSocket;
   PMS_SOCKET_TRACE("AddSocket()\n");
 
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   pNewSocket = OSMalloc(sizeof(PMS_TySocket), PMS_MemoryPoolPMS);
+#else
+  pNewSocket = mmalloc(sizeof(PMS_TySocket));
+#endif
   if(!pNewSocket)
     return NULL;
   memset(pNewSocket, 0x00, sizeof(PMS_TySocket));
   pNewSocket->hSocketData = INVALID_SOCKET;
   pNewSocket->hSocketServer = INVALID_SOCKET;
 
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   pNewSocket->tSocketInput.buffer = OSMalloc(g_tSystemInfo.cbReceiveBuffer, PMS_MemoryPoolPMS);
+#else
+  pNewSocket->tSocketInput.buffer = mmalloc(g_tSystemInfo.cbReceiveBuffer);
+#endif
   if(!pNewSocket->tSocketInput.buffer)
   {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OSFree(pNewSocket, PMS_MemoryPoolPMS);
+#else
+    mfree(pNewSocket);
+#endif
     return NULL;
   }
 
@@ -253,10 +265,18 @@ static int RemoveSocket(PMS_TySocket * pSocketToRemove)
       }
       if(pSocket->tSocketInput.buffer)
       {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
         OSFree(pSocket->tSocketInput.buffer, PMS_MemoryPoolPMS);
+#else
+        mfree(pSocket->tSocketInput.buffer);
+#endif
       }
       PMS_DestroySemaphore(pSocket->semOutput);
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
       OSFree(pSocket, PMS_MemoryPoolPMS);
+#else
+      mfree(pSocket, PMS_MemoryPoolPMS);
+#endif
       return TRUE;
     }
     pPrevSocket = pSocket;
@@ -1045,7 +1065,7 @@ int Socket_PeekInDataStream(PMS_SOCKET_HANDLE hPMSSocket, unsigned char * buffer
 int Socket_ConsumeInDataStream(PMS_SOCKET_HANDLE hPMSSocket, int nBytesToConsume)
 {
   PMS_TySocket *pSocket = (PMS_TySocket*)hPMSSocket;
-  UNUSED_PARAM((PMS_SOCKET_HANDLE), hPMSSocket);
+  UNUSED_PARAM(PMS_SOCKET_HANDLE, hPMSSocket);
 
   PMS_SOCKET_TRACE("Socket_ConsumeInDataStream(%d)\n", nBytesToConsume);
 

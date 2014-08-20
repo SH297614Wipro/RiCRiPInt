@@ -33,6 +33,7 @@ void *StartOILThread()
   return(PMS_BeginThread(&StartOILWrapper, 0, NULL));
 }
 
+//#ifdef PMS_OIL_MERGE_DISABLE_JS
 /**
  * \brief Startup PMS Output Layer on a new thread.
  *
@@ -42,6 +43,7 @@ void *StartOutputThread()
 {
   return(PMS_BeginThread(&PMSOutput, 0, NULL));
 }
+//#endif
 
 /**
  * \brief Thread wrapper to start the OIL.

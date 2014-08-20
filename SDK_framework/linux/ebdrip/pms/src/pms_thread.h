@@ -18,7 +18,9 @@
 #ifndef _PMS_THREAD_H_
 #define _PMS_THREAD_H_
 
+//#ifdef PMS_OIL_MERGE_DISABLE_JS
 void *StartOutputThread();
+//#endif
 void *StartOILThread();
 
 #endif /* _PMS_THREAD_H_ */

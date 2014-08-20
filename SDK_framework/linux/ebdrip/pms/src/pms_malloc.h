@@ -20,6 +20,10 @@
 
 #include "stdlib.h"
 
+#ifndef PMS_OIL_MERGE_DISABLE_MEM
+extern long memVal;
+#endif
+
 #define PMS_MEM_LIMITED_POOLS 
 /* PMS_MEM_LIMITED_POOLS can be set without SDK_MEMTRACE.
    However, if SDK_MEM_TRACE is set then PMS_MEM_LIMITED_POOLS must as well,

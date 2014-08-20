@@ -26,7 +26,11 @@
 #include <string.h> /* for strcpy */
 
 
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyJob g_tJob;
+#else
+OIL_TyJob g_tJob;
+#endif
 
 /**
  * \brief Simulates the output
@@ -37,8 +41,13 @@ PMS_TyJob g_tJob;
  */
 void PMSOutput(void * dummy)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyPage *ThisPage = NULL;    /* pointer the the current page being checked */
   PMS_TyPage LastPage;            /* pointer the the last sheet that was picked up */
+#else
+  OIL_TyPage *ThisPage = NULL;    /* pointer the the current page being checked */
+  OIL_TyPage LastPage;            /* pointer the the last sheet that was picked up */
+#endif
   PMS_TyPageList *tmpPageList;    /* local pagelist pointer */
   unsigned int uCurrentPageGap;   /* the gap between sheet pickup */
   unsigned int uLastPickUp;       /* the time the last sheet was pickup from inout tray */
@@ -93,7 +102,11 @@ void PMSOutput(void * dummy)
           /* PMS_SHOW("Pickup Sheet: %d - output: %d\n", ThisPage->ulPickupTime, ThisPage->ulOutputTime); */
 
           /* record some stats about this page incase next page is different a requires a stall in paper path */
+#ifdef PMS_OIL_MERGE_DISABLE
           LastPage.uTotalPlanes = ThisPage->uTotalPlanes;
+#else
+          LastPage.nColorants = ThisPage->nColorants;
+#endif
 
           /* record pickup time in global */
           uLastPickUp = PMS_TimeInMilliSecs();
@@ -154,22 +167,38 @@ void PMSOutput(void * dummy)
  *
  * This routine calculates the wait before the next page can be picked up, based on job type and engein speed.\n
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int EngineGetInterpageGap(PMS_TyPage *pstThisPage, PMS_TyPage *pstLastPage)
+#else
+int EngineGetInterpageGap(OIL_TyPage *pstThisPage, OIL_TyPage *pstLastPage)
+#endif
 {
   int uPageDelay = 0;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   UNUSED_PARAM(PMS_TyPage, pstLastPage);
+#else
+  UNUSED_PARAM(OIL_TyPage*, pstLastPage);
+#endif
 
   if(g_tSystemInfo.uUseEngineSimulator == TRUE)
   {
     /* TODO - stall paper path */
     /* check last page and this page to determine the gap required */
-    if (pstThisPage->uTotalPlanes == 1)
+#ifdef PMS_OIL_MERGE_DISABLE
+    if (pstThisPage->uTotalPlanes== 1)
+#else
+    if (pstThisPage->nColorants== 1)
+#endif
     {
       /* mono page */
       uPageDelay = INTERPAGE_GAP(MONO_PLAIN_PAPER_PPM);
     }
-    if (pstThisPage->uTotalPlanes == 4)
+#ifdef PMS_OIL_MERGE_DISABLE
+    if (pstThisPage->uTotalPlanes== 4)
+#else
+    if (pstThisPage->nColorants== 4)
+#endif
     {
       /* color page */
       uPageDelay = INTERPAGE_GAP(COLOR_PLAIN_PAPER_PPM);
@@ -189,12 +218,20 @@ int EngineGetInterpageGap(PMS_TyPage *pstThisPage, PMS_TyPage *pstLastPage)
  * This routine calculates the approximate time required to process the page
  * depending on different parameters of the page.\n
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int EngineGetTravelTime(PMS_TyPage *pstPMSPage)
+#else
+int EngineGetTravelTime(OIL_TyPage *pstPMSPage)
+#endif
 {
   int nPrintTime = 0;
   if(g_tSystemInfo.uUseEngineSimulator == TRUE)
   {
+#ifdef PMS_OIL_MERGE_DISABLE
+    switch(pstPMSPage->stMedia.eOutputTray)
+#else
     switch(pstPMSPage->stMedia.uInputTray)
+#endif
     {
     case PMS_TRAY_AUTO:
     case PMS_TRAY_BYPASS:
@@ -208,7 +245,7 @@ int EngineGetTravelTime(PMS_TyPage *pstPMSPage)
         break;
     }
 
-    switch(pstPMSPage->stMedia.eOutputTray)
+    switch(pstPMSPage->stMedia.uOutputTray)
     {
     case PMS_OUTPUT_TRAY_AUTO:
     case PMS_OUTPUT_TRAY_UPPER:
@@ -235,7 +272,11 @@ int EngineGetTrayInfo(void)
   /* query engine and fill in information about available attributes 
    * NOTE - maximum of 10 trays
   */
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   g_pstTrayInfo = (PMS_TyTrayInfo *) OSMalloc( NUMFIXEDMEDIASOURCES * sizeof(PMS_TyTrayInfo), PMS_MemoryPoolPMS );
+#else
+  g_pstTrayInfo = (PMS_TyTrayInfo *) mmalloc( NUMFIXEDMEDIASOURCES * sizeof(PMS_TyTrayInfo));
+#endif
   nTrayIndex = 0;
 
   if( g_pstTrayInfo != NULL )
@@ -288,7 +329,11 @@ int EngineGetOutputInfo(void)
   /* query engine and fill in information about available attributes 
    * NOTE - maximum of 10 trays
   */
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   g_pstOutputInfo = (PMS_TyOutputInfo *) OSMalloc( NUMFIXEDMEDIADESTS * sizeof(PMS_TyOutputInfo), PMS_MemoryPoolPMS );
+#else
+  g_pstOutputInfo = (PMS_TyOutputInfo *) mmalloc( NUMFIXEDMEDIADESTS * sizeof(PMS_TyOutputInfo));
+#endif
   nTrayIndex = 0;
 
   if( g_pstOutputInfo != NULL )
@@ -310,7 +355,11 @@ int EngineGetOutputInfo(void)
  *
  * This routine simulates reading the job settings from NVRAM.  \n
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyJob * EngineGetJobSettings(void)
+#else
+OIL_TyJob * EngineGetJobSettings(void)
+#endif
 {
   /* Just returns the factory defaults in the absence of any persistent settings */
   EngineSetJobDefaults();
@@ -337,6 +386,7 @@ void EngineSetJobDefaults(void)
   g_tJob.uYResolution = g_tSystemInfo.uDefaultResY; /* y resolution */
   g_tJob.uOrientation = 0;                  /* orientation, 0-portrait or 1-landscape */
 
+#ifdef PMS_OIL_MERGE_DISABLE
   g_tJob.tDefaultJobMedia.ePaperSize = PMS_SIZE_A4;   /* A4*/
   g_tJob.tDefaultJobMedia.uInputTray = PMS_TRAY_AUTO;            /* media source selection */
   g_tJob.tDefaultJobMedia.eOutputTray = PMS_OUTPUT_TRAY_AUTO;   /* selected output tray */
@@ -346,6 +396,17 @@ void EngineSetJobDefaults(void)
   PMS_GetPaperInfo(g_tJob.tDefaultJobMedia.ePaperSize, &pPaperInfo);
   g_tJob.tDefaultJobMedia.dWidth = pPaperInfo->dWidth;
   g_tJob.tDefaultJobMedia.dHeight = pPaperInfo->dHeight;
+#else
+g_tJob.tCurrentJobMedia.ePaperSize = PMS_SIZE_A4;	/* A4*/
+g_tJob.tCurrentJobMedia.uInputTray = PMS_TRAY_AUTO; 		   /* media source selection */
+g_tJob.tCurrentJobMedia.uOutputTray = PMS_OUTPUT_TRAY_AUTO;   /* selected output tray */
+strcpy((char*)g_tJob.tCurrentJobMedia.szMediaType, "");
+strcpy((char*)g_tJob.tCurrentJobMedia.szMediaColor, "");
+g_tJob.tCurrentJobMedia.uMediaWeight = 0;
+PMS_GetPaperInfo(g_tJob.tCurrentJobMedia.ePaperSize, &pPaperInfo);
+g_tJob.tCurrentJobMedia.dWidth = pPaperInfo->dWidth;
+g_tJob.tCurrentJobMedia.dHeight = pPaperInfo->dHeight;
+#endif
 
   g_tJob.bAutoA4Letter = FALSE;   /* Automatic A4/letter switching */
   /* get CUSTOM_PAPER size to initialise job structure (set from PJL) */
@@ -364,8 +425,35 @@ void EngineSetJobDefaults(void)
   g_tJob.uOhpType = 1;            /* OHP interleaving media type */
   g_tJob.uOhpInTray = 1;          /* OHP interleaving feed tray */
   g_tJob.uCollatedCount = 1;      /* Total collated copies in a job */
+#ifdef PMS_OIL_MERGE_DISABLE
   g_tJob.eImageQuality = g_tSystemInfo.eImageQuality;   /* ImageQuality - 1bpp, 2bpp etc */
   g_tJob.bOutputBPPMatchesRIP = g_tSystemInfo.bOutputBPPMatchesRIP; /* Output bit depth. */
+  g_tJob.dLineSpacing = 6.0;
+#else
+  switch( g_tSystemInfo.eImageQuality )
+  {
+  case PMS_1BPP:
+    g_tJob.uRIPDepth = 1;
+    break;
+  case PMS_2BPP:
+    g_tJob.uRIPDepth = 2;
+    break;
+  case PMS_4BPP:
+    g_tJob.uRIPDepth = 4;
+    break;
+  case PMS_8BPP_CONTONE:
+    g_tJob.uRIPDepth = 8;
+    break;
+  case PMS_16BPP_CONTONE:
+    g_tJob.uRIPDepth = 16;
+    break;
+  default:
+    HQFAIL("Invalid image quality");
+    break;
+  }
+  g_tJob.bOutputDepthMatchesRIP = g_tSystemInfo.bOutputBPPMatchesRIP; /* Output bit depth. */
+  g_tJob.dVMI = 8.0;
+#endif
   g_tJob.uOutputBPP = g_tSystemInfo.uOutputBPP;         /* Output bit depth. */
   g_tJob.eColorMode = g_tSystemInfo.eDefaultColMode;    /* 1=Mono; 2=SeparationsCMYK; 3=CompositeCMYK; 4=SeparationsRGB; 5=CompositeRGB; */
   g_tJob.bForceMonoIfCMYblank = g_tSystemInfo.bForceMonoIfCMYblank; /* true = force mono if cmy absent, false = output all 4 planes */
@@ -382,7 +470,6 @@ void EngineSetJobDefaults(void)
   g_tJob.dPointSize = 12.0;
   g_tJob.uSymbolSet = 277;        /* 8U - Roman-8 */
 
-  g_tJob.dLineSpacing = 6.0;
   g_tJob.eRenderMode = PMS_RenderMode_Color;
   g_tJob.eRenderModel = PMS_RenderModel_CMYK8B;
   g_tJob.uJobOffset = 0;
@@ -390,7 +477,11 @@ void EngineSetJobDefaults(void)
   g_tJob.bWideA4 = FALSE;
   g_tJob.bInputIsImage = FALSE; 
   g_tJob.szImageFile[0] = '\0';   /* Image File */
+#ifdef PMS_OIL_MERGE_DISABLE
   g_tJob.eTestPage = PMS_TESTPAGE_NONE;   /* Test Page */
+#else
+  g_tJob.eTestPage = OIL_TESTPAGE_NONE;   /* Test Page */
+#endif
   g_tJob.uPrintErrorPage = 0;   /* Print Error Page is off */
   g_tJob.bFileInput = g_tSystemInfo.bFileInput; /* true = job input from file */
   g_tJob.szJobFilename[0] = '\0';   

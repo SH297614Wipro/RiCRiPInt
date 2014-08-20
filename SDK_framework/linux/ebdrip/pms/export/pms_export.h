@@ -47,6 +47,9 @@
 #ifndef _PMS_EXPORT_H_
 #define _PMS_EXPORT_H_
 
+#ifndef PMS_OIL_MERGE_DISABLE
+#include "oil.h"
+#endif
 /**
  * \brief List of function pointers to PMS callback functions.
  *
@@ -208,7 +211,7 @@ typedef int EPMSOILAPI;
 #define PMS_MAX_VALID_PLANES_COUNT(x)   ((x==PMS_ColorantFamily_RGB)? 3:((x==PMS_ColorantFamily_CMYK)? 4:1))
 
 /*! \brief Maxmum length of string for System Info definition for Printer Manufacturer and Product */
-#define PMS_MAX_PRINTER_DEF_STRING        16
+#define PMS_MAX_PRINTER_DEF_STRING        50
 
 
 /*! \brief Enumeration of personalities
@@ -224,6 +227,7 @@ enum {
 };
 typedef int PMS_ePersonality;
 
+#ifdef PMS_OIL_MERGE_DISABLE
 /*! \brief Enumeration of test pages
  */
 enum {
@@ -233,6 +237,7 @@ enum {
   PMS_TESTPAGE_PCL
 };
 typedef int PMS_eTestPage;
+#endif
 
 /*! \brief Output methods.
 */
@@ -279,6 +284,7 @@ enum {
 };
 typedef int PMS_ePageState;
 
+#ifdef PMS_OIL_MERGE_DISABLE
 /*! \brief Colourants
 */
 enum {
@@ -292,7 +298,7 @@ enum {
     PMS_INVALID_COLOURANT
 };
 typedef int PMS_eColourant;
-
+#endif
 
 /* WIDE A4 definitions used in oil_psconfig.c */
 #define PRINTABLEAREAWIDEA4  "[9.6 9.6 12 12]"
@@ -536,6 +542,8 @@ typedef int PMS_ePCLXLOutputTray;
                           (NUMFIXEDMEDIATYPES*60)+\
                           (NUMFIXEDMEDIASOURCES*28)+\
                           (NUMFIXEDMEDIADESTS*50)
+
+#ifdef PMS_OIL_MERGE_DISABLE
 /*! \brief Media Selection Mode.
 */
 enum {
@@ -544,6 +552,7 @@ enum {
   PMS_PaperSelPMS,                     /*!< for PMS defined paper selection */
 };
 typedef int PMS_ePaperSelectMode;
+#endif
 
 /*! \brief Image Quality defined in PMS.
 */
@@ -557,6 +566,7 @@ enum
 };
 typedef int PMS_eImageQuality;
 
+#ifdef PMS_OIL_MERGE_DISABLE
 /*! \brief Color Modes defined in PMS.
 */
 enum {
@@ -597,6 +607,7 @@ enum {
     PMS_RenderModel_G1,                   /*!< Render model for PCL5e jobs */
 };
 typedef int PMS_eRenderModel;
+#endif
 
 /*! \brief Structure type to hold tray information.
 */
@@ -676,6 +687,8 @@ typedef struct PMS_TyMediaColor {
     unsigned char   szMediaColor[PMS_MAX_MEDIACOLOR_LENGTH];
     unsigned char   szPJLColor[PMS_MAX_MEDIACOLOR_LENGTH];
 } PMS_TyMediaColor;
+
+#ifdef PMS_OIL_MERGE_DISABLE
 /*! \brief Stores media information.
 */
 typedef struct PMS_TyMedia {
@@ -757,6 +770,7 @@ typedef struct {
     unsigned int    cbBandSize;          /**< Size of raster in bytes. */
     unsigned char   *pBandRaster;        /**< Uncompressed Band data. */
 } PMS_TyBand;
+#endif
 
 /*! \brief Stores band specifications.
 */
@@ -765,12 +779,21 @@ typedef struct {
     int  BytesPerLine;         /**< Number of bytes in each line. */
 } PMS_TyBandInfo;
 
+#ifdef PMS_OIL_MERGE_DISABLE
 /*! \brief Stores plane information.
 */
 typedef struct {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_eColourant  ePlaneColorant;      /**< C=0, M=1, Y=2, K=3 Invalid = -1. */
+#else
+    OIL_eColorant	ePlaneColorant;
+#endif
     unsigned int    uBandTotal;          /**< Total number of bands in page. */
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_TyBand      atBand[PMS_BAND_LIMIT];   /**< Pointer to band data. */
+#else
+    OIL_TyBand		atBand[PMS_BAND_LIMIT];   /**< Pointer to band data. */
+#endif
     unsigned char   bBlankPlane;
 } PMS_TyPlane;
 
@@ -816,11 +839,16 @@ typedef struct {
     PMS_ePageState  eState;                  /**< Page state. */
     PMS_TyMedia     stMedia;
 }PMS_TyPage;
+#endif
 
 /*! \brief Stores band data information.
 */
 typedef struct {
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_eColourant  ePlaneColorant;       /**< C=0, M=1, Y=2, K=3, R=4, G=5, B=6, Invalid = 7. */
+#else
+    OIL_eColorant	ePlaneColorant; 	  /**< C=0, M=1, Y=2, K=3, R=4, G=5, B=6, Invalid = -1. */
+#endif
     unsigned int    uBandHeight;          /**< Height of band in pixels */
     unsigned int    cbBandSize;           /**< Size of raster in bytes */
     unsigned char   *pBandRaster;         /**< Uncompressed Band data */
@@ -837,7 +865,11 @@ typedef struct tyBandPacket{
 /*! \brief Stores page list.
 */
 typedef struct stPageList{
-    PMS_TyPage *    pPage;                   /**< Page information. */
+#ifdef PMS_OIL_MERGE_DISABLE
+    PMS_TyPage *    pPage;
+#else
+    OIL_TyPage *    pPage;                   /**< Page information. */
+#endif
     struct stPageList * pNext;               /**< Next page. */
 }PMS_TyPageList;
 
@@ -934,15 +966,27 @@ typedef struct {
     unsigned int      cbPMSMemory;     /*!< size of the memory allocated for PMS in bytes */
     unsigned int      nStoreJobBeforeRip;/*!<store whole job before passing to rip */
     unsigned int      nOILconfig;      /*!< bitfield to setup OIL for custom config eg scalable consumption */
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_ePaperSelectMode ePaperSelectMode; /*!< Paper selection mode */
+#else
+    OIL_ePaperSelectMode ePaperSelectMode; /*!< Paper selection mode */
+#endif
     unsigned int      uDefaultResX;    /*!< Default horizontal resolution (can  be overriden by job). */
     unsigned int      uDefaultResY;    /*!< Default vertical resolution (can  be overriden by job). */
     PMS_eImageQuality eImageQuality;   /*!< Default bpp (can  be overriden by job). */
     unsigned int      bOutputBPPMatchesRIP;/*!< Output bit depth same as rendered bit depth */
     unsigned int      uOutputBPP;          /*!< Output bit depth if not matching rendered bit depth */
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_eColorMode    eDefaultColMode; /*!< Default color mode (can be overriden by job). */
+#else
+    OIL_eColorMode	  eDefaultColMode; /*!< Default color mode (can be overriden by job). */
+#endif
     unsigned char     bForceMonoIfCMYblank;/*!< true = force monochrome if CMY absent, false = output all planes even if blank*/
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_eScreenMode   eDefaultScreenMode; /*!< Default screen mode (can be overriden by job). */
+#else
+    OIL_eScreenMode   eDefaultScreenMode; /*!< Default screen mode (can be overriden by job). */
+#endif
     unsigned int      cPagesPrinted;   /*!< Count of pages printed */
     unsigned int      uPjlPassword;    /*!< Password for protected PJL commands */
     PMS_ePersonality  ePersonality;    /* Default PDL */

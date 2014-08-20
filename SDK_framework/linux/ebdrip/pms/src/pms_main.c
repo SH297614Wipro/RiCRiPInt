@@ -22,7 +22,9 @@
 #include "pms_interface_oil2pms.h"
 #include "pms_input_manager.h"
 #include <string.h> /* for strcpy */
+#ifdef PMS_OIL_MERGE_DISABLE
 #include "pms_filesys.h"
+#endif
 #include "pms_config.h"
 #ifdef PMS_INPUT_IS_FILE
 #include "pms_file_in.h"
@@ -34,6 +36,24 @@
 #include "pms_thread.h"
 
 #include <ctype.h> /* for toupper */
+
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+#include <pthread.h>
+
+#include "gps/gps_client.h"
+#include "gpssim.h"
+#include "gps/gwipc.h"
+#include "gw_gps.h"
+#include "gps_func.h"
+#include "modelinfo.h"
+#include "gps_color_mtype.h"
+#include "info.h"
+#include "pageprint.h"
+#include "gps/pageio.h"
+#include "gps/device.h"
+#include "gps/pager.h"
+#endif
+
 
 #ifdef PMS_DEBUG
 #define DEBUG_STR   "D"
@@ -82,7 +102,11 @@ void *g_csSocketInput;   /* Critical section for thread-safe accessing of l_tPMS
 int g_printPMSLog;
 
 unsigned int g_bDebugMemory;
+#ifdef PMS_OIL_MERGE_DISABLE
 int l_bEarlyRIPStart = FALSE;  /* TRUE means start RIP before job is opened/received */
+#else
+int l_bEarlyRIPStart = TRUE;
+#endif
 
 const char *g_mps_log = NULL ;
 unsigned long g_mps_telemetry = 0x63 ; /* User, Alloc, Pool, Arena */
@@ -92,15 +116,73 @@ char * g_pPMSConfigFile = NULL;
 #ifdef PMS_HOT_FOLDER_SUPPORT
 char * g_pPMSHotFolderPath = NULL;
 #endif
+
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+#define REQ_MEMORY 12*1024*1024
+#define GPS_PENV_NAME_PCL 	"PCL"
+#define GPS_PENV_NAME_COMMON "COMMON"
+#endif
+
+#ifndef PMS_OIL_MERGE_DISABLE
+OIL_TyJob g_tJob; // This may not requried. Revist & check again.
+#endif
+
+
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+static gwmsg_client_t gpsClient;
+gwmsg_client_t *gps_client = &gpsClient;
+static char *shdm_addr;
+char *gps_shdm_addr;
+gps_sysinfo_t  sysinfo;
+gps_trayinfo_t *gpsTrayInfo;
+static gps_bininfo_t *gpsBinInfo;
+static gps_hddinfo2_t hddinfo_download;
+static gps_pageinfo_t  pageinfo;
+static gps_prtinfo_t gpsPrtInfo;
+static gps_paperinfo_t gpsPaperInfo;
+static sim_prtinfo_t simPrtInfo;
+static gps_pageparam_t pageparam;
+gps_color_rid_t rID[4];
+caddr_t memaddr;
+#endif
+
+
 /* Forward Declarations */
 static void InitGlobals(void);
+#ifdef PMS_OIL_MERGE_DISABLE
 static PMS_TyJob * CreateJob(unsigned int nJobNumber);
+#else
+static OIL_TyJob * CreateJob(unsigned int nJobNumber);
+#endif
 static void CleanUp();
+#ifdef PMS_OIL_MERGE_DISABLE
 static void ParseCommandLine(void);
+#endif
 
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+
+void Init_gps(void);
+int gwmsg_interp_handler(void *cl, gwmsg_t *m);
+int GPS_Color_getShrd_1(void);
+int GPS_Color_getID2_1(int hdpi, int vdpi, int bit, int draw, unsigned char prt,unsigned char paper);
+int	GPS_Color_getRID_1( int, gps_color_rid_t*, long* );
+int GPS_GetModelInfo_1(char  dummy, char num,char	*key, char	*category, 	unsigned char value_len);
+int GPS_GetSysInfo_1();
+int GPS_TrayInfo_1();
+int GPS_BinInfo_1();
+int GPS_GetFontInfo_1();
+int GPS_gpsGetHddInfo2_1(int hdd, gps_hddinfo2_t hddinfo2);
+int GPS_GetBitSw_1(int num);
+int GPS_GetPrmInfo_1(int f_id, int *status, int size,	long *maxsize);
+void InitGlobals_gps(void);
+void GetJobSettings_gps(void);
+extern void GWID_Event_Handler(void *cl, gwmsg_t *m);
+#endif
 /** Array of PMS API function pointers */
 static PMS_API_FNS l_apfnRip_IF_KcCalls = NULL;
 extern int PMS_RippingComplete();
+int g_jobAvailable=0;
+
 
 /**
  * \brief Entry point for PMS Simulator
@@ -109,27 +191,71 @@ extern int PMS_RippingComplete();
  */
 int PMS_main()
 {
+//#ifdef PMS_OIL_MERGE_DISABLE
   void *pPMSOutThread = NULL;
+//#endif
   void *pOILThread = NULL;
 
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+  Init_gps();
+#endif
+  
   /* Initialise PMS API Function pointers array */
   l_apfnRip_IF_KcCalls = PMS_InitAPI();
 
   /* Initialise essential structures, this memory will never be released. */
   /* Initialize Global structures */
   InitGlobals();
+  
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+  GPS_Color_getShrd_1();
 
+  //revisit - why gpsColor_getID2, gpsColor_getID, GPS_Color_getRID_1    - should be in job seq & media handling
+  GPS_Color_getID2_1(600, 600, 2, PHOTO_DRAWMODE, HIGH_PRINTMODE, GPS_PAPER_NORMAL);
+  int modeID = gpsColor_getID(gps_client, 1200, 1200, 1, PHOTO_DRAWMODE);
+//  gps_color_rid_t rID[5];
+  long rID_size;
+	int gps_notify =0;
+//  int gps_paperId = 133; //Needs to be updated with MACRO or....
+  int gps_paperId = 130; //Needs to be replaced with MACRO in GetPaperInfo() call...
+  GPS_Color_getRID_1( modeID, rID, &rID_size );
+  GPS_GetModelInfo_1(0, 1, "color_prm_val", "COLOR", 32);
+  GPS_GetSysInfo_1();
+	int GPSGetPaperInfoRetVal;
+#endif
+
+#ifdef PMS_OIL_MERGE_DISABLE
   /* Initialise file system */
   PMS_FS_InitFS();
 
   /* Parse command line */
   ParseCommandLine();
+#else
+  g_tSystemInfo.eOutputType = PMS_TIFF;
+  strcpy(g_tSystemInfo.szOutputPath, "../../output");
+  g_pPMSConfigFile = "../../output/tray_SEF.cnf";
+  nJobs = 1;
+  char *JobName = "../../output/test.prn";
+  g_tSystemInfo.uUseEngineSimulator = FALSE;
+  g_tSystemInfo.uUseRIPAhead = FALSE;
+  printf("g_SocketInPort = %d \n", g_SocketInPort);
+  g_tSystemInfo.bFileInput = FALSE;
+#endif
 
+#ifdef PMS_OIL_MERGE_DISABLE_BU
   /* Initialise input trays */
   g_nInputTrays = EngineGetTrayInfo();
 
-    /* Initialise output trays */
+  /* Initialise output trays */
   g_nOutputTrays = EngineGetOutputInfo();
+
+#else
+  GPS_TrayInfo_1();
+  GPS_BinInfo_1();
+  GPS_GetFontInfo_1();
+  GPS_GetPaperInfo(gps_client, gps_paperId, &gpsPaperInfo, gps_notify);
+#endif
+
 
   /* Read any config file specified on command line */
   if( g_pPMSConfigFile != NULL )
@@ -143,7 +269,45 @@ int PMS_main()
   }
 
   /* Set up default job settings (after ParseCommandLine() so as to honour its settings) */
+#ifdef PMS_OIL_MERGE_DISABLE_JS
   EngineGetJobSettings();
+#else
+  GetJobSettings_gps();
+#endif
+  
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+
+// call env functions
+
+  GPS_gpsGetHddInfo2_1(GPS_HDD_DOWNLOAD, hddinfo_download);
+  GPS_GetBitSw_1(BIT_SW_004); //should not be here --- review
+  {//just a block to declare a variable
+    long maxsize[2];
+	int status;
+    if(GPS_GetPrmInfo_1(GPS_PRMINFO_GET_COLOR_MODEL, &status, 2, maxsize))
+    {
+      switch(maxsize[0])
+	  {
+	    case GPS_CM_BW_MACHINE: //B&W
+		  g_tSystemInfo.eDefaultColMode = OIL_Mono;
+		  break;
+		case GPS_CM_FULL_COLOR_MACHINE: // Color
+		  g_tSystemInfo.eDefaultColMode = OIL_CMYK_Separations; // revisit OIL_eColorMode
+		  break;
+		case GPS_CM_TWIN_COLOR_MACHINE:  //two-color
+		  g_tSystemInfo.eDefaultColMode = OIL_Mono; // revisit OIL_eColorMode
+		  break;
+		default:
+		  g_tSystemInfo.eDefaultColMode = OIL_Mono;
+		  break;
+	  }
+    }
+  }
+
+  gpsInterpNotifyStart(gps_client, GPS_INTERP_PCL5c);
+  gpsInterpNotifyOnline(gps_client);
+  
+#endif
 
   if(PMS_IM_Initialize() == 0)
   {
@@ -172,7 +336,9 @@ int PMS_main()
     g_eRipState = PMS_Rip_Inactive;
     g_eJobState = PMS_Job_Inactive;
 
+//#ifdef PMS_OIL_MERGE_DISABLE_JS
     pPMSOutThread = (void*)StartOutputThread();
+//#endif
     pOILThread = (void*)StartOILThread();
 
     /* wait for everything to finish.... */
@@ -197,19 +363,24 @@ int PMS_main()
     PMS_CloseThread(pOILThread, 1000);
     pOILThread = NULL;
 
+//#ifdef PMS_OIL_MERGE_DISABLE_JS
+
     /* The PMS output thread may have to wait for mechanical
        hardware before if finishes, and so we'll allow longer
        for the thread to close cleanly */
     PMS_CloseThread(pPMSOutThread, 5000);
     pPMSOutThread = NULL;
+//#endif
 
   } while(g_tSystemInfo.nRestart);
 
   /* Cleanup and free input modules */
   PMS_IM_Finalize();
 
+#ifdef PMS_OIL_MERGE_DISABLE
   /* Shut down file system */
   PMS_FS_ShutdownFS();
+#endif
 
   CleanUp();
 
@@ -219,6 +390,11 @@ int PMS_main()
     DisplayMemStats();
 
   CheckMemLeaks();
+#endif
+
+#ifndef PMS_OIL_MERGE_DISABLE
+  gpsClose(gps_client, shdm_addr);
+  
 #endif
 
   return 1;
@@ -241,7 +417,7 @@ static void InitGlobals(void)
   g_eJobState = PMS_Job_Inactive;
   g_tSystemInfo.uUseEngineSimulator = FALSE;
   g_tSystemInfo.uUseRIPAhead = TRUE;
-  g_SocketInPort = 0;                 /* initialise to 0, this means no socket input is enabled */
+  g_SocketInPort = 9150;                 /* initialise to 0, this means no socket input is enabled */
   g_printPMSLog = 1;
   g_bLogPMSDebugMessages = 0;
   g_bTaggedBackChannel = 0;
@@ -253,15 +429,24 @@ static void InitGlobals(void)
   memset(g_tSystemInfo.szOutputPath,0,PMS_MAX_OUTPUTFOLDER_LENGTH);
   g_tSystemInfo.cbRIPMemory = DEFAULT_WORKING_MEMSIZE * 1024 * 1024;
   g_tSystemInfo.nOILconfig = 0;                        /* no custom OIL config */
+#ifdef PMS_OIL_MERGE_DISABLE
   g_tSystemInfo.ePaperSelectMode = PMS_PaperSelNone;
+#else
+  g_tSystemInfo.ePaperSelectMode = OIL_PaperSelNone;
+#endif
   g_tSystemInfo.uDefaultResX = 0;    /* set the default resolution in ParseCommandLine() */
   g_tSystemInfo.uDefaultResY = 0;
   g_tSystemInfo.eImageQuality = PMS_1BPP;
   g_tSystemInfo.bOutputBPPMatchesRIP = 1;
   g_tSystemInfo.uOutputBPP = 1;
-  g_tSystemInfo.eDefaultColMode = PMS_CMYK_Composite;
   g_tSystemInfo.bForceMonoIfCMYblank = TRUE;
+#ifdef PMS_OIL_MERGE_DISABLE
+  g_tSystemInfo.eDefaultColMode = PMS_CMYK_Separations;
   g_tSystemInfo.eDefaultScreenMode = PMS_Scrn_ORIPDefault;
+#else
+  g_tSystemInfo.eDefaultColMode = OIL_CMYK_Separations;
+  g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_ORIPDefault;
+#endif
   g_tSystemInfo.cPagesPrinted = 0;                    /* TODO: make this value persist */
   g_tSystemInfo.uPjlPassword = 0;                     /* TODO: make this value persist */
   g_tSystemInfo.ePersonality = PMS_PERSONALITY_AUTO;  /* TODO: make this value persist */
@@ -280,7 +465,9 @@ static void InitGlobals(void)
   strcpy(g_tSystemInfo.szProduct, PMS_PRINTER_PRODUCT);
   strcpy(g_tSystemInfo.szPDFSpoolDir, PMS_PDFSPOOL_DIR);
   g_tSystemInfo.bFileInput = FALSE;
+#ifdef MULTI_PROCESS
   g_tSystemInfo.nRendererThreads = 1;
+#endif
 #ifdef PMS_SUPPORT_TIFF_OUT
   g_tSystemInfo.eOutputType = PMS_TIFF; /* Default to TIFF if supported */
 #else
@@ -307,9 +494,12 @@ static void InitGlobals(void)
   g_semPageQueue = PMS_CreateSemaphore(0);
   g_semTaggedOutput = PMS_CreateSemaphore(1);
   g_semPageComplete = PMS_CreateSemaphore(0);
+  
+  InitGlobals_gps();
 
 }
 
+#ifdef PMS_OIL_MERGE_DISABLE
 /**
  * \brief Routine to display the command line options
  *
@@ -663,6 +853,7 @@ static void ParseCommandLine(void)
             break;
           }
 
+#ifdef PMS_OIL_MERGE_DISABLE
           switch (atoi(str))
           {
           case 0:
@@ -691,6 +882,36 @@ static void ParseCommandLine(void)
             g_tSystemInfo.eDefaultScreenMode = PMS_Scrn_Auto;
             break;
           }
+#else
+          switch (atoi(str))
+          {
+          case 0:
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_Auto;
+            break;
+          case 1:
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_Photo;
+            break;
+          case 2:
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_Graphics;
+            break;
+          case 3:
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_Text;
+            break;
+          case 4:
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_ORIPDefault;
+            break;
+          case 5:
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_Job;
+            break;
+          case 6:
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_Module;
+            break;
+          default:
+            PMS_SHOW_ERROR("Error: -h (%d) - Unsupported screen mode request, setting auto \n", atoi(str));
+            g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_Auto;
+            break;
+          }
+#endif
           break;
 #ifdef PMS_HOT_FOLDER_SUPPORT
           case 'i':
@@ -960,6 +1181,7 @@ static void ParseCommandLine(void)
             break;
           }
 
+#ifdef PMS_OIL_MERGE_DISABLE
           switch (atoi(str))
           {
           case 0:
@@ -975,6 +1197,23 @@ static void ParseCommandLine(void)
             PMS_SHOW_ERROR("Error: -t (%d) - Unsupported media selection mode request, setting default \n", atoi(str));
             break;
           }
+#else
+          switch (atoi(str))
+          {
+          case 0:
+            g_tSystemInfo.ePaperSelectMode = OIL_PaperSelNone;
+            break;
+          case 1:
+            g_tSystemInfo.ePaperSelectMode = OIL_PaperSelRIP;
+            break;
+          case 2:
+            g_tSystemInfo.ePaperSelectMode = OIL_PaperSelPMS;
+            break;
+          default:
+            PMS_SHOW_ERROR("Error: -t (%d) - Unsupported media selection mode request, setting default \n", atoi(str));
+            break;
+          }
+#endif
           break;
 
         case 'q':
@@ -1016,6 +1255,7 @@ static void ParseCommandLine(void)
             break;
           }
 
+#ifdef PMS_OIL_MERGE_DISABLE
           switch (atoi(str))
           {
           case 1:
@@ -1049,6 +1289,33 @@ static void ParseCommandLine(void)
             g_tSystemInfo.eDefaultColMode = PMS_CMYK_Composite;
             break;
           }
+#else
+          switch (atoi(str))
+          {
+          case 1:
+            g_tSystemInfo.eDefaultColMode = OIL_Mono;
+            break;
+          case 2:
+            g_tSystemInfo.eDefaultColMode = OIL_CMYK_Separations;
+            break;
+          case 3:
+            g_tSystemInfo.eDefaultColMode = OIL_CMYK_Composite;
+            break;
+          case 4:
+            g_tSystemInfo.eDefaultColMode = OIL_RGB_Separations;
+            break;
+          case 5:
+            g_tSystemInfo.eDefaultColMode = OIL_RGB_Composite;
+            break;
+          case 6:
+            g_tSystemInfo.eDefaultColMode = OIL_RGB_PixelInterleaved;
+            break;
+          default:
+            PMS_SHOW_ERROR("Error: -r (%d) - Unsupported color mode request, setting cmyk sep\n", atoi(str));
+            g_tSystemInfo.eDefaultColMode = OIL_CMYK_Separations;
+            break;
+          }
+#endif
           break;
 
         case 's':
@@ -1331,7 +1598,11 @@ static void ParseCommandLine(void)
   }
 
   /* RGB pixel interleaved direct from RIP require 8 bpp */
+#ifdef PMS_OIL_MERGE_DISABLE
   if(g_tSystemInfo.eDefaultColMode == PMS_RGB_PixelInterleaved) {
+#else
+  if(g_tSystemInfo.eDefaultColMode == OIL_RGB_PixelInterleaved) {
+#endif
     if(g_tSystemInfo.eImageQuality != PMS_8BPP_CONTONE) {
       PMS_SHOW_ERROR("Warning: In-RIP RGB Pixel Interleaving requires 8 bits per pixel per colorant.  Changing to 8 bpp (-d 8).\n");
       g_tSystemInfo.eImageQuality = PMS_8BPP_CONTONE;
@@ -1379,6 +1650,7 @@ static void ParseCommandLine(void)
     g_tSystemInfo.eBandDeliveryType = PMS_PUSH_BAND;
   }
 }
+#endif
 
 
 /**
@@ -1388,7 +1660,11 @@ static void ParseCommandLine(void)
  */
 void StartOIL()
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyJob * pstJob;
+#else
+  OIL_TyJob * pstJob;
+#endif
   static unsigned int  nJobNumber = 1;
   int bJobSubmitted;
   int bJobSucceeded;
@@ -1446,7 +1722,11 @@ void StartOIL()
       PMS_IM_CloseActiveDataStream();
 
       /* job finished, free resource */
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
       OSFree(pstJob,PMS_MemoryPoolPMS);
+#else
+      mfree(pstJob);
+#endif
     }
     /* If restart is requested, then get out of this loop */
     if(g_tSystemInfo.nRestart) {
@@ -1468,13 +1748,21 @@ static void CleanUp()
 {
   if( g_pstTrayInfo != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OSFree( g_pstTrayInfo, PMS_MemoryPoolPMS );
+#else
+    mfree( g_pstTrayInfo);
+#endif
     g_pstTrayInfo = NULL;
     g_nInputTrays = 0;
   }
   if( g_pstOutputInfo != NULL )
   {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OSFree( g_pstOutputInfo, PMS_MemoryPoolPMS );
+#else
+    mfree( g_pstOutputInfo);
+#endif
     g_pstOutputInfo = NULL;
     g_nOutputTrays = 0;
   }
@@ -1494,13 +1782,29 @@ static void CleanUp()
  *
  * Routine to initialize the job structure which is then passed on to the RIP.\n
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 static PMS_TyJob * CreateJob(unsigned int nJobNumber)
 {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   PMS_TyJob * pstJob = (PMS_TyJob *)OSMalloc(sizeof(PMS_TyJob),PMS_MemoryPoolPMS);
-
+#else
+  PMS_TyJob * pstJob = (PMS_TyJob *)mmalloc(sizeof(PMS_TyJob));
+#endif
   if( pstJob != NULL )
   {
     memcpy( pstJob, &g_tJob, sizeof(PMS_TyJob) );
+#else
+static OIL_TyJob * CreateJob(unsigned int nJobNumber)
+{
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  OIL_TyJob * pstJob = (OIL_TyJob *)OSMalloc(sizeof(OIL_TyJob),PMS_MemoryPoolPMS);
+#else
+  OIL_TyJob * pstJob = (OIL_TyJob *)mmalloc(sizeof(OIL_TyJob));
+#endif
+  if( pstJob != NULL )
+  {
+    memcpy( pstJob, &g_tJob, sizeof(OIL_TyJob) );
+#endif
 
     pstJob->uJobId = nJobNumber;              /* Job ID number */
 #ifdef PMS_INPUT_IS_FILE
@@ -1514,3 +1818,735 @@ static PMS_TyJob * CreateJob(unsigned int nJobNumber)
 }
 
 
+#ifndef PMS_OIL_MERGE_DISABLE_BU
+void Init_gps(void) 
+{
+  pthread_attr_t attr;
+  struct sched_param di_param;
+  pthread_attr_init(&attr);
+  pthread_attr_setschedpolicy(&attr, SCHED_RR);
+  pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  di_param.sched_priority = sched_get_priority_max(SCHED_RR);
+  pthread_attr_setschedparam(&attr, &di_param);
+  
+  gps_shdm_addr = NULL;
+  memaddr = NULL;
+  if ( 0 != gpsOpen(gps_client, GWID_Event_Handler, &attr, (void *)(&shdm_addr)) )
+  {
+    printf("gpsOpen() ERROR \n");
+	//exit(0);
+  }
+  gps_shdm_addr = &shdm_addr;
+  
+  gpsPmInit(gps_client, 0, 0);
+  gpsPmDispSetEmulation(SET_DISP, SET_DISP,SET_DISP, "PCL5e");
+  
+  if ( gpsWkSizeFree(gps_client) > REQ_MEMORY )
+    memaddr = gpsWkMalloc(gps_client, REQ_MEMORY );
+  else
+  {
+    printf("Not enough memory \n");
+	//exit(0);
+  }
+  printf("memaddr = %p \n", (void*)memaddr);
+}
+
+int GPS_Color_getShrd_1(void)
+{
+  long loffset;
+  gps_nclr_shdm_t *clr_shm;
+  if(loffset = gpsColor_getShrd( gps_client ))
+    clr_shm = (gps_nclr_shdm_t*)((long)gps_shdm_addr + loffset);
+  else
+    return -1;
+	
+  // To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 292
+  
+  
+  return 0;
+}
+
+int GPS_Color_getID2_1(int hdpi, int vdpi, int bit, int draw, unsigned char prt,unsigned char paper)
+{
+  int modeID ;
+  gpsColor_getID2(gps_client, hdpi, vdpi, bit, draw, prt, paper, &modeID);
+  return modeID;
+}
+
+int	GPS_Color_getRID_1( int modeID, gps_color_rid_t *rID, long *rID_size )
+{ 
+   return gpsColor_getRID(gps_client, modeID, rID, rID_size);
+}
+
+int GPS_GetModelInfo_1(char  dummy, char num,char	*key, char	*category, 	unsigned char value_len)
+{
+  unsigned char value[65];
+  if( SERCH_OK != gpsGetModelInfo(gps_client, dummy, num, (unsigned char *) key, (unsigned char *)category, value_len, value) )
+    return -1;
+	
+   // To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 208 209
+   
+   return 0;
+}
+
+int GPS_GetSysInfo_1()
+{
+  if( 0 != gpsGetSysInfo(gps_client, &sysinfo) )
+    return -1;
+	
+  strcpy(g_tSystemInfo.szManufacturer, sysinfo.maker);
+  strcpy(g_tSystemInfo.szProduct, sysinfo.model);
+  g_nInputTrays = sysinfo.num_tray; //Override by EngineGetTrayInfo(), Do reassign in GPS_TrayInfo.
+  g_nOutputTrays = sysinfo.num_bin; //Override by EngineGetTrayInfo(), Do reassign in GPS_BinInfo.
+  
+  // To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 8 to 13
+  /*
+  num_tray ----- Number of input trays.
+  num_bin ------ Number of output bins.
+  disp_lines/disp_columns  -------  The number of lines displayed on the screen, and the number of characters per line.
+  */
+  return 0;
+}
+
+int GPS_TrayInfo_1()
+{
+  long trayNum;
+  int nTrayIndex;
+
+#define YET_TO_FIND_0 200
+#define YET_TO_FIND_1 201
+#define YET_TO_FIND_2 202
+#define YET_TO_FIND_3 203
+#define YET_TO_FIND_4 204
+#define YET_TO_FIND_5 205
+#define YET_TO_FIND_6 206
+#define YET_TO_FIND_7 207
+
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  gpsTrayInfo = (gps_trayinfo_t*) OSMalloc(sysinfo.num_tray * sizeof(gps_trayinfo_t), PMS_MemoryPoolPMS);
+  g_pstTrayInfo = (PMS_TyTrayInfo*) OSMalloc(sysinfo.num_tray * sizeof(PMS_TyTrayInfo), PMS_MemoryPoolPMS);
+#else
+  gpsTrayInfo = (gps_trayinfo_t*) mmalloc(sysinfo.num_tray * sizeof(gps_trayinfo_t));
+  g_pstTrayInfo = (PMS_TyTrayInfo*) mmalloc(sysinfo.num_tray * sizeof(PMS_TyTrayInfo));
+#endif
+
+  if( -1 == gpsGetTrayInfo(gps_client, sysinfo.num_tray, gpsTrayInfo, &trayNum, GPS_NOTIFY_CHANGE_OFF) )
+    return -1;
+  // To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 37
+  // gpsGetTrayInfo - page no 197
+
+  for(nTrayIndex = 0; nTrayIndex < trayNum; nTrayIndex++)
+  {
+    switch(gpsTrayInfo[nTrayIndex].id)
+	{
+	  case 0:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_MANUALFEED;
+		break;
+      case 1:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_TRAY1;
+		break;
+      case 2:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_TRAY2;
+		break;
+      case 3:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_TRAY3;
+		break;
+      default:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_AUTO; 
+		break;
+		
+		//Yet to map PMS_TRAY_BYPASS, PMS_TRAY_ENVELOPE
+	}
+	
+	
+	//Guess!!!!!!  the paper size.
+	/*
+	GPS_CODE_NO_PAPER = 0,
+	GPS_CODE_A0,		GPS_CODE_A1,		GPS_CODE_A2,		GPS_CODE_A3,
+	GPS_CODE_A4,		GPS_CODE_A5,		GPS_CODE_A6,		GPS_CODE_A7,
+	GPS_CODE_B0,		GPS_CODE_B1,		GPS_CODE_B2,		GPS_CODE_B3,
+	GPS_CODE_B4,		GPS_CODE_B5,		GPS_CODE_B6,		GPS_CODE_B7,
+	GPS_CODE_WMAIL,		GPS_CODE_MAIL,		GPS_CODE_LINE1,		GPS_CODE_LINE2,
+	GPS_CODE_LIB6,		GPS_CODE_LIB8,		GPS_CODE_210x170,	GPS_CODE_210x182,
+	GPS_CODE_267x388,
+
+	GPS_CODE_FREEmm = 31,
+	GPS_CODE_11x17,
+	GPS_CODE_11x14,		GPS_CODE_10x15,		GPS_CODE_10x14,		GPS_CODE_8Hx14,
+	GPS_CODE_8Hx13,		GPS_CODE_8Hx11,		GPS_CODE_8Qx14,		GPS_CODE_8Qx13,
+	GPS_CODE_8x13,		GPS_CODE_8x10H,		GPS_CODE_8x10,		GPS_CODE_5Hx8H,
+	GPS_CODE_7Qx10H,
+
+	GPS_CODE_12x18 = 47,
+	GPS_CODE_12x14H,
+	GPS_CODE_11x15,		GPS_CODE_9Hx11,		 GPS_CODE_8Hx12,	GPS_CODE_13x19,
+
+	GPS_CODE_8KAI = 66,
+	GPS_CODE_16KAI,
+
+	GPS_CODE_NO_10 = 80,
+	GPS_CODE_NO_7,
+
+	GPS_CODE_C5 = 83,
+	GPS_CODE_C6,		GPS_CODE_DL,
+
+	GPS_CODE_NO_SIZE = 128,
+	GPS_CODE_A0T,		GPS_CODE_A1T,		GPS_CODE_A2T,		GPS_CODE_A3T,
+	GPS_CODE_A4T,		GPS_CODE_A5T,		GPS_CODE_A6T,		GPS_CODE_A7T,
+	GPS_CODE_B0T,		GPS_CODE_B1T,		GPS_CODE_B2T,		GPS_CODE_B3T,
+	GPS_CODE_B4T,		GPS_CODE_B5T,		GPS_CODE_B6T,		GPS_CODE_B7T,
+	GPS_CODE_WMAILT,	GPS_CODE_MAILT,		GPS_CODE_LINE1T,	GPS_CODE_LINE2T,
+	GPS_CODE_LIB6T,		GPS_CODE_LIB8T,		GPS_CODE_210x170T,	GPS_CODE_210x182T,
+	GPS_CODE_267x388T,
+
+	GPS_CODE_FREEmmT = 159,
+	GPS_CODE_11x17T,
+	GPS_CODE_11x14T,	GPS_CODE_10x15T,	GPS_CODE_10x14T,	GPS_CODE_8Hx14T,
+	GPS_CODE_8Hx13T,	GPS_CODE_8Hx11T,	GPS_CODE_8Qx14T,	GPS_CODE_8Qx13T,
+	GPS_CODE_8x13T,		GPS_CODE_8x10HT,	GPS_CODE_8x10T,		GPS_CODE_5Hx8HT,
+	GPS_CODE_7Qx10HT,
+
+	GPS_CODE_12x18T = 175,
+	GPS_CODE_12x14HT,
+	GPS_CODE_11x15T,	GPS_CODE_9Hx11T,	 GPS_CODE_8Hx12T,	GPS_CODE_13x19T,
+
+	GPS_CODE_8KAIT = 194,
+	GPS_CODE_16KAIT,
+
+	GPS_CODE_NO_10T = 208,
+	GPS_CODE_NO_7T,
+
+	GPS_CODE_C5T = 211,
+	GPS_CODE_C6T,		GPS_CODE_DL_T
+	*/
+	
+	switch(gpsTrayInfo[nTrayIndex].p_size)
+	{
+	  case GPS_CODE_8Hx11:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LETTER;
+	    break;
+	  case GPS_CODE_A4:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A4;
+	    break;
+	  case GPS_CODE_8Hx14:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEGAL;
+	    break;
+	  case GPS_CODE_7Qx10H:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_EXE;
+	    break;
+	  case GPS_CODE_A3:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A3;
+	    break;
+	  case GPS_CODE_11x17:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_TABLOID;
+	    break;
+	  case GPS_CODE_A5:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A5;
+	    break;
+	  case GPS_CODE_A6:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A6;
+	    break;
+	  case GPS_CODE_C5:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_C5_ENV;
+	    break;
+	  case GPS_CODE_DL:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_DL_ENV;
+	    break;
+	  case YET_TO_FIND_0:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEDGER;
+	    break;
+	  case YET_TO_FIND_2:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_OFUKU;
+	    break;
+	  case GPS_CODE_10x14:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB4;
+	    break;
+	  case YET_TO_FIND_3:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB5;
+	    break;
+	  case GPS_CODE_8Hx11T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LETTER_R;
+	    break;
+	  case GPS_CODE_A4T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A4_R;
+	    break;
+	  case GPS_CODE_8Hx14T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEGAL_R;
+	    break;
+	  case GPS_CODE_7Qx10HT:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_EXE_R;
+	    break;
+	  case GPS_CODE_A3T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A3_R;
+	    break;
+	  case GPS_CODE_11x17T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_TABLOID_R;
+	    break;
+	  case GPS_CODE_A5T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A5_R;
+	    break;
+	  case GPS_CODE_A6T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A6_R;
+	    break;
+	  case GPS_CODE_C5T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_C5_ENV_R;
+	    break;
+	  case GPS_CODE_DL_T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_DL_ENV_R;
+	    break;
+	  case YET_TO_FIND_4:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEDGER_R;
+	    break;
+	  case YET_TO_FIND_5:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_OFUKU_R;
+	    break;
+	  case GPS_CODE_10x14T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB4_R;
+	    break;
+	  case YET_TO_FIND_6:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB5_R;
+	    break;
+	  case YET_TO_FIND_7:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_CUSTOM;
+	    break;
+	  default:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_DONT_KNOW;
+	    break;
+	}
+	
+	switch(gpsTrayInfo[nTrayIndex].p_kind)
+	{
+	  case DI_PAPER_NORMAL:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_PLAIN;
+	    break;
+	  case DI_PAPER_BOND:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_BOND;
+	    break;
+	  case DI_PAPER_SPECIAL:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_SPECIAL;
+	    break;
+	  case DI_PAPER_GLOSSY:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_GLOSSY;
+	    break;
+	  case DI_PAPER_OHP:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_TRANSPARENCY;
+	    break;
+	  case DI_PAPER_RECYCLE:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_RECYCLED;
+	    break;
+	  case DI_PAPER_MIDDLETHICK:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_THICK;
+	    break;
+	  case DI_PAPER_ENVELOPE:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_ENVELOPE;
+	    break;
+	  case DI_PAPER_POSTCARD:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_POSTCARD;
+	    break;
+	  case DI_PAPER_THIN:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_THIN;
+	    break;
+	  case DI_PAPER_LABEL:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_LABEL;
+	    break;
+	  case DI_PAPER_PREPRINT:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_PREPRINTED;
+	    break;
+	  case DI_PAPER_LETTER_HEAD:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_LETTERHEAD;
+	    break;
+	  default:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_DONT_KNOW;
+	    break;
+	}
+	
+	
+	
+    g_pstTrayInfo[nTrayIndex].eMediaColor = PMS_COLOR_DONT_KNOW; // yet to map
+    g_pstTrayInfo[nTrayIndex].uMediaWeight = 0; // yet to map
+    g_pstTrayInfo[nTrayIndex].nPriority = nTrayIndex; // assumption yet to conform. 
+	
+	
+	
+    g_pstTrayInfo[nTrayIndex].bTrayEmptyFlag = (GPS_TRAY_PAPEREND == gpsTrayInfo[nTrayIndex].status);
+    g_pstTrayInfo[nTrayIndex].nNoOfSheets = gpsTrayInfo[nTrayIndex].remain;
+
+  }
+  
+  g_nInputTrays = sysinfo.num_tray;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  OSFree( gpsTrayInfo, PMS_MemoryPoolPMS );
+#else
+  mfree( gpsTrayInfo );
+#endif
+  gpsTrayInfo = NULL;
+    
+  return 0;
+}
+
+int GPS_BinInfo_1()
+{
+  long binInfo;
+  int nTrayIndex;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  gpsBinInfo = (gps_bininfo_t*) OSMalloc(sysinfo.num_bin * sizeof(gps_bininfo_t), PMS_MemoryPoolPMS);
+  g_pstOutputInfo = (PMS_TyOutputInfo*) OSMalloc(sysinfo.num_bin * sizeof(PMS_TyOutputInfo), PMS_MemoryPoolPMS);
+#else
+  gpsBinInfo = (gps_bininfo_t*) mmalloc(sysinfo.num_bin * sizeof(gps_bininfo_t));
+  g_pstOutputInfo = (PMS_TyOutputInfo*) mmalloc(sysinfo.num_bin * sizeof(PMS_TyOutputInfo));
+#endif
+
+  if( -1 == gpsGetBinInfo(gps_client, sysinfo.num_bin, gpsBinInfo, &binInfo, GPS_NOTIFY_CHANGE_OFF) )
+    return -1;
+  
+  // To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 40
+  // gpsGetTrayInfo - page no 200
+  
+  for(nTrayIndex = 0; nTrayIndex < binInfo; nTrayIndex++)
+  {
+    //g_pstOutputInfo[nTrayIndex].eOutputTray = gpsBinInfo[nTrayIndex].id;
+	switch (gpsBinInfo[nTrayIndex].id)
+	{
+	  case 1:
+	  case 2:
+	  case 3:
+	    g_pstOutputInfo[nTrayIndex].eOutputTray = gpsBinInfo[nTrayIndex].id;
+	    break;
+	  default:
+	    g_pstOutputInfo[nTrayIndex].eOutputTray = PMS_OUTPUT_TRAY_AUTO;
+	    break;
+      // yet to map  PMS_OUTPUT_TRAY_UPPER, PMS_OUTPUT_TRAY_LOWER, PMS_OUTPUT_TRAY_EXTRA
+	}
+    g_pstOutputInfo[nTrayIndex].nPriority = nTrayIndex     ;//assumption yet to conform. 
+	
+  }
+
+  g_nOutputTrays = sysinfo.num_bin;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  OSFree( gpsBinInfo, PMS_MemoryPoolPMS );
+#else
+  mfree( gpsBinInfo );
+#endif
+  gpsBinInfo = NULL;
+  
+  return 0;
+}
+
+int GPS_GetFontInfo_1()
+{
+  gps_fontinfo_t fontinfo;
+  if( -1 == gpsGetFontInfo(gps_client, GPS_FONT_PCL, &fontinfo) )
+    return -1;
+  
+  // To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 141, 70
+  return 0;
+}
+
+int GPS_PenvGetValue_1( char *penv_name, long gps_varID, long *penv_val )
+{
+  int penv = gpsPenvOpen(gps_client, penv_name, strlen(penv_name)+1);
+  if (penv < 0)
+    return -1;
+
+  gpsPenvGetValue(gps_client, penv, gps_varID, penv_val);
+  gpsPenvClose(gps_client, penv);
+
+  return 0;
+}
+/*
+int GPS_PenvSetValue( char *penv_name, long gps_varID, long *penv_val )
+{
+  int penv = gpsPenvOpen(gps_client, penv_name, strlen(penv_name)+1);
+  if (penv < 0)
+    return -1;
+
+  gpsPenvSetValue(gps_client, penv, gps_varID, penv_val);
+  gpsPenvClose(gps_client, penv);
+
+  return 0;
+}*/
+
+int GPS_PenvGetDefValue_1( char *penv_name, long gps_varID, long *penv_val )
+{
+  int penv = gpsPenvOpen(gps_client, penv_name, strlen(penv_name)+1);
+  if (penv < 0)
+    return -1;
+
+  gpsPenvGetDefValue(gps_client, penv, gps_varID, penv_val);
+  gpsPenvClose(gps_client, penv);
+
+  return 0;
+}
+
+int GPS_PenvSetDefValue_1( char *penv_name, long gps_varID, long penv_val )
+{
+  int penv = gpsPenvOpen(gps_client, penv_name, strlen(penv_name)+1);
+  if (penv < 0)
+    return -1;
+
+  gpsPenvSetDefValue(gps_client, penv, gps_varID, penv_val);
+  gpsPenvClose(gps_client, penv);
+
+  return 0;
+}
+
+
+//still more env functions.
+
+
+int GPS_gpsGetHddInfo2_1(int hdd, gps_hddinfo2_t hddinfo2)  
+{
+  int status;
+  if(gpsGetHddInfo2(gps_client, hdd, &status, &hddinfo2))
+    return status;
+
+  return -1;
+}
+
+int GPS_GetBitSw_1(int num)
+{
+  return gpsGetBitSw(gps_client, num);
+}
+
+int GPS_GetPrmInfo_1(int f_id, int *status, int size,	long *maxsize)
+{
+    return gpsGetPrmInfo( gps_client, f_id, status, size, maxsize );
+} 
+
+void InitGlobals_gps()
+{
+  long gps_value;
+
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_RESOLUTION, &gps_value))
+  {
+    g_tSystemInfo.uDefaultResX = gps_value;
+	g_tSystemInfo.uDefaultResY = gps_value;
+	printf("DefaultResX = %d \n", gps_value);
+  }
+
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_QUALITYMODE, &gps_value))
+  {
+    printf("GPS_PENV_VAR_ID_QUALITYMODE = %d \n",gps_value);
+	switch(gps_value)
+	{
+	  case PR_BITBLT_1BPP:  //PR_DEPTH_1BIT ???
+	    g_tSystemInfo.eImageQuality = PMS_1BPP;
+		g_tSystemInfo.bOutputBPPMatchesRIP = 1;
+		g_tSystemInfo.uOutputBPP = 1;
+		break;
+	  case PR_BITBLT_2BPP: 
+	    g_tSystemInfo.eImageQuality = PMS_2BPP;
+		g_tSystemInfo.bOutputBPPMatchesRIP = 2;
+		g_tSystemInfo.uOutputBPP = 2;
+		break;
+	  case PR_BITBLT_4BPP: //values need to be conformed
+	    g_tSystemInfo.eImageQuality = PMS_4BPP;
+		g_tSystemInfo.bOutputBPPMatchesRIP = 4;
+		g_tSystemInfo.uOutputBPP = 4;
+		break;
+	  case PR_BITBLT_8BPP: //values need to be conformed
+	    g_tSystemInfo.eImageQuality = PMS_8BPP_CONTONE;
+		g_tSystemInfo.bOutputBPPMatchesRIP = 8;
+		g_tSystemInfo.uOutputBPP = 8;
+		break;
+	  default: //values need to be conformed
+	    g_tSystemInfo.eImageQuality = PMS_1BPP;
+		g_tSystemInfo.bOutputBPPMatchesRIP = 1;
+		g_tSystemInfo.uOutputBPP = 1;
+		break;
+	}
+  }
+
+}
+
+void GetJobSettings_gps()
+{
+
+//******Initilize with Default values******later replace values from gps**********
+
+  PMS_TyPaperInfo * pPaperInfo = NULL;
+
+  g_tJob.uJobId = 0;                        /* Job ID number */
+  strcpy(g_tJob.szHostName, "Immortal");    /* Printer hostname */
+  strcpy(g_tJob.szUserName, "Scott");       /* Job user name */
+  g_tJob.szJobName[0] = '\0';               /* Job name */
+  g_tJob.szPjlJobName[0] = '\0';            /* PJL Job name */
+  g_tJob.uCopyCount = 1;                    /* Total copies to print */
+  g_tJob.uXResolution = g_tSystemInfo.uDefaultResX; /* x resolution */
+  g_tJob.uYResolution = g_tSystemInfo.uDefaultResY; /* y resolution */
+  g_tJob.uOrientation = 0;                  /* orientation, 0-portrait or 1-landscape */
+  
+  g_tJob.tCurrentJobMedia.ePaperSize = PMS_SIZE_A4;	/* A4*/
+  g_tJob.tCurrentJobMedia.uInputTray = PMS_TRAY_AUTO; 		   /* media source selection */
+  g_tJob.tCurrentJobMedia.uOutputTray = PMS_OUTPUT_TRAY_AUTO;   /* selected output tray */
+  strcpy((char*)g_tJob.tCurrentJobMedia.szMediaType, "");
+  strcpy((char*)g_tJob.tCurrentJobMedia.szMediaColor, "");
+  g_tJob.tCurrentJobMedia.uMediaWeight = 0;
+  PMS_GetPaperInfo(g_tJob.tCurrentJobMedia.ePaperSize, &pPaperInfo);
+  g_tJob.tCurrentJobMedia.dWidth = pPaperInfo->dWidth;
+  g_tJob.tCurrentJobMedia.dHeight = pPaperInfo->dHeight;
+
+  g_tJob.bAutoA4Letter = FALSE;   /* Automatic A4/letter switching */
+  /* get CUSTOM_PAPER size to initialise job structure (set from PJL) */
+  PMS_GetPaperInfo(PMS_SIZE_CUSTOM, &pPaperInfo);
+  g_tJob.dUserPaperWidth = pPaperInfo->dWidth;   /* User defined paper width */
+  g_tJob.dUserPaperHeight = pPaperInfo->dHeight ;  /* User defined paper height */
+  g_tJob.bManualFeed = FALSE;     /* Manual feed */
+  g_tJob.uPunchType = 1;          /* Punch type, single double etc */
+  g_tJob.uStapleType = 1;         /* staple operation, 1 hole, 2 hole, centre etc */
+  g_tJob.bDuplex = FALSE;         /* true = duplex, false = simplex */
+  g_tJob.bTumble = FALSE;         /* true = tumble, false = no tumble */
+  g_tJob.bCollate = FALSE;        /* true = collate, false = no collate */
+  g_tJob.bReversePageOrder = FALSE;   /* Reverse page order */
+  g_tJob.uBookletType = 1;        /* booklet binding, left, right */
+  g_tJob.uOhpMode = 1;            /* OHP interleaving mode */
+  g_tJob.uOhpType = 1;            /* OHP interleaving media type */
+  g_tJob.uOhpInTray = 1;          /* OHP interleaving feed tray */
+  g_tJob.uCollatedCount = 1;      /* Total collated copies in a job */
+
+  switch( g_tSystemInfo.eImageQuality )
+  {
+  case PMS_1BPP:
+    g_tJob.uRIPDepth = 1;
+    break;
+  case PMS_2BPP:
+    g_tJob.uRIPDepth = 2;
+    break;
+  case PMS_4BPP:
+    g_tJob.uRIPDepth = 4;
+    break;
+  case PMS_8BPP_CONTONE:
+    g_tJob.uRIPDepth = 8;
+    break;
+  case PMS_16BPP_CONTONE:
+    g_tJob.uRIPDepth = 16;
+    break;
+  default:
+    HQFAIL("Invalid image quality");
+    break;
+  }
+  g_tJob.bOutputDepthMatchesRIP = g_tSystemInfo.bOutputBPPMatchesRIP; /* Output bit depth. */
+  g_tJob.dVMI = 8.0;
+
+  g_tJob.uOutputBPP = g_tSystemInfo.uOutputBPP;         /* Output bit depth. */
+  g_tJob.eColorMode = g_tSystemInfo.eDefaultColMode;    /* 1=Mono; 2=SeparationsCMYK; 3=CompositeCMYK; 4=SeparationsRGB; 5=CompositeRGB; */
+  g_tJob.bForceMonoIfCMYblank = g_tSystemInfo.bForceMonoIfCMYblank; /* true = force mono if cmy absent, false = output all 4 planes */
+  g_tJob.eScreenMode = g_tSystemInfo.eDefaultScreenMode;/* Screening type */
+  g_tJob.bSuppressBlank = TRUE;  /* true = suppress blank pages, false = let blank pages pass through */
+  g_tJob.bPureBlackText = FALSE;  /* true = Pure Black Text enabled */
+  g_tJob.bAllTextBlack = FALSE;   /* true = All Text Black Enabled */
+  g_tJob.bBlackSubstitute = FALSE; /* true = Black Substitute enabled */
+
+  g_tJob.uFontNumber = 0;
+  strcpy(g_tJob.szFontSource, "I");
+  g_tJob.uLineTermination = 0;
+  g_tJob.dPitch = 10.0;
+  g_tJob.dPointSize = 12.0;
+  g_tJob.uSymbolSet = 277;        /* 8U - Roman-8 */
+
+  g_tJob.eRenderMode = PMS_RenderMode_Color;
+  g_tJob.eRenderModel = PMS_RenderModel_CMYK8B;
+  g_tJob.uJobOffset = 0;
+  g_tJob.bCourierDark = FALSE;
+  g_tJob.bWideA4 = FALSE;
+  g_tJob.bInputIsImage = FALSE; 
+  g_tJob.szImageFile[0] = '\0';   /* Image File */
+
+  g_tJob.eTestPage = OIL_TESTPAGE_NONE;   /* Test Page */
+
+  g_tJob.uPrintErrorPage = 0;   /* Print Error Page is off */
+  g_tJob.bFileInput = g_tSystemInfo.bFileInput; /* true = job input from file */
+  g_tJob.szJobFilename[0] = '\0';   
+  strcpy(g_tJob.szPDFPassword, "thassos");
+  g_tNextSystemInfo=g_tSystemInfo;
+
+
+//******************end********************************
+  long gps_value;
+  
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_RESOLUTION, &gps_value))
+  {
+    g_tJob.uXResolution = gps_value;
+	g_tJob.uYResolution = gps_value;
+	printf("DefaultResX = %d \n",gps_value);
+  }
+
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_ORIENTATION, &gps_value))
+  {
+    g_tJob.uOrientation = gps_value;
+	printf("uOrientation = %d \n",gps_value);
+  }
+
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_MEDIATYPE, &gps_value))
+  {
+	printf("MediaType = %d \n",gps_value);
+    switch(gps_value)
+    {
+      case DI_PAPER_NORMAL:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Plain" );
+      break;
+      case DI_PAPER_BOND:
+       strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Bond" );
+      break;
+      case DI_PAPER_SPECIAL:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Special" );
+      break;
+      case DI_PAPER_GLOSSY:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Glossy" );
+      break;
+      case DI_PAPER_OHP:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Transparency" );
+      break;
+      case DI_PAPER_RECYCLE:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Recycled" );
+      break;
+      case DI_PAPER_ENVELOPE:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Envelope" );
+      break;
+      case DI_PAPER_POSTCARD:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Postcard" );
+      break;
+      case DI_PAPER_THIN:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Thin" );
+      break;
+      case DI_PAPER_LABEL:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Label" );
+      break;
+      case DI_PAPER_PREPRINT:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Preprinted" );
+      break;
+      case DI_PAPER_LETTER_HEAD:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Letterhead" );
+      break;
+      default:
+        strcpy( (char *)g_tJob.tCurrentJobMedia.szMediaType, "Plain" );
+      break;
+    }
+  }
+  
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_TRAY, &gps_value))
+  {
+    //g_tJob.tCurrentJobMedia.uInputTray = gps_value;
+	printf("uInputTray = %d \n",gps_value);
+  }
+  
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_OUTBIN, &gps_value))
+  {
+    //g_tJob.tCurrentJobMedia.uOutputTray = gps_value;
+	printf("uOutputTray = %d \n",gps_value);
+  }
+  
+  if(0 == GPS_PenvGetDefValue_1(GPS_PENV_NAME_COMMON, GPS_PENV_VAR_ID_BOOKLETBINDING, &gps_value))
+  {
+    g_tJob.uBookletType = gps_value;
+  }
+ 
+}
+
+int gwmsg_interp_handler(void *cl, gwmsg_t *m)
+{
+    printf("Inside GPS handler function...\n\n");
+    return 0;
+}
+
+#endif

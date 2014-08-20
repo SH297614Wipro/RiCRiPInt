@@ -28,6 +28,10 @@ enum {
 };
 typedef int PMS_eTIFF_Errors;
 
+#ifdef PMS_OIL_MERGE_DISABLE
 int TIFF_PageHandler( PMS_TyPage *ptPMSPage );
+#else
+int TIFF_PageHandler( OIL_TyPage *ptPMSPage );
+#endif
 
 #endif /* _PMS_TIFF_OUT_H_ */

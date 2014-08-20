@@ -25,6 +25,7 @@
     DefaultVar C-Defines                : ASSERT_BUILD  : Build ASSERT ;
     DefaultVar C-Defines                : DEBUG_BUILD   : Build DEBUG ;
     DefaultVar C-Defines                : NOOPT_BUILD   : Build Non_OPTIMISE ;
+    DefaultVar C-Defines                : GWIPC_USE_SOCKET ;
 
     Space ?= " " ;
 

@@ -22,6 +22,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "pms_malloc.h"
+//#ifndef PMS_OIL_MERGE_DISABLE_JS //0
+#ifdef PMS_OIL_MERGE_DISABLE_JS
+#include "gw_gps.h"
+#endif
 
 /* Extern variable declarations */
 /*! \brief Number of jobs to be processed. Value is set by commandline parser */
@@ -50,6 +54,7 @@ int l_nStoreBufferUsed; /* The amount of valid data in the store buffer */
 int l_nStoreBufferPos; /* Position in the store buffer */
 char szJobFilename[256]; /* buffer to hold name of the job(full path) */
 
+
 /**
  * \brief Initialize the File Data Stream.
  *
@@ -62,6 +67,8 @@ int File_InitDataStream(void)
   nFiles = nJobs;
   szFilenames = aszJobNames;
   iFileIndex = 0;
+#ifdef PMS_OIL_MERGE_DISABLE_JS
+ #endif
 
   return TRUE;
 }

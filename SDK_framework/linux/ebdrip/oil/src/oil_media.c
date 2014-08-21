@@ -12,6 +12,9 @@
  */
 
 #include "oil_media.h"
+#ifndef PMS_OIL_MERGE_DISABLE
+#include "pms.h"
+#endif
 #include "oil_interface_oil2pms.h"
 #include <string.h> /* for strlen */
 #include <stdio.h>  /* for sprintf */
@@ -43,10 +46,16 @@ static int GetMediaLeadingEdge(PMS_ePaperSize ePaperSize);
  */
 void GetTrayInformation(char *pBuf)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   int nAvailableTraysCount, i;
+#else
+  int i;
+#endif
   int bNeedAttrib0, bNeedAttrib1;
   char szLine[OIL_TMPSTR_SIZE];
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyTrayInfo *pstPMSTrays = NULL;
+#endif
   PMS_TyPaperInfo *pstPMSPaper = NULL;
   PMS_TyMediaSource *ThisMediaSource;
   int InputTrayPriority[NUMFIXEDMEDIASOURCES];
@@ -60,16 +69,26 @@ void GetTrayInformation(char *pBuf)
        "  /Policies <</PageSize 5 >>        \n"
        ">> setpagedevice                    \n";
 
+#ifdef PMS_OIL_MERGE_DISABLE
   nAvailableTraysCount = PMS_GetTrayInfo(&pstPMSTrays);
+#endif
   InputTrayPriority[0] = 0;
   bNeedAttrib0 = TRUE;
   bNeedAttrib1 = TRUE;
 
   strcat(pBuf, pszInputAttributesStartPS);
+#ifdef PMS_OIL_MERGE_DISABLE
   for (i=0; i < nAvailableTraysCount; i++)
+#else
+  for (i=0; i < g_nInputTrays; i++)
+#endif
   {
     /* Get the media source definition so we can use the pds defined values for trays */
+#ifdef PMS_OIL_MERGE_DISABLE
     PMS_GetMediaSource(pstPMSTrays[i].eMediaSource, &ThisMediaSource);
+#else
+    PMS_GetMediaSource(g_pstTrayInfo[i].eMediaSource, &ThisMediaSource);
+#endif
     /* remember if InputAttributes 0 and 1 get initialised */
     if (ThisMediaSource->ePSMediaSource == 0) {
         bNeedAttrib0 = FALSE;
@@ -78,17 +97,28 @@ void GetTrayInformation(char *pBuf)
         bNeedAttrib1 = FALSE;
     }
 
+#ifdef PMS_OIL_MERGE_DISABLE
     if((pstPMSTrays[i].nPriority > 0) && (pstPMSTrays[i].nPriority <= nAvailableTraysCount))
       InputTrayPriority[pstPMSTrays[i].nPriority - 1] = ThisMediaSource->ePSMediaSource;
+#else
+    if((g_pstTrayInfo[i].nPriority > 0) && (g_pstTrayInfo[i].nPriority <= g_nInputTrays))
+      InputTrayPriority[g_pstTrayInfo[i].nPriority - 1] = ThisMediaSource->ePSMediaSource;
+#endif
 
 /* use the postscript defined values required for media sources so in rip tray selection works automatically */
 /* pcl values will be converted to ps values in the pcl sensepagedevice routine */
     sprintf(szLine, "    %d << \n", ThisMediaSource->ePSMediaSource);
     strcat(pBuf, szLine);
 
+#ifdef PMS_OIL_MERGE_DISABLE
     if(pstPMSTrays[i].ePaperSize != PMS_SIZE_DONT_KNOW)
     {
       PMS_GetPaperInfo( pstPMSTrays[i].ePaperSize, &pstPMSPaper );
+#else
+    if(g_pstTrayInfo[i].ePaperSize != PMS_SIZE_DONT_KNOW)
+    {
+      PMS_GetPaperInfo( g_pstTrayInfo[i].ePaperSize, &pstPMSPaper );
+#endif
       sprintf(szLine, "      /PageSize [%4.3f %4.3f] \n",
                           pstPMSPaper->dWidth , pstPMSPaper->dHeight);
       strcat(pBuf, szLine);
@@ -119,6 +149,7 @@ void GetTrayInformation(char *pBuf)
       strcat(pBuf, szLine);
     }
 
+#ifdef PMS_OIL_MERGE_DISABLE
     if(pstPMSTrays[i].ePaperSize != PMS_SIZE_DONT_KNOW)
     {
       sprintf(szLine, "      /LeadingEdge %d \n",
@@ -145,6 +176,34 @@ void GetTrayInformation(char *pBuf)
       sprintf(szLine, "      /MediaWeight %d   \n", pstPMSTrays[i].uMediaWeight);
       strcat(pBuf, szLine);
     }
+#else
+    if(g_pstTrayInfo[i].ePaperSize != PMS_SIZE_DONT_KNOW)
+    {
+      sprintf(szLine, "      /LeadingEdge %d \n",
+                          GetMediaLeadingEdge(g_pstTrayInfo[i].ePaperSize));
+      strcat(pBuf, szLine);
+    }
+
+    if(g_pstTrayInfo[i].eMediaType != PMS_TYPE_DONT_KNOW)
+    {
+      sprintf(szLine, "      /MediaType (%s)   \n",
+                          GetMediaTypeString(g_pstTrayInfo[i].eMediaType));
+      strcat(pBuf, szLine);
+    }
+
+    if(g_pstTrayInfo[i].eMediaColor != PMS_COLOR_DONT_KNOW)
+    {
+      sprintf(szLine, "      /MediaColor (%s)   \n",
+                          GetMediaColorString(g_pstTrayInfo[i].eMediaColor));
+      strcat(pBuf, szLine);
+    }
+
+    if(g_pstTrayInfo[i].uMediaWeight > 0)
+    {
+      sprintf(szLine, "      /MediaWeight %d   \n", g_pstTrayInfo[i].uMediaWeight);
+      strcat(pBuf, szLine);
+    }
+#endif
     strcat(pBuf, "     >> \n");
   }
 
@@ -160,7 +219,11 @@ void GetTrayInformation(char *pBuf)
   {
     char *pszLine = &szLine[0];
     strcat(pBuf,"    /Priority [ ");
+#ifdef PMS_OIL_MERGE_DISABLE
     for (i=0; i < nAvailableTraysCount; i++)
+#else
+    for (i=0; i < g_nInputTrays; i++)
+#endif
     {
       sprintf(pszLine,"%d ",InputTrayPriority[i]);
       pszLine += 2;
@@ -191,7 +254,11 @@ void GetTrayInformation(char *pBuf)
  */
 void GetOutputInformation(char *pBuf)
 {
+#ifdef PMS_OIL_MERGE_DISABLE
   int nAvailableOutputsCount, i;
+#else
+  int i;
+#endif
   int bNeedAttrib0 = TRUE;
   char szLine[OIL_TMPSTR_SIZE];
   PMS_TyOutputInfo *pstPMSOutputs = NULL;
@@ -205,11 +272,19 @@ void GetOutputInformation(char *pBuf)
        "  >>                                \n"
        ">> setpagedevice                    \n";
 
+#ifdef PMS_OIL_MERGE_DISABLE
   nAvailableOutputsCount = PMS_GetOutputInfo(&pstPMSOutputs);
   OutputTrayPriority[0] = 0;
 
   strcat(pBuf, pszOutputAttributesStartPS);
   for (i=0; i < nAvailableOutputsCount; i++)
+#else
+  pstPMSOutputs = g_pstOutputInfo;
+  OutputTrayPriority[0] = 0;
+
+  strcat(pBuf, pszOutputAttributesStartPS);
+  for (i=0; i < g_nOutputTrays; i++)
+#endif
   {
     /* Get the media source definition so we can use the pds defined values for trays */
     PMS_GetMediaDest(pstPMSOutputs[i].eOutputTray, &ThisMediaDest);
@@ -217,7 +292,11 @@ void GetOutputInformation(char *pBuf)
     if (ThisMediaDest->eMediaDest == 0) {
         bNeedAttrib0 = FALSE;
     }
+#ifdef PMS_OIL_MERGE_DISABLE
     if((pstPMSOutputs[i].nPriority > 0) && (pstPMSOutputs[i].nPriority <= nAvailableOutputsCount))
+#else
+    if((pstPMSOutputs[i].nPriority > 0) && (pstPMSOutputs[i].nPriority <= g_nOutputTrays))
+#endif
         OutputTrayPriority[pstPMSOutputs[i].nPriority - 1] = ThisMediaDest->eMediaDest;
 
 /* use the postscript defined values required for media sources so in rip tray selection works automatically */
@@ -239,7 +318,11 @@ void GetOutputInformation(char *pBuf)
   {
     char *pszLine = &szLine[0];
     strcat(pBuf,"    /Priority [ ");
+#ifdef PMS_OIL_MERGE_DISABLE
     for (i=0; i < nAvailableOutputsCount; i++)
+#else
+    for (i=0; i < g_nOutputTrays; i++)
+#endif
     {
       sprintf(pszLine,"%d ",OutputTrayPriority[i]);
       pszLine += 2;

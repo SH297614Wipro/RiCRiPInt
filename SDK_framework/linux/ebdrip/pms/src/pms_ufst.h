@@ -17,6 +17,7 @@
 #ifndef _PMS_UFST_H_
 #define _PMS_UFST_H_
 
+#ifdef PMS_OIL_MERGE_DISABLE
 #define DEF(_this,_as) \
 typedef _this _as ;\
 typedef unsigned _this u##_as
@@ -30,6 +31,13 @@ DEF(long, int32) ;
 #undef DEF
 
 typedef uint32 unsignedint32;
+#else
+#if SIZEOF_INT == 4
+typedef int unsignedint32;
+#else
+typedef long unsignedint32;
+#endif
+#endif
 
 #include "pms.h"      /* size_t */
 #include "ufst_hqn.h"

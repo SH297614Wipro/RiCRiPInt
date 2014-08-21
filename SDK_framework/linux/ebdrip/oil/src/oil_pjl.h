@@ -23,8 +23,13 @@
 
 
 extern void OIL_PjlInit( void );
+#ifdef PMS_OIL_MERGE_DISABLE
 extern void OIL_PjlSetEnvironment( PMS_TyJob * pms_pstJobCurrent );
 extern PMS_TyJob *OIL_PjlGetEnvironment( void );
+#else
+extern void OIL_PjlSetEnvironment( OIL_TyJob * pms_pstJobCurrent );
+extern OIL_TyJob *OIL_PjlGetEnvironment( void );
+#endif
 extern void OIL_PjlClearEnvironment( void );
 extern void OIL_PjlJobFailed( unsigned int uJobID );
 extern int OIL_PjlParseData( unsigned char * pData, size_t cbDataLen, size_t * pcbDataConsumed );

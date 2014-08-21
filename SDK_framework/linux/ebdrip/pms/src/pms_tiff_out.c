@@ -33,7 +33,11 @@
  * Input: single PMS_TyPage page structure containing image raster in bands.\n
  * Return Value: TRUE if successful, FALSE otherwise.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
+#else
+int TIFF_PageHandler( OIL_TyPage *ptPMSPage )
+#endif
 {
   TGGE_TIFF_HEADER tMyTIFFHeader;
   TGGE_TIFF_BAND_COMPOSITE tMyTIFFCompBand;
@@ -61,16 +65,26 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
   }
 
   /* 1 and 2 bpp RGB is not yet supported */
+#ifdef PMS_OIL_MERGE_DISABLE
   if((ptPMSPage->uTotalPlanes == 3) && (ptPMSPage->uOutputDepth < 8))
+#else
+  if((ptPMSPage->nColorants == 3) && (ptPMSPage->uOutputDepth < 8))
+#endif
   {
     PMS_SHOW_ERROR("\n **** ASSERT ****** \n1, 2 and 4 bpp RGB is not yet supported in TIFF out.\nFailed to output TIFF.\n\n");
     return TIFF_Error_bppNotSupported;
   }
 
   /* if its a new job reset page numbering */
+#ifdef PMS_OIL_MERGE_DISABLE
   if(nCurrentJobID != ptPMSPage->JobId)
   {
     nCurrentJobID = ptPMSPage->JobId;
+#else
+  if(nCurrentJobID != ptPMSPage->pstJob->uJobId)
+  {
+    nCurrentJobID = ptPMSPage->pstJob->uJobId;
+#endif
     nPageNo = 1;
   }
   memset(pDestFile,0,PMS_MAX_OUTPUTFOLDER_LENGTH);
@@ -78,7 +92,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
   if(g_tSystemInfo.szOutputPath[0])
   {
     memcpy(pDestFile,g_tSystemInfo.szOutputPath,strlen(g_tSystemInfo.szOutputPath));
+#ifdef PMS_OIL_MERGE_DISABLE
     pDst=strrchr(ptPMSPage->szJobName,'/');
+#else
+    pDst=strrchr(ptPMSPage->pstJob->szJobName,'/');
+#endif
     strcat(pDestFile,"/");
     if(pDst)
     {
@@ -86,25 +104,43 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
     }
     else
     {
+#ifdef PMS_OIL_MERGE_DISABLE
       strcat(pDestFile,ptPMSPage->szJobName);
+#else
+      strcat(pDestFile,ptPMSPage->pstJob->szJobName);
+#endif
     }
   }
   else
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     memcpy(pDestFile,ptPMSPage->szJobName,strlen(ptPMSPage->szJobName));
+#else
+    memcpy(pDestFile,ptPMSPage->pstJob->szJobName,strlen(ptPMSPage->pstJob->szJobName));
+#endif
   }
 
+#ifdef PMS_OIL_MERGE_DISABLE
   sprintf(szRasterFilename, "%s%d-%d", pDestFile, ptPMSPage->JobId, nPageNo);
+#else
+  sprintf(szRasterFilename, "%s%d-%d", pDestFile, ptPMSPage->pstJob->uJobId, nPageNo);
+#endif
 
   /* Fill in image info from raster description */
   memset(&tMyTIFFHeader, 0x00, sizeof(tMyTIFFHeader));
   tMyTIFFHeader.cbSize = sizeof(tMyTIFFHeader);
   tMyTIFFHeader.pszDescription = &szImageDescription[0];
-  tMyTIFFHeader.uColorants = ptPMSPage->uTotalPlanes;
   tMyTIFFHeader.uBitsPerPixel = ptPMSPage->uOutputDepth;
+#ifdef PMS_OIL_MERGE_DISABLE
+  tMyTIFFHeader.uColorants = ptPMSPage->uTotalPlanes;
   tMyTIFFHeader.uBytesPerLine = ptPMSPage->nRasterWidthBits/8;
+#else
+  tMyTIFFHeader.uColorants = ptPMSPage->nColorants;
+  tMyTIFFHeader.uBytesPerLine = ptPMSPage->nRasterWidthData/8;
+#endif
   tMyTIFFHeader.uBytesPerLine = ((tMyTIFFHeader.uBytesPerLine + 3)&~3); /* round up to four bytes (32 bits) */
   tMyTIFFHeader.uLinesPerPage = ptPMSPage->nPageHeightPixels;
+#ifdef PMS_OIL_MERGE_DISABLE
   if (ptPMSPage->eColorMode == PMS_RGB_PixelInterleaved) {
     tMyTIFFHeader.uWidthPixels = ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth / 3;
   } else {
@@ -113,6 +149,16 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
   tMyTIFFHeader.uXDPI = (unsigned int)(ptPMSPage->dXResolution + 0.5);
   tMyTIFFHeader.uYDPI = (unsigned int)(ptPMSPage->dYResolution + 0.5);
   if((ptPMSPage->uTotalPlanes == 1) || (g_tSystemInfo.eOutputType == PMS_TIFF_SEP))
+#else
+  if (ptPMSPage->pstJob->eColorMode == OIL_RGB_PixelInterleaved) {
+    tMyTIFFHeader.uWidthPixels = ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth / 3;
+  } else {
+    tMyTIFFHeader.uWidthPixels = ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth;
+  }
+  tMyTIFFHeader.uXDPI = (unsigned int)(ptPMSPage->dXRes + 0.5);
+  tMyTIFFHeader.uYDPI = (unsigned int)(ptPMSPage->dYRes + 0.5);
+  if((ptPMSPage->nColorants == 1) || (g_tSystemInfo.eOutputType == PMS_TIFF_SEP))
+#endif
     tMyTIFFHeader.bSeparated = 1;
   else
     tMyTIFFHeader.bSeparated = 0;
@@ -156,13 +202,18 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
       "Output Tray: %d\r\n"
       ,
       (char*)szRasterFilename,
+#ifdef PMS_OIL_MERGE_DISABLE
       ptPMSPage->uTotalPlanes,
+#else
+      ptPMSPage->nColorants,
+#endif
       ptPMSPage->uRIPDepth,
       ptPMSPage->uOutputDepth,
       ptPMSPage->nPageWidthPixels,
       tMyTIFFHeader.uBytesPerLine,
       tMyTIFFHeader.uBytesPerLine * 8,
       ptPMSPage->nPageHeightPixels,
+#ifdef PMS_OIL_MERGE_DISABLE
       ptPMSPage->JobId,
       ptPMSPage->PageId,
       ptPMSPage->szJobName,
@@ -171,6 +222,16 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
       ptPMSPage->eColorMode,
       ptPMSPage->eScreenMode,
       ptPMSPage->uTotalPlanes,
+#else
+      ptPMSPage->pstJob->uJobId,
+      ptPMSPage->uPageNo,
+      ptPMSPage->pstJob->szJobName,
+      ptPMSPage->dXRes,
+      ptPMSPage->dYRes,
+      ptPMSPage->pstJob->eColorMode,
+      ptPMSPage->pstJob->eScreenMode,
+      ptPMSPage->nColorants,
+#endif
       ptPMSPage->atPlane[3].uBandTotal,
       ptPMSPage->stMedia.szMediaType,
       ptPMSPage->stMedia.szMediaColor,
@@ -183,7 +244,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
       ptPMSPage->bCollate,
       ptPMSPage->bFaceUp,
       ptPMSPage->uOrientation,
+#ifdef PMS_OIL_MERGE_DISABLE
       ptPMSPage->stMedia.eOutputTray
+#else
+      ptPMSPage->stMedia.uOutputTray
+#endif
       );
 
   /* fill command line arguments */
@@ -205,9 +270,15 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
   strcat((char*)tMyTIFFHeader.pszDescription, "\r\n");
 
 
+#ifdef PMS_OIL_MERGE_DISABLE
   for(nCopyNo = 1; nCopyNo <= ptPMSPage->nCopies; nCopyNo++)
   {
     sprintf(szRasterFilename, "%s%d-%d", pDestFile, ptPMSPage->JobId, nPageNo);
+#else
+  for(nCopyNo = 1; nCopyNo <= ptPMSPage->uCopies; nCopyNo++)
+  {
+    sprintf(szRasterFilename, "%s%d-%d", pDestFile, ptPMSPage->pstJob->uJobId, nPageNo);
+#endif
     tMyTIFFHeader.pszPathName = (char*)szRasterFilename;
 
     strncpy((char*)tMyTIFFHeader.pszDescription, (char*)szRasterFilename, strlen((char*)szRasterFilename));
@@ -219,15 +290,26 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
       return TIFF_Error_GGETiff;
     }
 
+#ifdef PMS_OIL_MERGE_DISABLE
     if((ptPMSPage->uTotalPlanes == 1) || (g_tSystemInfo.eOutputType == PMS_TIFF_SEP)) /* MonoChrome job handling and Separated CMYK job handling */
+#else
+    if((ptPMSPage->nColorants == 1) || (g_tSystemInfo.eOutputType == PMS_TIFF_SEP)) /* MonoChrome job handling and Separated CMYK job handling */
+#endif
     {
       memset(&tMyTIFFSepBand, 0x00, sizeof(tMyTIFFSepBand));
       tMyTIFFSepBand.cbSize = sizeof(tMyTIFFSepBand);
+#ifdef PMS_OIL_MERGE_DISABLE
       for (i = 0; i < ptPMSPage->uTotalPlanes; i++)
       {
         /* start with Black because if there is only 1 plane it will be only black */
         if(ptPMSPage->uTotalPlanes == 1)
-          thisColor = 3;
+#else
+      for (i = 0; i < ptPMSPage->nColorants; i++)
+      {
+        /* start with Black because if there is only 1 plane it will be only black */
+        if(ptPMSPage->nColorants == 1)
+#endif
+		thisColor = 3;
         else
           thisColor = i;
         for(j=0; j < ptPMSPage->atPlane[thisColor].uBandTotal; j++)
@@ -247,7 +329,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
             for(y = 0; y < tMyTIFFSepBand.uLinesThisBand; y++)
             {
               for(x = ptPMSPage->nPageWidthPixels;
+#ifdef PMS_OIL_MERGE_DISABLE
                   x < (ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth);
+#else
+                  x < (ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth);
+#endif
                   )
               {
                 switch(x%4)
@@ -288,7 +374,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
             for(y = 0; y < tMyTIFFSepBand.uLinesThisBand; y++)
             {
               for(x = ptPMSPage->nPageWidthPixels;
+#ifdef PMS_OIL_MERGE_DISABLE
                   x < (ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth);
+#else
+                  x < (ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth);
+#endif
                   )
               {
                 if(x%2)
@@ -311,7 +401,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
           else if(ptPMSPage->uOutputDepth == 1) /* For 1 bpp also we need to clear the padding*/
           {
             int nPadStartByte = ptPMSPage->nPageWidthPixels >> 3;
+#ifdef PMS_OIL_MERGE_DISABLE
             int nBytesWithPadding = ptPMSPage->nRasterWidthBits >> 3;
+#else
+            int nBytesWithPadding = ptPMSPage->nRasterWidthData >> 3;
+#endif
             int nBytesToSwap = (((nBytesWithPadding - nPadStartByte) + 3) >> 2) << 2; /* multiple of 4 bytes*/
             int nDataBytes;
             pDst = tMyTIFFSepBand.pBandBuffer + (nBytesWithPadding - nBytesToSwap);
@@ -340,7 +434,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
               }
 
               /* clear only the padded bits starting from the end of valid data */
+#ifdef PMS_OIL_MERGE_DISABLE
               for(x = ptPMSPage->nPageWidthPixels; x < (ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth);)
+#else
+              for(x = ptPMSPage->nPageWidthPixels; x < (ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth);)
+#endif
               {
                 switch(x%8)
                 {
@@ -427,7 +525,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
         }
       }
     } /* end of Separated CMYK job handling */
+#ifdef PMS_OIL_MERGE_DISABLE
     else if (ptPMSPage->eColorMode == PMS_RGB_PixelInterleaved)
+#else
+    else if (ptPMSPage->pstJob->eColorMode == OIL_RGB_PixelInterleaved)
+#endif
     {
       memset(&tMyTIFFPixelInterleaved, 0x00, sizeof(tMyTIFFPixelInterleaved));
       tMyTIFFPixelInterleaved.cbSize = sizeof(tMyTIFFPixelInterleaved);
@@ -443,13 +545,25 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
   {
     memset(&tMyTIFFCompBand, 0x00, sizeof(tMyTIFFCompBand));
     tMyTIFFCompBand.cbSize = sizeof(tMyTIFFCompBand);
+#ifdef PMS_OIL_MERGE_DISABLE
     tMyTIFFCompBand.paBandBuffer = (char **)OSMalloc(sizeof(char *) * ptPMSPage->uTotalPlanes,PMS_MemoryPoolPMS);
+#else
+    tMyTIFFCompBand.paBandBuffer = (char **)OSMalloc(sizeof(char *) * ptPMSPage->nColorants,PMS_MemoryPoolPMS);
+#endif
     if(!tMyTIFFCompBand.paBandBuffer)
     {
+#ifdef PMS_OIL_MERGE_DISABLE
       PMS_SHOW_ERROR("\n ***ASSERT*** TIFF_PageHandler: Failed to allocate %u bytes of memory for composite band structure.\n", (unsigned int)sizeof(char *) * ptPMSPage->uTotalPlanes);
+#else
+      PMS_SHOW_ERROR("\n ***ASSERT*** TIFF_PageHandler: Failed to allocate %u bytes of memory for composite band structure.\n", (unsigned int)sizeof(char *) * ptPMSPage->nColorants);
+#endif
       return TIFF_Error_Memory;
     }
+#ifdef PMS_OIL_MERGE_DISABLE
     tMyTIFFCompBand.uColorants = ptPMSPage->uTotalPlanes;
+#else
+    tMyTIFFCompBand.uColorants = ptPMSPage->nColorants;
+#endif
 
       /* assumes all planes have same number of bands */
       for(j=0; j < ptPMSPage->atPlane[0].uBandTotal; j++)
@@ -457,7 +571,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
         /* assumes all bands across planes are same height */
         tMyTIFFCompBand.uLinesThisBand = ptPMSPage->atPlane[0].atBand[j].uBandHeight;
 
+#ifdef PMS_OIL_MERGE_DISABLE
         for (i = 0; i < ptPMSPage->uTotalPlanes; i++)
+#else
+        for (i = 0; i < ptPMSPage->nColorants; i++)
+#endif
         {
           /* set band pointer... */
           tMyTIFFCompBand.paBandBuffer[i] = (char*)ptPMSPage->atPlane[i].atBand[j].pBandRaster;
@@ -473,7 +591,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
             for(y = 0; y < tMyTIFFCompBand.uLinesThisBand; y++)
             {
               for(x = ptPMSPage->nPageWidthPixels;
+#ifdef PMS_OIL_MERGE_DISABLE
                   x < (ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth);
+#else
+                  x < (ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth);
+#endif
                   )
               {
                 switch(x%4)
@@ -514,7 +636,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
             for(y = 0; y < tMyTIFFCompBand.uLinesThisBand; y++)
             {
             for(x = ptPMSPage->nPageWidthPixels;
+#ifdef PMS_OIL_MERGE_DISABLE
                 x < (ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth);
+#else
+                x < (ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth);
+#endif
                 )
             {
                 if(x%2)
@@ -537,7 +663,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
           else if(ptPMSPage->uOutputDepth == 1) /* For 1 bpp also we need to clear the padding*/
           {
             int nPadStartByte = ptPMSPage->nPageWidthPixels >> 3;
+#ifdef PMS_OIL_MERGE_DISABLE
             int nBytesWithPadding = ptPMSPage->nRasterWidthBits >> 3;
+#else
+            int nBytesWithPadding = ptPMSPage->nRasterWidthData >> 3;
+#endif
             int nBytesToSwap = (((nBytesWithPadding - nPadStartByte) + 3) >> 2) << 2; /* multiple of 4 bytes*/
             int nDataBytes;
             pDst = tMyTIFFCompBand.paBandBuffer[i] + (nBytesWithPadding - nBytesToSwap);
@@ -566,7 +696,11 @@ int TIFF_PageHandler( PMS_TyPage *ptPMSPage )
               }
 
               /* clear only the padded bits starting from the end of valid data */
+#ifdef PMS_OIL_MERGE_DISABLE
               for(x = ptPMSPage->nPageWidthPixels; x < (ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth);)
+#else
+              for(x = ptPMSPage->nPageWidthPixels; x < (ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth);)
+#endif
               {
                 switch(x%8)
                 {

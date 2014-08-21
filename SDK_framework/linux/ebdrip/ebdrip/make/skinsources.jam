@@ -25,6 +25,8 @@ AddToVar Local : SkinSources :
   oil$/src$/oil_ebddev.h
   oil$/src$/oil_psconfig.h
   oil$/src$/oil_psconfig.c
+  oil$/src$/diutil_func.c
+  oil$/src$/diutil_func.h
   oil$/src$/oil_entry.c
   oil$/src$/oil_interface_oil2pms.c
   oil$/src$/oil_interface_oil2pms.h
@@ -70,6 +72,9 @@ AddToVar Local : SkinSources :
   oil$/src$/oil_utils.h
   oil$/src$/oil_virtualfile.c
   oil$/src$/oil_virtualfile.h
+  oil$/src$/gwid_eventhandle.c
+  oil$/src$/gwid_eventhandle.h
+  oil$/src$/GPSWrapper.c
 ;
 
 AddToVar Local : SkinSources :
@@ -95,6 +100,72 @@ AddToVar Local : SkinSources :
 ;
 
 AddToVar Local : SkinSources :
+  gpsexport$/gps_color_mtype.h
+  gpsexport$/gps_func.h
+  gpsexport$/gpssim.h
+  gpsexport$/gw_gps.h
+  gpsexport$/hashmacro.h
+  gpsexport$/info.h
+  gpsexport$/modelinfo.h
+  gpsexport$/pageprint.h
+  gpsexport$/retqueue.h
+  gpsexport$/simspec.h
+  gpsexport$/gps$/bandcache.h
+  gpsexport$/gps$/bitsw.h
+  gpsexport$/gps$/channel.h
+  gpsexport$/gps$/cml.h
+  gpsexport$/gps$/device.h
+  gpsexport$/gps$/di_envdef.h
+  gpsexport$/gps$/di_errorcode.h
+  gpsexport$/gps$/di_paperdef.h
+  gpsexport$/gps$/errorcode.h
+  gpsexport$/gps$/extctl.h
+  gpsexport$/gps$/gps_client.h
+  gpsexport$/gps$/gps_color_inc.h
+  gpsexport$/gps$/gps_color_inc2.h
+  gpsexport$/gps$/gps_color_mtype.h
+  gpsexport$/gps$/gps_color_sample.h
+  gpsexport$/gps$/gps_const.h
+  gpsexport$/gps$/gps_def.h
+  gpsexport$/gps$/gps_func2.h
+  gpsexport$/gps$/gps_func.h
+  gpsexport$/gps$/gps_rgate.h
+  gpsexport$/gps$/gps_rmtprn.h
+  gpsexport$/gps$/gwipc.h
+  gpsexport$/gps$/gwipc_socket.h
+  gpsexport$/gps$/host.h
+  gpsexport$/gps$/hostio.h
+  gpsexport$/gps$/info.h
+  gpsexport$/gps$/infoio.h
+  gpsexport$/gps$/interp.h
+  gpsexport$/gps$/jobio.h
+  gpsexport$/gps$/memio.h
+  gpsexport$/gps$/memory.h
+  gpsexport$/gps$/modelinfo.h
+  gpsexport$/gps$/modelinfo_key.h
+  gpsexport$/gps$/nvram.h
+  gpsexport$/gps$/pageio.h
+  gpsexport$/gps$/pageprint.h
+  gpsexport$/gps$/pager.h
+  gpsexport$/gps$/paperdef.h
+  gpsexport$/gps$/papman_def.h
+  gpsexport$/gps$/penv.h
+  gpsexport$/gps$/penvio.h
+  gpsexport$/gps$/penv_var.h
+  gpsexport$/gps$/printcond.h
+  gpsexport$/gps$/program.h
+  gpsexport$/gps$/replot.h
+  gpsexport$/gps$/sdkprintcond.h
+  gpsexport$/gps$/sysexec_param.h
+  gpsexport$/gps$/ujobparam.h
+  gpsexport$/gps$/ustatusparam.h
+  gpsexport$/gps$/wishgcr.h
+;
+
+AddToVar Local : SkinSources :
+  pms$/export$/memalloc.h
+  pms$/export$/pms_mem.h
+  pms$/src$/pms_mem.c
   pms$/export$/pms_export.h
   pms$/src$/pms.h
   pms$/src$/pms_config.c
@@ -112,6 +183,8 @@ AddToVar Local : SkinSources :
   pms$/src$/pms_input_manager.c
   pms$/src$/pms_input_socket.c
   pms$/src$/pms_input_socket.h
+  pms$/src$/pms_input_buffer.c
+  pms$/src$/pms_input_buffer.h
   pms$/src$/pms_interface_oil2pms.c
   pms$/src$/pms_interface_oil2pms.h
   pms$/src$/pms_main.c
@@ -128,6 +201,7 @@ AddToVar Local : SkinSources :
   pms$/src$/pms_tiff_out.c
   pms$/src$/pms_tiff_out.h
   pms$/src$/pms_version.c
+  pms$/src$/memalloc.c
 ;
 
 AddToVar Local : SkinSources :
@@ -168,6 +242,23 @@ AddToVar Local : SkinSources :
 AddToVar Local : SkinSources :
   pjl$/export$/pjlparser.h
   pjl$/src$/pjlparser.c
+;
+
+AddToVar Local : SkinSources :
+  mediahandling$/src/device.h
+  mediahandling$/src/di_paperdef.h
+  mediahandling$/src/di_envdef.h
+  mediahandling$/src/di_envdef_hand.h
+  mediahandling$/src/di_errorcode.h
+  mediahandling$/src/pageprint.h
+  mediahandling$/src$/diutil.c
+  mediahandling$/src$/omstub.c
+  mediahandling$/src$/omstub.h
+  mediahandling$/src$/paperricoh.c
+  mediahandling$/src$/ricohpaper.c
+  mediahandling$/src$/ricohpaper.h
+  mediahandling$/src$/ricohqman.c
+  mediahandling$/src$/mh.h
 ;
 
 if $(Variant_ebd_ufst) = eufst5o || $(Variant_ebd_ufst) = eufst5y || exportsrc in $(JAM_ARGUMENTS)

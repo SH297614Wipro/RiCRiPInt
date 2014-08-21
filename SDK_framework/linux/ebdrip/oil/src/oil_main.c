@@ -1,4 +1,4 @@
-/* Copyright (C) 2005-2014 Global Graphics Software Ltd. All rights reserved.
+/* Copyright (C) 2005-2014 Global Graphics Software Ltd. All rights reservedonfigurableFeatures.nRendererThreads = 0
  *
  * This example is provided on an "as is" basis and without
  * warranty of any kind. Global Graphics Software Ltd. does not
@@ -27,9 +27,11 @@
 #include "oil.h"
 #include "oil_interface_skin2oil.h"
 #include "oil_job_handler.h"
+//#ifdef PMS_OIL_MERGE_DISABLE
 #if defined(SDK_SUPPORT_2BPP_EXT_EG) || defined(SDK_SUPPORT_4BPP_EXT_EG)
 #include "oil_htm.h"
 #endif
+//#endif
 #include "oil_cmm.h"
 #include "oil_ebddev.h"
 #include "oil_page_handler.h"
@@ -61,6 +63,22 @@
 #include "libjpeg.h"
 #include "libjpegturbo.h"
 
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+/* include gps header files */
+#include "gw_gps.h"
+#include "gpssim.h"
+#include "oil_entry.h"
+
+int PlotSet_plotid=-1;
+extern int current_pdlid;
+extern OIL_TyJob g_tJob;
+extern int jobid;
+
+extern gwmsg_client_t *gps_client;
+extern int job_hostid_in,job_hostid_out;
+extern gps_hostbuf_p host_inBuff, host_outBuff;
+#endif
+
 /* extern variables */
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;
@@ -83,12 +101,20 @@ DEVICETYPE * ppEmbeddedDevices[] =
 /* Memory callback functions, these are used by the skin to provide memory allocation */
 static void *RIPCALL SysAllocFnCallback(size_t cbSize)
 {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   return (OIL_malloc(OILMemoryPoolJob, OIL_MemNonBlock, cbSize));
+#else
+  return (malloc(cbSize));
+#endif
 }
 
 static void RIPCALL SysFreeFnCallback(void * ptr)
 {
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   OIL_free(OILMemoryPoolJob, ptr);
+#else
+  free(ptr);
+#endif
 }
 
 static void flushInput(void)
@@ -139,7 +165,9 @@ static void OIL_RipExitCallback(int32 errorCode, uint8 * pszText)
   {
     /* RIP exited in the middle of a job (so not as a result of calling SwLeStop() */
     g_SystemState.eCurrentState = OIL_Sys_Inactive;
-
+#ifdef PMS_OIL_MERGE_DISABLE
+    Call_gps_InterpNotifyState(g_SystemState.eCurrentState);
+#endif
     /* Read and discard any remaining input */
     GG_SHOW(GG_SHOW_OIL, "OIL_RipExitCallback: Flushing input\n");
     flushInput();
@@ -208,6 +236,7 @@ static void oil_events_finish(void)
   (void)SwDeregisterHandlers(handlers, NUM_ARRAY_ITEMS(handlers)) ;
 }
 
+
 /**
  * \brief OIL system initialization function.
  *
@@ -266,7 +295,11 @@ int SysInit(OIL_eTySystemState eNextState)
 
     /* allocate memory for the RIP, all systems ready for a job */
     g_SystemState.pRIPMemory = NULL;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     g_SystemState.pRIPMemory = OIL_malloc(OILMemoryPoolSys, OIL_MemBlock, g_SystemState.cbRIPMemory);
+#else
+    g_SystemState.pRIPMemory = mmalloc(g_SystemState.cbRIPMemory);
+#endif
     if(g_SystemState.pRIPMemory == NULL) /*Bad Pointer*/
     {
       oil_printf("sys_init: Failed to allocate RIP Memory\n");
@@ -290,7 +323,7 @@ int SysInit(OIL_eTySystemState eNextState)
       GG_SHOW(GG_SHOW_OIL, "sys_init: %s.\n", (char *)reasonText) ;
       return FALSE ;
     }
-
+    //printf("g_ConfigurableFeatures.nRendererThreads = %d \n", g_ConfigurableFeatures.nRendererThreads);
     /* Set number of RIP renderer threads */
     SwLeSetRipRendererThreads( g_ConfigurableFeatures.nRendererThreads );
 
@@ -321,6 +354,7 @@ int SysInit(OIL_eTySystemState eNextState)
     if ( SwLeStart( g_SystemState.cbmaxAddressSpace, g_SystemState.cbRIPMemory, 0, g_SystemState.pRIPMemory, (SwLeMONITORCALLBACK *)OIL_MonitorCallback ) )
    {
       g_SystemState.eCurrentState = eNextState;
+	  //Call_gps_InterpNotifyState(g_SystemState.eCurrentState);
     }
     else
     {
@@ -405,7 +439,11 @@ int SysExit(OIL_eTySystemState eNextState)
 
     /* shutdown the RIP, free systems resources */
     SwLeShutdown(); /* does nothing in ebd, but called for consistency with start up*/
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OIL_free(OILMemoryPoolSys, g_SystemState.pRIPMemory);
+#else
+    mfree(g_SystemState.pRIPMemory);
+#endif
 
     g_SystemState.eCurrentState = eNextState;
   }
@@ -480,7 +518,10 @@ int JobInit(OIL_eTySystemState eNextState)
 int JobExit(OIL_eTySystemState eNextState)
 {
   char szJobName[OIL_MAX_JOBNAME_LENGTH];
-
+  int GPSPlotCloseretval;
+  int GPSSinCloseretval ;
+  int GPSSoutCloseretval;
+  int fin = GPS_INTERP_FIN_NORMAL, uel_found=1;
   HQASSERT(OIL_Sys_JobCancel == g_SystemState.eCurrentState ||
            OIL_Sys_JobActive == g_SystemState.eCurrentState ||
            OIL_Sys_Inactive == g_SystemState.eCurrentState,
@@ -527,7 +568,57 @@ int JobExit(OIL_eTySystemState eNextState)
     DeleteOILPage(g_pstCurrentPage);
     g_pstCurrentPage = 0;
   }
+  
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+ /***********Call to GpsPlotclose***************************/
 
+  GPSPlotCloseretval = GPS_PlotClose(gps_client, PlotSet_plotid);
+  if(GPSPlotCloseretval>=0)
+  {
+	printf("GPS_PlotClose : Success\n");
+  }
+  else
+  {
+	printf("GPS_PlotClose : Failed\n");
+  }
+   /***********Call to GpsSinclose***************************/
+  if (host_inBuff || host_outBuff)
+  {
+
+    GPSSinCloseretval=GPS_SinClose(host_inBuff);
+    if(GPSSinCloseretval==0)
+    {
+		printf("GPS_SinClose : Success\n");
+		host_inBuff = NULL;
+    }
+    else
+    {
+     	printf("GPS_SinClose : Failed\n");
+    }
+   /***********Call to GpsSoutclose***************************/
+
+    GPSSoutCloseretval=GPS_SoutClose(host_outBuff);
+    if(GPSSoutCloseretval==0)
+    {
+    	printf("GPS_SoutClose : Success\n");
+		host_outBuff = NULL;
+    }
+    else
+    {
+    	printf("GPS_SoutClose : Failed\n");
+    }
+
+   /***********Call to GpsInterpfinishProcdata***************************/
+
+    GPS_InterpFinishProcData(gps_client, 1, fin, uel_found);
+  }
+  else
+  {
+      gpsInterpFinishTestprint(gps_client, jobid);
+  } 
+   /*************Call to gpsInterpNotifyState()*************************************/
+        GPS_InterpNotifyState(gps_client, GPS_INTERP_STATE_FLUSHING); // Review - it should be GPS_INTERP_STATE_IDLE ?
+#endif
   /* Delete the job */
   DeleteOILJob(g_pstCurrentJob->uJobId);
   g_pstCurrentJob = NULL;
@@ -546,7 +637,8 @@ int JobExit(OIL_eTySystemState eNextState)
   /* reset data for next job */
   GGglobal_timing(SW_TRACE_OIL_RESET, 0);
 
-
+    current_pdlid=0;
+    g_tJob.eTestPage = OIL_TESTPAGE_NONE;
   /* return TRUE if now in requested state */
   return (g_SystemState.eCurrentState == eNextState);
 }
@@ -679,12 +771,14 @@ int RegisterResources( void )
  */
 int RegisterRIPModules(void)
 {
+//#ifdef PMS_OIL_MERGE_DISABLE
 #if defined(SDK_SUPPORT_2BPP_EXT_EG)
   sw_htm_api *pHtm2bpp;
 #endif
 #if defined(SDK_SUPPORT_4BPP_EXT_EG)
   sw_htm_api *pHtm4bpp;
 #endif
+//#endif
   sw_cmm_api *pCMM;
 #if defined(USE_UFST5) || defined(USE_UFST7)
   int nRetVal;
@@ -732,7 +826,7 @@ int RegisterRIPModules(void)
     }
   }
 #endif
-
+//#ifdef PMS_OIL_MERGE_DISABLE
 #if defined(SDK_SUPPORT_4BPP_EXT_EG)
   /* Register example simple 4-bit screening  */
   pHtm4bpp = htm4bpp_getInstance();
@@ -746,7 +840,7 @@ int RegisterRIPModules(void)
   if (SwRegisterHTM (pHtm2bpp) != SW_API_REGISTERED)
     return FALSE;
 #endif
-
+//#endif
   /* Register example CMM  */
   pCMM = oilccs_getInstance();
   if (SwRegisterCMM (pCMM) != SW_API_REGISTERED)

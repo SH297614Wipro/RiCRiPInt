@@ -51,6 +51,7 @@ if $(Variant_ebd_pms_min) = epmin
                              SUPPORT_SCRN2BPP=0 
                              SUPPORT_SCRN4BPP=0 
                              SUPPORT_SOCKET=0 
+                             SUPPORT_BUFFER=0 
                              SUPPORT_TIFF_OUT=0 
                              SUPPORT_PJL=0 
                              SUPPORT_PDF_OUT=0

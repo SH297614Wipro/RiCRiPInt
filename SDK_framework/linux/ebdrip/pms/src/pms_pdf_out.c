@@ -213,7 +213,11 @@ static int PDF_WriteOutputAtLoc(char *pBuffer, int nLength, unsigned long ulLoca
  * \param ptPMSPage Pointer to PMS page structure that contains the complete page.
  * \return PMS_ePDF_Errors error code.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
+#else
+static int PDF_WriteFileHeader( OIL_TyPage *ptPMSPage )
+#endif
 {
   char buffer[512];
   int length ;
@@ -222,9 +226,15 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
   PMS_ePDF_Errors eResult = PDF_NoError;
 
   /* if its a new job reset page numbering */
+#ifdef PMS_OIL_MERGE_DISABLE
   if(nCurrentJobID != ptPMSPage->JobId)
   {
     nCurrentJobID = ptPMSPage->JobId;
+#else
+  if(nCurrentJobID != ptPMSPage->pstJob->uJobId)
+  {
+    nCurrentJobID = ptPMSPage->pstJob->uJobId;
+#endif
     nPageNo = 1;
   }
 
@@ -246,7 +256,11 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
   if(g_tSystemInfo.szOutputPath[0])
   {
     memcpy(gtPDFOut.tWriteFileOut.szFilename,g_tSystemInfo.szOutputPath,strlen(g_tSystemInfo.szOutputPath));
+#ifdef PMS_OIL_MERGE_DISABLE
     pStr=strrchr(ptPMSPage->szJobName,'/');
+#else
+    pStr=strrchr(ptPMSPage->pstJob->szJobName,'/');
+#endif
     strcat(gtPDFOut.tWriteFileOut.szFilename,"/");
     if(pStr)
     {
@@ -254,18 +268,27 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
     }
     else
     {
+#ifdef PMS_OIL_MERGE_DISABLE
       strcat(gtPDFOut.tWriteFileOut.szFilename,ptPMSPage->szJobName);
+#else
+      strcat(gtPDFOut.tWriteFileOut.szFilename,ptPMSPage->pstJob->szJobName);
+#endif
     }
   }
   else
   {
+#ifdef PMS_OIL_MERGE_DISABLE
     strncpy(gtPDFOut.tWriteFileOut.szFilename, ptPMSPage->szJobName, sizeof(gtPDFOut.tWriteFileOut.szFilename)-1);
+#else
+    strncpy(gtPDFOut.tWriteFileOut.szFilename, ptPMSPage->pstJob->szJobName, sizeof(gtPDFOut.tWriteFileOut.szFilename)-1);
+#endif
   }
 
   pStr = gtPDFOut.tWriteFileOut.szFilename+strlen(gtPDFOut.tWriteFileOut.szFilename);
   while((pStr>gtPDFOut.tWriteFileOut.szFilename) && (*(pStr-1)!='/') && (*(pStr-1)!=':')) pStr--;
 
   /* Create a filename that is compatible with Global Graphics' Regression Runner test tool. */
+#ifdef PMS_OIL_MERGE_DISABLE
   if ( ptPMSPage->uTotalPlanes == 1 )
     sprintf(pStr, "%d-%d-gray.pdf", ptPMSPage->JobId, nPageNo);
   else if ( ptPMSPage->uTotalPlanes == 4 )
@@ -274,6 +297,16 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
     sprintf(pStr, "%d-%d-rgb.pdf", ptPMSPage->JobId, nPageNo);
   else
     sprintf(pStr, "%d-%d-.pdf", ptPMSPage->JobId, nPageNo);
+#else
+  if ( ptPMSPage->nColorants == 1 )
+    sprintf(pStr, "%d-%d-gray.pdf", ptPMSPage->pstJob->uJobId, nPageNo);
+  else if ( ptPMSPage->nColorants == 4 )
+    sprintf(pStr, "%d-%d-cmyk.pdf", ptPMSPage->pstJob->uJobId, nPageNo);
+  else if ( ptPMSPage->nColorants == 3 )
+    sprintf(pStr, "%d-%d-rgb.pdf", ptPMSPage->pstJob->uJobId, nPageNo);
+  else
+    sprintf(pStr, "%d-%d-.pdf", ptPMSPage->pstJob->uJobId, nPageNo);
+#endif
 
   /* increment page number for next time */
   nPageNo++;
@@ -338,13 +371,23 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
       "%% ebdwrapper: Output Tray: %d\n"
       ,
       gtPDFOut.tWriteFileOut.szFilename,
+#ifdef PMS_OIL_MERGE_DISABLE
       ptPMSPage->uTotalPlanes,
+#else
+      ptPMSPage->nColorants,
+#endif
       ptPMSPage->uRIPDepth,
       ptPMSPage->uOutputDepth,
       ptPMSPage->nPageWidthPixels,
+#ifdef PMS_OIL_MERGE_DISABLE
       (ptPMSPage->nRasterWidthBits >> 3),
       ptPMSPage->nRasterWidthBits,
+#else
+      (ptPMSPage->nRasterWidthData >> 3),
+      ptPMSPage->nRasterWidthData,
+#endif
       ptPMSPage->nPageHeightPixels,
+#ifdef PMS_OIL_MERGE_DISABLE
       ptPMSPage->JobId,
       ptPMSPage->PageId,
       ptPMSPage->szJobName,
@@ -353,6 +396,16 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
       ptPMSPage->eColorMode,
       ptPMSPage->eScreenMode,
       ptPMSPage->uTotalPlanes,
+#else
+      ptPMSPage->pstJob->uJobId,
+      ptPMSPage->uPageNo,
+      ptPMSPage->pstJob->szJobName,
+      (float)ptPMSPage->dXRes,
+      (float)ptPMSPage->dYRes,
+      ptPMSPage->pstJob->eColorMode,
+      ptPMSPage->pstJob->eScreenMode,
+      ptPMSPage->nColorants,
+#endif
       ptPMSPage->atPlane[3].uBandTotal,
       ptPMSPage->stMedia.szMediaType,
       ptPMSPage->stMedia.szMediaColor,
@@ -365,7 +418,11 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
       ptPMSPage->bCollate,
       ptPMSPage->bFaceUp,
       ptPMSPage->uOrientation,
+#ifdef PMS_OIL_MERGE_DISABLE
       ptPMSPage->stMedia.eOutputTray
+#else
+      ptPMSPage->stMedia.uOutputTray
+#endif
       );
     length = (int)strlen(szComment);
     if(PDF_WriteOutput(szComment, length) < length)
@@ -391,7 +448,11 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
                           "  /BitsPerComponent %d\n"
                           "  /Length 2 0 R\n"
                           "  /ColorSpace [\n",
+#ifdef PMS_OIL_MERGE_DISABLE
                           ptPMSPage->nRasterWidthPixels, /* Not the original document page width. Instead this includes padding. */
+#else
+                          (ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth), /* Not the original document page width. Instead this includes padding. */
+#endif
                           ptPMSPage->nPageHeightPixels,
                           ptPMSPage->uOutputDepth);
 
@@ -404,12 +465,21 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
   gtPDFOut.filepos += length ;
 
   /* Write the color space */
+#ifdef PMS_OIL_MERGE_DISABLE
   if ( ptPMSPage->uTotalPlanes == 1 )
     length = sprintf(buffer, "    /DeviceGray\n");
   else if ( ptPMSPage->uTotalPlanes == 4 )
     length = sprintf(buffer, "    /DeviceCMYK\n");
   else if ( ptPMSPage->uTotalPlanes == 3 )
     length = sprintf(buffer, "    /DeviceRGB\n");
+#else
+  if ( ptPMSPage->nColorants == 1 )
+    length = sprintf(buffer, "    /DeviceGray\n");
+  else if ( ptPMSPage->nColorants == 4 )
+    length = sprintf(buffer, "    /DeviceCMYK\n");
+  else if ( ptPMSPage->nColorants == 3 )
+    length = sprintf(buffer, "    /DeviceRGB\n");
+#endif
   if(PDF_WriteOutput(buffer, length) < length)
   {
     PMS_SHOW_ERROR("PDF_WriteFileHeader: File IO failed.\n");
@@ -442,7 +512,11 @@ static int PDF_WriteFileHeader( PMS_TyPage *ptPMSPage )
  * \param ptPMSPage Pointer to PMS page structure that contains the complete page.
  * \return PMS_ePDF_Errors error code.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 static int PDF_WriteFileTrailer(PMS_TyPage *ptPMSPage)
+#else
+static int PDF_WriteFileTrailer(OIL_TyPage *ptPMSPage)
+#endif
 {
   int streamlength;
   char buffer[512];
@@ -501,15 +575,31 @@ static int PDF_WriteFileTrailer(PMS_TyPage *ptPMSPage)
   }
   gtPDFOut.filepos += length ;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   if(ptPMSPage->pJobPMSData->eColorMode == PMS_RGB_PixelInterleaved) {
     fRasterWidthPixels = (float)((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) * 72.0f / ptPMSPage->dXResolution)/3.0f;
   } else {
     fRasterWidthPixels = (float)((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) * 72.0f / ptPMSPage->dXResolution);
+   }
+#else
+  //PMS_TyJob *ptPMSJob = (PMS_TyJob *)(ptPMSPage->pstJob->pJobPMSData);
+  //if(ptPMSJob->eColorMode == PMS_RGB_PixelInterleaved) {
+
+//ptPMSPage->pstJob->pJobPMSData->eColourMode
+  if(ptPMSPage->pstJob->eColorMode == OIL_RGB_PixelInterleaved) {
+    fRasterWidthPixels = (float)((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) * 72.0f / ptPMSPage->dXRes)/3.0f;
+  } else {
+    fRasterWidthPixels = (float)((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) * 72.0f / ptPMSPage->dXRes);
   }
+#endif
 
   streamlength = sprintf(buffer,  "%f 0 0 %f 0 0 cm /Im1 Do\n",
                                   fRasterWidthPixels,
+#ifdef PMS_OIL_MERGE_DISABLE
                                   ptPMSPage->nPageHeightPixels * 72.0 / ptPMSPage->dYResolution);
+#else
+                                  ptPMSPage->nPageHeightPixels * 72.0 / ptPMSPage->dYRes);
+#endif
   if(PDF_WriteOutput(buffer, streamlength) < streamlength)
   {
     PMS_SHOW_ERROR("PDF_WriteFileTrailer: File IO failed.\n");
@@ -551,7 +641,11 @@ static int PDF_WriteFileTrailer(PMS_TyPage *ptPMSPage)
                               ">>\n"
                               "endobj\n",
                               fRasterWidthPixels,
+#ifdef PMS_OIL_MERGE_DISABLE
                               ptPMSPage->nPageHeightPixels * 72.0 / ptPMSPage->dYResolution);
+#else
+                              ptPMSPage->nPageHeightPixels * 72.0 / ptPMSPage->dYRes);
+#endif
   if(PDF_WriteOutput(buffer, length) < length)
   {
     PMS_SHOW_ERROR("PDF_WriteFileTrailer: File IO failed.\n");
@@ -657,11 +751,19 @@ static int PDF_WriteFileTrailer(PMS_TyPage *ptPMSPage)
  * \param pTo Destination address.
  * \return Number of bytes written to destination.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *pTo)
+#else
+static unsigned int PDF_PixelInterleave(OIL_TyPage *ptPMSPage, int nBand, char *pTo)
+#endif
 {
   unsigned int nBytesToWritePerLine ;
   unsigned int i, nLinesThisBand;
+#ifdef PMS_OIL_MERGE_DISABLE
   unsigned char *pSrc, *pDst, *ptColorBand[PMS_INVALID_COLOURANT];
+#else
+  unsigned char *pSrc, *pDst, *ptColorBand[OIL_TOTAL_NUMBER_OF_COLORANTS];
+#endif
   int swap;
   unsigned char uTmp;
   unsigned char bDoSwapBytesInWord;
@@ -673,9 +775,14 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
   /* set this to 1 if Bytes in a word need swapping */
   bDoSwapBytesInWord = 0;
 
+#ifdef PMS_OIL_MERGE_DISABLE
   nBytesToWritePerLine = (ptPMSPage->nRasterWidthBits >> 3);
+#else
+  nBytesToWritePerLine = (ptPMSPage->nRasterWidthData >> 3);
+#endif
   /*  nBytesToWritePerLine = nBytesToWritePerLine+3)&~3); */
 
+#ifdef PMS_OIL_MERGE_DISABLE
   if(ptPMSPage->uTotalPlanes == 1) /* Monochrome job handling */
   {
     nLinesThisBand = ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].uBandHeight;
@@ -691,13 +798,33 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
       pSrc++;
     }
     cbSizeWritten = ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].cbBandSize;
+#else
+  if(ptPMSPage->nColorants == 1) /* Monochrome job handling */
+  {
+    nLinesThisBand = ptPMSPage->atPlane[OIL_Black].atBand[nBand].uBandHeight;
 
+    /* This is the actual conversion to PDF format. The rest
+       of the function is for endianess and padding */
+    pSrc = ptPMSPage->atPlane[OIL_Black].atBand[nBand].pBandRaster;
+    pDst = (unsigned char *)pTo;
+    for(i=ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize; i > 0; --i)
+    {
+      *pDst = *pSrc ^ 0xFF;
+      pDst++;
+      pSrc++;
+    }
+    cbSizeWritten = ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize;
+#endif
 
 #ifdef PMS_LOWBYTEFIRST
     if(ptPMSPage->uOutputDepth == 16)
     {
       pDst = (unsigned char*)pTo;
+#ifdef PMS_OIL_MERGE_DISABLE
       for(i=0; i < ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].cbBandSize; i+=2)
+#else
+      for(i=0; i < ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize; i+=2)
+#endif
       {
         uTmp = pDst[0];
         pDst[0] = pDst[1];
@@ -712,7 +839,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
     {
       PMS_ASSERT((nBytesToWritePerLine&3)==0, ("PMS PDF_PageHandler function needs line lengths padded to 32 bit boundary.\n"));
       pDst = (unsigned char*)pTo;
+#ifdef PMS_OIL_MERGE_DISABLE
       for(i=0; i < ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].cbBandSize; i+=4)
+#else
+      for(i=0; i < ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize; i+=4)
+#endif
       {
         uTmp = pDst[0];
         pDst[0] = pDst[3];
@@ -729,7 +860,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
        The engine may not care about the padded data, but the data is
        written to the PDF output, so we will clear here, which will keep the binary
        output the same between runs. */
+#ifdef PMS_OIL_MERGE_DISABLE
     if((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) > ptPMSPage->nPageWidthPixels)
+#else
+    if((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) > ptPMSPage->nPageWidthPixels)
+#endif
     {
       unsigned char uMaskPartial; /* apply this mask to the partial bytes to be cleared */
       int nCountFull;             /* clear this number of full bytes */
@@ -738,10 +873,18 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
       unsigned int y;
       int nPaddedBits;
 
+#ifdef PMS_OIL_MERGE_DISABLE
       nPaddedBits = ptPMSPage->nRasterWidthBits - (ptPMSPage->nPageWidthPixels * ptPMSPage->uOutputDepth);
+#else
+      nPaddedBits = ptPMSPage->nRasterWidthData - (ptPMSPage->nPageWidthPixels * ptPMSPage->uOutputDepth);
+#endif
       uMaskPartial = aMask[nPaddedBits % 8];
       nOffset = (ptPMSPage->nPageWidthPixels * ptPMSPage->uOutputDepth) / 8;
+#ifdef PMS_OIL_MERGE_DISABLE
       nCountFull = (ptPMSPage->nRasterWidthBits / 8) - nOffset - 1;
+#else
+      nCountFull = (ptPMSPage->nRasterWidthData / 8) - nOffset - 1;
+#endif
 
 /*    printf("logical width bits/bytes = %d/%d:%d, physical width bits/bytes = %d/%d:%d, padded bits = %d, uMaskPartial = 0x%02x, nCountFull = %d, offset %d\n",
         ptPMSPage->nPageWidthPixels * ptPMSPage->uOutputDepth,
@@ -769,18 +912,32 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
 #endif
 
   } /* end of monochrome job handling */
+#ifdef PMS_OIL_MERGE_DISABLE
   else if(ptPMSPage->uTotalPlanes == 3)   /* RGB 8, 16, 4, 2 bpp job handling */
+#else
+  else if(ptPMSPage->nColorants == 3)   /* RGB 8, 16, 4, 2 bpp job handling */
+#endif
   {
     pDst = (unsigned char*)pTo;
+#ifdef PMS_OIL_MERGE_DISABLE
     if(ptPMSPage->eColorMode == PMS_RGB_PixelInterleaved) {
+#else
+    if(ptPMSPage->pstJob->eColorMode == OIL_RGB_PixelInterleaved) {
+#endif
       /* nBytesToWritePerLine * nLinesThisBand */
       memcpy(pDst, ptPMSPage->atPlane[0].atBand[nBand].pBandRaster, ptPMSPage->atPlane[0].atBand[nBand].cbBandSize);
       cbSizeWritten = ptPMSPage->atPlane[0].atBand[nBand].cbBandSize;
     } else {
 
+#ifdef PMS_OIL_MERGE_DISABLE
     ptColorBand[PMS_RED] = ptPMSPage->atPlane[0].atBand[nBand].pBandRaster;
     ptColorBand[PMS_GREEN] = ptPMSPage->atPlane[1].atBand[nBand].pBandRaster;
     ptColorBand[PMS_BLUE] = ptPMSPage->atPlane[2].atBand[nBand].pBandRaster;
+#else
+    ptColorBand[OIL_Red] = ptPMSPage->atPlane[0].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Green] = ptPMSPage->atPlane[1].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Blue] = ptPMSPage->atPlane[2].atBand[nBand].pBandRaster;
+#endif
 
     nLinesThisBand = ptPMSPage->atPlane[0].atBand[nBand].uBandHeight;
     do
@@ -792,11 +949,18 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
       case 8:
           for(i=0; i < (unsigned int)ptPMSPage->nPageWidthPixels; i++)
           {
+#ifdef PMS_OIL_MERGE_DISABLE
             *pDst++ = (unsigned char)(*ptColorBand[PMS_RED]++) ; /* for 8 bits */
             *pDst++ = (unsigned char)(*ptColorBand[PMS_GREEN]++) ; /* for 8 bits */
             *pDst++ = (unsigned char)(*ptColorBand[PMS_BLUE]++) ; /* for 8 bits */
+#else
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Red]++) ; /* for 8 bits */
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Green]++) ; /* for 8 bits */
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Blue]++) ; /* for 8 bits */
+#endif
           }
 #ifdef NEED_TO_CLEAR_PADDED
+#ifdef PMS_OIL_MERGE_DISABLE
           for(i=ptPMSPage->nPageWidthPixels; i < (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i++)
           {
             *pDst++ = 0xff;
@@ -806,11 +970,23 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
             ptColorBand[PMS_GREEN]++;
             ptColorBand[PMS_BLUE]++;
           }
+#else
+          for(i=ptPMSPage->nPageWidthPixels; i < (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i++)
+          {
+            *pDst++ = 0xff;
+            *pDst++ = 0xff;
+            *pDst++ = 0xff;
+            ptColorBand[OIL_Red]++;
+            ptColorBand[OIL_Green]++;
+            ptColorBand[OIL_Blue]++;
+          }
+#endif
 #endif
         break;
       case 16:
         for(i=0; i < (unsigned int)(ptPMSPage->nPageWidthPixels); i++)
         {
+#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef PMS_LOWBYTEFIRST
           {
             /* Swap bytes if on a little-endian platform. */
@@ -834,8 +1010,34 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
             *pDst++ = (unsigned char)(*ptColorBand[PMS_BLUE]++) ;
           }
 #endif
+#else
+#ifdef PMS_LOWBYTEFIRST
+          {
+            /* Swap bytes if on a little-endian platform. */
+            *pDst++ = (unsigned char)(*(ptColorBand[OIL_Red]+1)) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Red]) ;
+            *pDst++ = (unsigned char)(*(ptColorBand[OIL_Green]+1)) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Green]) ;
+            *pDst++ = (unsigned char)(*(ptColorBand[OIL_Blue]+1)) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Blue]) ;
+            ptColorBand[OIL_Red]+= 2;
+            ptColorBand[OIL_Green]+= 2;
+            ptColorBand[OIL_Blue]+= 2;
+          }
+#else
+          {
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Red]++) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Red]++) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Green]++) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Green]++) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Blue]++) ;
+            *pDst++ = (unsigned char)(*ptColorBand[OIL_Blue]++) ;
+          }
+#endif
+#endif
         }
 #ifdef NEED_TO_CLEAR_PADDED
+#ifdef PMS_OIL_MERGE_DISABLE
         for(; i < (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i++)
         {
           *pDst++ = 0xff;
@@ -848,9 +1050,24 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
           ptColorBand[PMS_GREEN]+= 2;
           ptColorBand[PMS_BLUE]+= 2;
         }
+#else
+        for(; i < (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i++)
+        {
+          *pDst++ = 0xff;
+          *pDst++ = 0xff;
+          *pDst++ = 0xff;
+          *pDst++ = 0xff;
+          *pDst++ = 0xff;
+          *pDst++ = 0xff;
+          ptColorBand[OIL_Red]+= 2;
+          ptColorBand[OIL_Green]+= 2;
+          ptColorBand[OIL_Blue]+= 2;
+        }
+#endif
 #endif
         break;
       case 4:
+#ifdef PMS_OIL_MERGE_DISABLE
         for(i=1; i <= (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i=i+2)
         {
           /* in each iteration, pickup 2 pixels from each RGB plane and make 3 bytes - RG BR GB at destination */
@@ -861,10 +1078,28 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
           ptColorBand[PMS_GREEN] ++;
           ptColorBand[PMS_BLUE] ++;
         }
+#else
+        for(i=1; i <= (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i=i+2)
+        {
+          /* in each iteration, pickup 2 pixels from each RGB plane and make 3 bytes - RG BR GB at destination */
+          *pDst++ = (((*ptColorBand[OIL_Red])& 0xF0)|(((*ptColorBand[OIL_Green])& 0xF0)>>4));
+          *pDst++ = (((*ptColorBand[OIL_Blue])& 0xF0)|(((*ptColorBand[OIL_Red])& 0x0F)));
+          *pDst++ = ((((*ptColorBand[OIL_Green])& 0x0F)<<4)|((*ptColorBand[OIL_Blue])& 0x0F));
+          ptColorBand[OIL_Red] ++;
+          ptColorBand[OIL_Green] ++;
+          ptColorBand[OIL_Blue] ++;
+        }
+#endif
+
         /* Clear the padded pixels as the external screening module nor the rip clear them
            for 4bpp (nor 2bpp) */
+#ifdef PMS_OIL_MERGE_DISABLE
         for(i = (unsigned int)(((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) -
                                 ptPMSPage->nPageWidthPixels) * 2);
+#else
+        for(i = (unsigned int)(((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) -
+                                ptPMSPage->nPageWidthPixels) * 2);
+#endif
             i > 0;
             i --)
         {
@@ -875,6 +1110,7 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
         }
         break;
       case 2:
+#ifdef PMS_OIL_MERGE_DISABLE
         for(i=0; i < (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i=i+4)
         {
          /* in each iteration, pickup 4 pixels from each RGB plane and make 3 bytes - RGBR GBRG BRGB at destination */
@@ -897,12 +1133,42 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
             ptColorBand[PMS_GREEN]++;
             ptColorBand[PMS_BLUE]++;
         }
+#else
+        for(i=0; i < (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i=i+4)
+        {
+         /* in each iteration, pickup 4 pixels from each RGB plane and make 3 bytes - RGBR GBRG BRGB at destination */
+            *pDst++ = ( (((*ptColorBand[OIL_Red])& 0xc0)) |
+                      (((*ptColorBand[OIL_Green])& 0xc0)>>2) |
+                      (((*ptColorBand[OIL_Blue])& 0xc0)>>4) |
+                      (((*ptColorBand[OIL_Red])& 0x30)>>4) );
+
+            *pDst++ = ( (((*ptColorBand[OIL_Green])& 0x30)<<2) |
+                      (((*ptColorBand[OIL_Blue])& 0x30)) |
+                      (((*ptColorBand[OIL_Red])& 0x0c)) |
+                      (((*ptColorBand[OIL_Green])& 0x0c)>>2) );
+
+            *pDst++ = ( (((*ptColorBand[OIL_Blue])& 0x0c)<<4) |
+                      (((*ptColorBand[OIL_Red])& 0x03)<<4) |
+                      (((*ptColorBand[OIL_Green])& 0x03)<<2) |
+                      (((*ptColorBand[OIL_Blue])& 0x03)) );
+
+            ptColorBand[OIL_Red]++;
+            ptColorBand[OIL_Green]++;
+            ptColorBand[OIL_Blue]++;
+        }
+#endif
+
 
 #ifdef NEED_TO_CLEAR_PADDED
         /* Clear the padded pixels as the external screening module nor
            the rip clear them for 2bpp (nor 4bpp) */
+#ifdef PMS_OIL_MERGE_DISABLE
         for(i = (unsigned int)((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) -
                                 ptPMSPage->nPageWidthPixels);
+#else
+        for(i = (unsigned int)((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) -
+                                ptPMSPage->nPageWidthPixels);
+#endif
             i > 0;
             i --)
         {
@@ -928,12 +1194,21 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
   {
     pDst = (unsigned char*)pTo;
 
+#ifdef PMS_OIL_MERGE_DISABLE
     ptColorBand[PMS_CYAN] = ptPMSPage->atPlane[PMS_CYAN].atBand[nBand].pBandRaster;
     ptColorBand[PMS_MAGENTA] = ptPMSPage->atPlane[PMS_MAGENTA].atBand[nBand].pBandRaster;
     ptColorBand[PMS_YELLOW] = ptPMSPage->atPlane[PMS_YELLOW].atBand[nBand].pBandRaster;
     ptColorBand[PMS_BLACK] = ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].pBandRaster;
 
     nLinesThisBand = ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].uBandHeight;
+#else
+    ptColorBand[OIL_Cyan] = ptPMSPage->atPlane[OIL_Cyan].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Magenta] = ptPMSPage->atPlane[OIL_Magenta].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Yellow] = ptPMSPage->atPlane[OIL_Yellow].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Black] = ptPMSPage->atPlane[OIL_Black].atBand[nBand].pBandRaster;
+
+    nLinesThisBand = ptPMSPage->atPlane[OIL_Black].atBand[nBand].uBandHeight;
+#endif
     do
     {
       /* start of new line */
@@ -978,7 +1253,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
           }
         }
 #ifdef NEED_TO_CLEAR_PADDED
+#ifdef PMS_OIL_MERGE_DISABLE
         for(; i < (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i++)
+#else
+        for(; i < (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i++)
+#endif
         {
           *pDst++ = 0;
           *pDst++ = 0;
@@ -1026,7 +1305,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
 #endif
         }
 #ifdef NEED_TO_CLEAR_PADDED
+#ifdef PMS_OIL_MERGE_DISABLE
         for(; i < (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i++)
+#else
+        for(; i < (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i++)
+#endif
         {
           *pDst++ = 0;
           *pDst++ = 0;
@@ -1046,7 +1329,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
       case 4:
         if(bDoSwapBytesInWord)
         {
+#ifdef PMS_OIL_MERGE_DISABLE
           for(i=0; i < (unsigned int)((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) & ~3); i+=8)
+#else
+          for(i=0; i < (unsigned int)((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) & ~3); i+=8)
+#endif
           {
             *pDst++ = (((ptColorBand[0][3])& 0xF0)|(((ptColorBand[1][3])& 0xF0)>>4));
             *pDst++ = (((ptColorBand[2][3])& 0xF0)|(((ptColorBand[3][3])& 0xF0)>>4));
@@ -1080,7 +1367,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
         }
         else
         {
+#ifdef PMS_OIL_MERGE_DISABLE
           for(i=1; i <= (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i++)
+#else
+          for(i=1; i <= (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i++)
+#endif
           {
             if(i%2)
             {
@@ -1101,8 +1392,13 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
         }
 #ifdef NEED_TO_CLEAR_PADDED
         /* Clear the padded pixels */
+#ifdef PMS_OIL_MERGE_DISABLE
         for(i = (unsigned int)(((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) -
                                 ptPMSPage->nPageWidthPixels) * 2);
+#else
+        for(i = (unsigned int)(((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) -
+                                ptPMSPage->nPageWidthPixels) * 2);
+#endif
             i > 0;
             i --)
         {
@@ -1117,7 +1413,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
         if(bDoSwapBytesInWord)
         {
           swap = 0;
+#ifdef PMS_OIL_MERGE_DISABLE
           for(i=0; i < (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i++)
+#else
+          for(i=0; i < (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i++)
+#endif
           {
             int cell = i&3;
             if((i&15)==0)
@@ -1163,7 +1463,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
         }
         else
         {
+#ifdef PMS_OIL_MERGE_DISABLE
           for(i=0; i < (unsigned int)(ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth); i++)
+#else
+          for(i=0; i < (unsigned int)(ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth); i++)
+#endif
           {
             int cell = i%4;
             switch(cell)
@@ -1205,8 +1509,13 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
 
 #ifdef NEED_TO_CLEAR_PADDED
         /* Clear the padded pixels */
+#ifdef PMS_OIL_MERGE_DISABLE
         for(i = (unsigned int)((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) -
                                 ptPMSPage->nPageWidthPixels);
+#else
+        for(i = (unsigned int)((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) -
+                                ptPMSPage->nPageWidthPixels);
+#endif
             i > 0;
             i --)
         {
@@ -1222,6 +1531,7 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
       }
       nLinesThisBand -= 1 ;
     } while ( nLinesThisBand > 0 ) ;
+#ifdef PMS_OIL_MERGE_DISABLE
     cbSizeWritten = ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].cbBandSize * 4;
   }/* end of CMYK 8, 16 bpp job handling */
   else if(ptPMSPage->uOutputDepth == 1)   /* CMYK 1 bpp job handling */
@@ -1344,13 +1654,141 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
       }
     }
     cbSizeWritten = ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].cbBandSize * 4;
+#else
+    cbSizeWritten = ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize * 4;
+  }/* end of CMYK 8, 16 bpp job handling */
+  else if(ptPMSPage->uOutputDepth == 1)   /* CMYK 1 bpp job handling */
+  {
+    pDst = (unsigned char*)pTo;
+
+    /* start of new band */
+    ptColorBand[OIL_Cyan] = ptPMSPage->atPlane[OIL_Cyan].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Magenta] = ptPMSPage->atPlane[OIL_Magenta].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Yellow] = ptPMSPage->atPlane[OIL_Yellow].atBand[nBand].pBandRaster;
+    ptColorBand[OIL_Black] = ptPMSPage->atPlane[OIL_Black].atBand[nBand].pBandRaster;
+
+    /* Do swap, if required */
+    if(bDoSwapBytesInWord)
+    {
+      PMS_ASSERT((ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize&3)==0,("PDF_PixelInterleave(), band size needs to be a multiple of 4 bytes\n"));
+
+      /* CMYKCMYKCMYKCMYKCMYKCMYKCMYKCMYK */
+      for(i=0; i < (ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize); i+=4)
+      {
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][3] & 0x80) >> 0) | ((ptColorBand[OIL_Magenta][3] & 0x80) >> 1) | ((ptColorBand[OIL_Yellow][3] & 0x80) >> 2) | ((ptColorBand[OIL_Black][3] & 0x80) >> 3) |
+          ((ptColorBand[OIL_Cyan][3] & 0x40) >> 3) | ((ptColorBand[OIL_Magenta][3] & 0x40) >> 4) | ((ptColorBand[OIL_Yellow][3] & 0x40) >> 5) | ((ptColorBand[OIL_Black][3] & 0x40) >> 6)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][3] & 0x20) << 2) | ((ptColorBand[OIL_Magenta][3] & 0x20) << 1) | ((ptColorBand[OIL_Yellow][3] & 0x20) >> 0) | ((ptColorBand[OIL_Black][3] & 0x20) >> 1) |
+          ((ptColorBand[OIL_Cyan][3] & 0x10) >> 1) | ((ptColorBand[OIL_Magenta][3] & 0x10) >> 2) | ((ptColorBand[OIL_Yellow][3] & 0x10) >> 3) | ((ptColorBand[OIL_Black][3] & 0x10) >> 4)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][3] & 0x08) << 4) | ((ptColorBand[OIL_Magenta][3] & 0x08) << 3) | ((ptColorBand[OIL_Yellow][3] & 0x08) << 2) | ((ptColorBand[OIL_Black][3] & 0x08) << 1) |
+          ((ptColorBand[OIL_Cyan][3] & 0x04) << 1) | ((ptColorBand[OIL_Magenta][3] & 0x04) << 0) | ((ptColorBand[OIL_Yellow][3] & 0x04) >> 1) | ((ptColorBand[OIL_Black][3] & 0x04) >> 2)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][3] & 0x02) << 6) | ((ptColorBand[OIL_Magenta][3] & 0x02) << 5) | ((ptColorBand[OIL_Yellow][3] & 0x02) << 4) | ((ptColorBand[OIL_Black][3] & 0x02) << 3) |
+          ((ptColorBand[OIL_Cyan][3] & 0x01) << 3) | ((ptColorBand[OIL_Magenta][3] & 0x01) << 2) | ((ptColorBand[OIL_Yellow][3] & 0x01) << 1) | ((ptColorBand[OIL_Black][3] & 0x01) >> 0)
+          );
+
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][2] & 0x80) >> 0) | ((ptColorBand[OIL_Magenta][2] & 0x80) >> 1) | ((ptColorBand[OIL_Yellow][2] & 0x80) >> 2) | ((ptColorBand[OIL_Black][2] & 0x80) >> 3) |
+          ((ptColorBand[OIL_Cyan][2] & 0x40) >> 3) | ((ptColorBand[OIL_Magenta][2] & 0x40) >> 4) | ((ptColorBand[OIL_Yellow][2] & 0x40) >> 5) | ((ptColorBand[OIL_Black][2] & 0x40) >> 6)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][2] & 0x20) << 2) | ((ptColorBand[OIL_Magenta][2] & 0x20) << 1) | ((ptColorBand[OIL_Yellow][2] & 0x20) >> 0) | ((ptColorBand[OIL_Black][2] & 0x20) >> 1) |
+          ((ptColorBand[OIL_Cyan][2] & 0x10) >> 1) | ((ptColorBand[OIL_Magenta][2] & 0x10) >> 2) | ((ptColorBand[OIL_Yellow][2] & 0x10) >> 3) | ((ptColorBand[OIL_Black][2] & 0x10) >> 4)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][2] & 0x08) << 4) | ((ptColorBand[OIL_Magenta][2] & 0x08) << 3) | ((ptColorBand[OIL_Yellow][2] & 0x08) << 2) | ((ptColorBand[OIL_Black][2] & 0x08) << 1) |
+          ((ptColorBand[OIL_Cyan][2] & 0x04) << 1) | ((ptColorBand[OIL_Magenta][2] & 0x04) << 0) | ((ptColorBand[OIL_Yellow][2] & 0x04) >> 1) | ((ptColorBand[OIL_Black][2] & 0x04) >> 2)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][2] & 0x02) << 6) | ((ptColorBand[OIL_Magenta][2] & 0x02) << 5) | ((ptColorBand[OIL_Yellow][2] & 0x02) << 4) | ((ptColorBand[OIL_Black][2] & 0x02) << 3) |
+          ((ptColorBand[OIL_Cyan][2] & 0x01) << 3) | ((ptColorBand[OIL_Magenta][2] & 0x01) << 2) | ((ptColorBand[OIL_Yellow][2] & 0x01) << 1) | ((ptColorBand[OIL_Black][2] & 0x01) >> 0)
+          );
+
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][1] & 0x80) >> 0) | ((ptColorBand[OIL_Magenta][1] & 0x80) >> 1) | ((ptColorBand[OIL_Yellow][1] & 0x80) >> 2) | ((ptColorBand[OIL_Black][1] & 0x80) >> 3) |
+          ((ptColorBand[OIL_Cyan][1] & 0x40) >> 3) | ((ptColorBand[OIL_Magenta][1] & 0x40) >> 4) | ((ptColorBand[OIL_Yellow][1] & 0x40) >> 5) | ((ptColorBand[OIL_Black][1] & 0x40) >> 6)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][1] & 0x20) << 2) | ((ptColorBand[OIL_Magenta][1] & 0x20) << 1) | ((ptColorBand[OIL_Yellow][1] & 0x20) >> 0) | ((ptColorBand[OIL_Black][1] & 0x20) >> 1) |
+          ((ptColorBand[OIL_Cyan][1] & 0x10) >> 1) | ((ptColorBand[OIL_Magenta][1] & 0x10) >> 2) | ((ptColorBand[OIL_Yellow][1] & 0x10) >> 3) | ((ptColorBand[OIL_Black][1] & 0x10) >> 4)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][1] & 0x08) << 4) | ((ptColorBand[OIL_Magenta][1] & 0x08) << 3) | ((ptColorBand[OIL_Yellow][1] & 0x08) << 2) | ((ptColorBand[OIL_Black][1] & 0x08) << 1) |
+          ((ptColorBand[OIL_Cyan][1] & 0x04) << 1) | ((ptColorBand[OIL_Magenta][1] & 0x04) << 0) | ((ptColorBand[OIL_Yellow][1] & 0x04) >> 1) | ((ptColorBand[OIL_Black][1] & 0x04) >> 2)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][1] & 0x02) << 6) | ((ptColorBand[OIL_Magenta][1] & 0x02) << 5) | ((ptColorBand[OIL_Yellow][1] & 0x02) << 4) | ((ptColorBand[OIL_Black][1] & 0x02) << 3) |
+          ((ptColorBand[OIL_Cyan][1] & 0x01) << 3) | ((ptColorBand[OIL_Magenta][1] & 0x01) << 2) | ((ptColorBand[OIL_Yellow][1] & 0x01) << 1) | ((ptColorBand[OIL_Black][1] & 0x01) >> 0)
+          );
+
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][0] & 0x80) >> 0) | ((ptColorBand[OIL_Magenta][0] & 0x80) >> 1) | ((ptColorBand[OIL_Yellow][0] & 0x80) >> 2) | ((ptColorBand[OIL_Black][0] & 0x80) >> 3) |
+          ((ptColorBand[OIL_Cyan][0] & 0x40) >> 3) | ((ptColorBand[OIL_Magenta][0] & 0x40) >> 4) | ((ptColorBand[OIL_Yellow][0] & 0x40) >> 5) | ((ptColorBand[OIL_Black][0] & 0x40) >> 6)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][0] & 0x20) << 2) | ((ptColorBand[OIL_Magenta][0] & 0x20) << 1) | ((ptColorBand[OIL_Yellow][0] & 0x20) >> 0) | ((ptColorBand[OIL_Black][0] & 0x20) >> 1) |
+          ((ptColorBand[OIL_Cyan][0] & 0x10) >> 1) | ((ptColorBand[OIL_Magenta][0] & 0x10) >> 2) | ((ptColorBand[OIL_Yellow][0] & 0x10) >> 3) | ((ptColorBand[OIL_Black][0] & 0x10) >> 4)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][0] & 0x08) << 4) | ((ptColorBand[OIL_Magenta][0] & 0x08) << 3) | ((ptColorBand[OIL_Yellow][0] & 0x08) << 2) | ((ptColorBand[OIL_Black][0] & 0x08) << 1) |
+          ((ptColorBand[OIL_Cyan][0] & 0x04) << 1) | ((ptColorBand[OIL_Magenta][0] & 0x04) << 0) | ((ptColorBand[OIL_Yellow][0] & 0x04) >> 1) | ((ptColorBand[OIL_Black][0] & 0x04) >> 2)
+          );
+        *pDst++ = (
+          ((ptColorBand[OIL_Cyan][0] & 0x02) << 6) | ((ptColorBand[OIL_Magenta][0] & 0x02) << 5) | ((ptColorBand[OIL_Yellow][0] & 0x02) << 4) | ((ptColorBand[OIL_Black][0] & 0x02) << 3) |
+          ((ptColorBand[OIL_Cyan][0] & 0x01) << 3) | ((ptColorBand[OIL_Magenta][0] & 0x01) << 2) | ((ptColorBand[OIL_Yellow][0] & 0x01) << 1) | ((ptColorBand[OIL_Black][0] & 0x01) >> 0)
+          );
+
+        ptColorBand[OIL_Cyan]+=4;
+        ptColorBand[OIL_Magenta]+=4;
+        ptColorBand[OIL_Yellow]+=4;
+        ptColorBand[OIL_Black]+=4;
+      }
+    }
+    else
+    {
+      /* CMYKCMYKCMYKCMYKCMYKCMYKCMYKCMYK */
+      for(i=0; i < (ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize); i++)
+      {
+        *pDst++ = (
+          ((*ptColorBand[OIL_Cyan] & 0x80) >> 0) | ((*ptColorBand[OIL_Magenta] & 0x80) >> 1) | ((*ptColorBand[OIL_Yellow] & 0x80) >> 2) | ((*ptColorBand[OIL_Black] & 0x80) >> 3) |
+          ((*ptColorBand[OIL_Cyan] & 0x40) >> 3) | ((*ptColorBand[OIL_Magenta] & 0x40) >> 4) | ((*ptColorBand[OIL_Yellow] & 0x40) >> 5) | ((*ptColorBand[OIL_Black] & 0x40) >> 6)
+          );
+        *pDst++ = (
+          ((*ptColorBand[OIL_Cyan] & 0x20) << 2) | ((*ptColorBand[OIL_Magenta] & 0x20) << 1) | ((*ptColorBand[OIL_Yellow] & 0x20) >> 0) | ((*ptColorBand[OIL_Black] & 0x20) >> 1) |
+          ((*ptColorBand[OIL_Cyan] & 0x10) >> 1) | ((*ptColorBand[OIL_Magenta] & 0x10) >> 2) | ((*ptColorBand[OIL_Yellow] & 0x10) >> 3) | ((*ptColorBand[OIL_Black] & 0x10) >> 4)
+          );
+        *pDst++ = (
+          ((*ptColorBand[OIL_Cyan] & 0x08) << 4) | ((*ptColorBand[OIL_Magenta] & 0x08) << 3) | ((*ptColorBand[OIL_Yellow] & 0x08) << 2) | ((*ptColorBand[OIL_Black] & 0x08) << 1) |
+          ((*ptColorBand[OIL_Cyan] & 0x04) << 1) | ((*ptColorBand[OIL_Magenta] & 0x04) << 0) | ((*ptColorBand[OIL_Yellow] & 0x04) >> 1) | ((*ptColorBand[OIL_Black] & 0x04) >> 2)
+          );
+        *pDst++ = (
+          ((*ptColorBand[OIL_Cyan] & 0x02) << 6) | ((*ptColorBand[OIL_Magenta] & 0x02) << 5) | ((*ptColorBand[OIL_Yellow] & 0x02) << 4) | ((*ptColorBand[OIL_Black] & 0x02) << 3) |
+          ((*ptColorBand[OIL_Cyan] & 0x01) << 3) | ((*ptColorBand[OIL_Magenta] & 0x01) << 2) | ((*ptColorBand[OIL_Yellow] & 0x01) << 1) | ((*ptColorBand[OIL_Black] & 0x01) >> 0)
+          );
+        ptColorBand[OIL_Cyan]++;
+        ptColorBand[OIL_Magenta]++;
+        ptColorBand[OIL_Yellow]++;
+        ptColorBand[OIL_Black]++;
+      }
+    }
+    cbSizeWritten = ptPMSPage->atPlane[OIL_Black].atBand[nBand].cbBandSize * 4;
+#endif
 
 #ifdef NEED_TO_CLEAR_PADDED
     /* Clear padded pixels.
        The engine may not care about the padded data, but the data is
        written to the PDF output, so we will clear here, which will keep the binary
        output the same between runs. */
+#ifdef PMS_OIL_MERGE_DISABLE
     if((ptPMSPage->nRasterWidthBits / ptPMSPage->uOutputDepth) > ptPMSPage->nPageWidthPixels)
+#else
+    if((ptPMSPage->nRasterWidthData / ptPMSPage->uOutputDepth) > ptPMSPage->nPageWidthPixels)
+#endif
     {
       unsigned char uMaskPartial; /* apply this mask to the partial bytes to be cleared */
       int nCountFull;             /* clear this number of full bytes */
@@ -1360,7 +1798,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
       int nPaddedBits;
 
       /* if a single colorant had 30 padded bits, the result will be 4 * 30 padded bits */
+#ifdef PMS_OIL_MERGE_DISABLE
       nPaddedBits = ptPMSPage->nRasterWidthBits - (ptPMSPage->nPageWidthPixels * ptPMSPage->uOutputDepth);
+#else
+      nPaddedBits = ptPMSPage->nRasterWidthData - (ptPMSPage->nPageWidthPixels * ptPMSPage->uOutputDepth);
+#endif
 
       nPaddedBits *= 4;
       uMaskPartial = aMask[nPaddedBits % 8];
@@ -1380,7 +1822,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
         nOffset); */
 
       pDst = (unsigned char*)pTo + nOffset;
+#ifdef PMS_OIL_MERGE_DISABLE
       nLinesThisBand = ptPMSPage->atPlane[PMS_BLACK].atBand[nBand].uBandHeight;
+#else
+      nLinesThisBand = ptPMSPage->atPlane[OIL_Black].atBand[nBand].uBandHeight;
+#endif
       nBytesToWritePerLine *= 4;
       for(y = nLinesThisBand; y > 0 ; y--)
       {
@@ -1403,7 +1849,11 @@ static unsigned int PDF_PixelInterleave(PMS_TyPage *ptPMSPage, int nBand, char *
  * \param ptPMSPage Pointer to PMS page structure that contains the complete page.
  * \return PMS_ePDF_Errors error code.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int PDF_PageHandler( PMS_TyPage *ptPMSPage )
+#else
+int PDF_PageHandler( OIL_TyPage *ptPMSPage )
+#endif
 {
   PMS_ePDF_Errors eResult = PDF_NoError;
   unsigned int nBytesPerLine;
@@ -1442,7 +1892,11 @@ int PDF_PageHandler( PMS_TyPage *ptPMSPage )
     return FALSE;
   }
   /* checks for features not supported */
+#ifdef PMS_OIL_MERGE_DISABLE
   if((ptPMSPage->uTotalPlanes == 3) && (ptPMSPage->uOutputDepth < 8))
+#else
+  if((ptPMSPage->nColorants == 3) && (ptPMSPage->uOutputDepth < 8))
+#endif
   {
     PMS_SHOW_ERROR("1, 2 and 4 bpp RGB is not yet supported in PDF out.\n");
     return FALSE;
@@ -1469,15 +1923,27 @@ int PDF_PageHandler( PMS_TyPage *ptPMSPage )
   }
 
   /* dataWidth (bits per scanline including padding) is a multiple of 32, so divide by 8 to get bytes */
+#ifdef PMS_OIL_MERGE_DISABLE
   nBytesPerLine = (ptPMSPage->nRasterWidthBits >> 3);
+#else
+  nBytesPerLine = (ptPMSPage->nRasterWidthData >> 3);
+#endif
 
   /* Output several times. */
   /* \todo Perf - just copy the file, we don't need to recreate the PDF every time */
+#ifdef PMS_OIL_MERGE_DISABLE
   for(nCopyNo = 1; nCopyNo <= ptPMSPage->nCopies; nCopyNo++)
+#else
+  for(nCopyNo = 1; nCopyNo <= ptPMSPage->uCopies; nCopyNo++)
+#endif
   {
     /* Bytes per line needed to store pixel interleaved packed raster band.
        Note: The amount of memory could be reduced for bit depths less than 8. */
+#ifdef PMS_OIL_MERGE_DISABLE
     gtPDFOut.cbRasterBuffer = ((ptPMSPage->nRasterWidthBits >> 3) * ptPMSPage->uTotalPlanes) * uBandHeight;
+#else
+    gtPDFOut.cbRasterBuffer = ((ptPMSPage->nRasterWidthData >> 3) * ptPMSPage->nColorants) * uBandHeight;
+#endif
 
     /* \todo Make the raster buffer persistent, and only reallocate if a larger one is needed */
     /* \todo Even better - output bands of raster rather store the whole page (it shouldn't be too tricky to do) */
@@ -1485,7 +1951,11 @@ int PDF_PageHandler( PMS_TyPage *ptPMSPage )
     if(!gtPDFOut.pRasterBuffer)
     {
       PMS_SHOW_ERROR("PDF_PageHandler: Failed to allocate %d bytes of memory for packed raster line. WidthBits=%d, Planes=%d, BandHeight=%d\n",
+#ifdef PMS_OIL_MERGE_DISABLE
         gtPDFOut.cbRasterBuffer, ptPMSPage->nRasterWidthBits, ptPMSPage->uTotalPlanes, uBandHeight);
+#else
+        gtPDFOut.cbRasterBuffer, ptPMSPage->nRasterWidthData, ptPMSPage->nColorants, uBandHeight);
+#endif
       return PDF_Error_Memory;
     }
 
@@ -1531,8 +2001,13 @@ int PDF_PageHandler( PMS_TyPage *ptPMSPage )
     uLastTotal = 0;
 
 #ifdef COMPRESS_TEST
+#ifdef PMS_OIL_MERGE_DISABLE
     pTestCompressedFull = malloc((ptPMSPage->nRasterWidthBits/8) * ptPMSPage->nPageHeightPixels * 4);
     pTestUncompressedFull = malloc((ptPMSPage->nRasterWidthBits/8) * ptPMSPage->nPageHeightPixels * 4);
+#else
+    pTestCompressedFull = malloc((ptPMSPage->nRasterWidthData/8) * ptPMSPage->nPageHeightPixels * 4);
+    pTestUncompressedFull = malloc((ptPMSPage->nRasterWidthData/8) * ptPMSPage->nPageHeightPixels * 4);
+#endif
     pTestCompPos = pTestCompressedFull;
     pTestUncompPos = pTestUncompressedFull;
 #endif
@@ -1697,7 +2172,11 @@ int PDF_PageHandler( PMS_TyPage *ptPMSPage )
     else
     {
       zstateUncompress.avail_in = (uInt)(pTestCompPos - pTestCompressedFull);
+#ifdef PMS_OIL_MERGE_DISABLE
       zstateUncompress.avail_out = (ptPMSPage->nRasterWidthBits/8) * ptPMSPage->nPageHeightPixels * 4;
+#else
+      zstateUncompress.avail_out = (ptPMSPage->nRasterWidthData/8) * ptPMSPage->nPageHeightPixels * 4;
+#endif
       zstateUncompress.next_in = (Bytef *)pTestCompressedFull;
       zstateUncompress.next_out = (Bytef *)pTestUncompressedFull;
       if (inflate(&zstateUncompress, Z_FINISH) != Z_STREAM_END)

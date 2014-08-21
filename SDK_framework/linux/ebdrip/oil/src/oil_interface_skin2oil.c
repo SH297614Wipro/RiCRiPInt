@@ -27,6 +27,9 @@
 #include "oil_probelog.h"
 #include "oil_pjl.h"
 #include "oil_utils.h"
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#include "gw_gps.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>     /* for memset and memcpy */
@@ -37,7 +40,11 @@
 #include "oil_pcl5rast.h"
 #include "oil_pcl6rast.h"
 #endif
-
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#ifdef USE_PJL
+#undef USE_PJL
+#endif
+#endif
 /* extern variables */
 extern OIL_TyPage *g_pstCurrentPage;
 extern OIL_TyJob *g_pstCurrentJob;
@@ -46,8 +53,14 @@ extern OIL_TySystem g_SystemState;
 extern unsigned char *gFrameBuffer;
 extern void OIL_JobCancel(void);
 
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+extern gwmsg_client_t     *gps_client ;
+extern PlotSet_plotid;
+extern gps_color_rid_t rID[]; //Updating ra_ variables from Color_getRID()......
+#endif
 void DummyPageforDuplex(void *pJobContext);
 void BlankBandsToPMS(void *pJobContext, struct rasterDescription *ptRasterDescription);
+unsigned int gps_frameid;
 /* save last value for end of job checking */
 static BOOL l_PageDuplex = 0;
 #ifdef DIRECTPRINTPCLOUT
@@ -59,6 +72,8 @@ static PMS_TySystem pmsSysInfo;
  * the details here.
  */
 static RASTER_LAYOUT sRasterLayout;
+ gps_pageinfo_t        pageinfo;
+
 
 /**
  * \brief Callback for the Skin to provide text messages to the OIL.
@@ -223,6 +238,51 @@ int32 RIPCALL OIL_RasterDestination(void *pJobContext,
   return nRetVal;
 }
 
+ void set_paper_type()
+{
+  
+  if( strcmp( (const char *)  g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Thick" ) == 0 )
+  {
+    pageinfo.paper_type = GPS_PAPER_MIDDLETHICK ;
+  }
+  else if( strcmp( (const char *) g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Thin" ) == 0 )
+  {
+    pageinfo.paper_type = GPS_PAPER_THIN;
+  }
+  else if( strcmp( (const char *)  g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Bond" ) == 0 )
+  {
+   pageinfo.paper_type  = GPS_PAPER_BOND;
+  }
+  else if( strcmp( (const char *)  g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Label" ) == 0 )
+  {
+    pageinfo.paper_type  = GPS_PAPER_LABEL;
+  }
+  else if( strcmp( (const char *)  g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Transparency" ) == 0 )
+  {
+   pageinfo.paper_type = GPS_PAPER_OHP;
+  }
+  else if( strcmp( (const char *)  g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Envelope" ) == 0 )
+  {
+    pageinfo.paper_type = GPS_PAPER_ENVELOPE;
+  }
+  else if( strcmp( (const char *) g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Preprinted" ) == 0 )
+  {
+    pageinfo.paper_type = GPS_PAPER_PREPRINT;
+  }
+  else if( strcmp( (const char *)  g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Letterhead" ) == 0 )
+  {
+    pageinfo.paper_type  = GPS_PAPER_LETTER_HEAD;
+  }
+  else if( strcmp( (const char *)  g_pstCurrentJob->tCurrentJobMedia.szMediaType, "Recycled" ) == 0 )
+  {
+    pageinfo.paper_type  = GPS_PAPER_RECYCLE;
+  }
+  else
+  {
+    pageinfo.paper_type = GPS_PAPER_AUTO;
+  }
+
+ }
 
 /**
  * \brief Callback for Skin to provide raster data to the OIL.
@@ -632,7 +692,11 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
           ptCurrentBandPacket->uBandNumber = iBandNumber+1;
 
           /* find and set the colour of the separation */
+#ifdef PMS_OIL_MERGE_DISABLE
           ptCurrentBandPacket->atColoredBand[0].ePlaneColorant = (PMS_eColourant)(Map[0] + nColorFamilyOffset);
+#else
+          ptCurrentBandPacket->atColoredBand[0].ePlaneColorant = (OIL_eColorant)(Map[0] + nColorFamilyOffset);
+#endif
           /* in case of separations, the band packet will have data only in first plane
           irrespective of the colour. so set the mapping table to first plane */
           Map[0]=0;
@@ -760,7 +824,11 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
             if(iBandNumber >= PMS_BAND_LIMIT)
             {
               HQASSERTV((iBandNumber < PMS_BAND_LIMIT), ("OIL_RasterCallback: Exceeded the limit of maximum PMS bands (%d)", PMS_BAND_LIMIT));
+#ifdef PMS_OIL_MERGE_DISABLE
               OIL_PageDone(g_pstCurrentPage->ptPMSpage);
+#else
+              OIL_PageDone(g_pstCurrentPage);
+#endif
               OIL_JobCancel();
               OIL_ProbeLog(SW_TRACE_OIL_RASTERCALLBACK, SW_TRACETYPE_EXIT, (intptr_t)0);
               return FALSE ;
@@ -769,8 +837,13 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
           else if(iBandNumber >= OIL_BAND_LIMIT)
           {
             HQASSERTV((iBandNumber < OIL_BAND_LIMIT), ("OIL_RasterCallback: Exceeded the limit of maximum OIL bands (%d) \n", OIL_BAND_LIMIT));
+#ifdef PMS_OIL_MERGE_DISABLE
             if(g_pstCurrentPage->ptPMSpage != NULL)
               OIL_PageDone(g_pstCurrentPage->ptPMSpage);
+#else
+            if(g_pstCurrentPage != NULL)
+              OIL_PageDone(g_pstCurrentPage);
+#endif
             else
                 DeleteOILPage(g_pstCurrentPage);
             OIL_JobCancel();
@@ -842,7 +915,11 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
               else
               {
                 /* allocate and initialize memory for the band */
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
                 pBandBuffer = (unsigned char *)OIL_malloc(OILMemoryPoolJob, OIL_MemBlock, (nOutputLinesPerBand * nOutputBytesPerLine));
+#else
+		        pBandBuffer = (unsigned char *)malloc((nOutputLinesPerBand * nOutputBytesPerLine));
+#endif
                 if(!pBandBuffer)
                 {
                   HQASSERTV(pBandBuffer!=NULL, ("OIL_RasterCallback: Failed to allocate %d bytes", (nOutputLinesPerBand * nOutputBytesPerLine)));
@@ -1171,7 +1248,11 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
               /* submit the band to pms here */
               if(!SubmitBandToPMS(ptCurrentBandPacket))
               {
+#ifdef PMS_OIL_MERGE_DISABLE
                   OIL_PageDone(g_pstCurrentPage->ptPMSpage);
+#else
+                  OIL_PageDone(g_pstCurrentPage);
+#endif
                   return FALSE;
               }
               ptCurrentBandPacket = NULL;
@@ -1246,6 +1327,7 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
 
   return TRUE;
 }
+
 /* this function provides the Red Book feature for a blank page at the end of a duplex job */
 /* with an odd number of pages as the core does not currently provide this */
 /* note that not all printers require this feature */
@@ -1278,6 +1360,7 @@ void DummyPageforDuplex(void *pJobContext)
     }
   }
 }
+
 
 /* This function creates the bands that are sent to the system for  a blank page */
 /* CMYK and gray create only a single plane; RGB has to create all three planes */

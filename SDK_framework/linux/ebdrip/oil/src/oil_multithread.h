@@ -19,6 +19,10 @@
 #define _OIL_MULTITHREAD_H_
 
 /* interface functions */
+#ifdef PMS_OIL_MERGE_DISABLE
 int OIL_MultiThreadedStart(PMS_TyJob *pms_ptJob, int ePDL );
+#else
+int OIL_MultiThreadedStart(OIL_TyJob *pms_ptJob, int ePDL );
+#endif
 
 #endif /* _OIL_MULTITHREAD_H_ */

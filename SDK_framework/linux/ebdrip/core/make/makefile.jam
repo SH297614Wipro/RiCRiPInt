@@ -346,6 +346,8 @@ ECHO Core RIP features enabled: $(enabled) ;
     # Add Core RIP private includes to path; this is for headers that depend
     # on the components included in the current product
     AddToVar Inherited Local : C-IncludeDirectories : $(CurrentPath)$/shared ;
+    AddToVar Inherited Local : C-IncludeDirectories : $(CurrentPath)$/..$/gpsexport ;
+    AddToVar Inherited Local : C-IncludeDirectories : $(CurrentPath)$/..$/mediahandling$/src ;
 
     # Sub-compounds automatically get access to these interfaces
     ReplaceVar Local : CoreFriends :

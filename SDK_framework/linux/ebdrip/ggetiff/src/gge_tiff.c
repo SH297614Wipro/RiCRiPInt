@@ -38,11 +38,17 @@
 #define OUTPUT_SHORT(_val_) (_val_)
 #endif
 
-
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
 /*! Define a common malloc function for this TIFF module */
 #define GGE_malloc(x)  OSMalloc(x, PMS_MemoryPoolPMS)
 /*! Define a common free function for this TIFF module */
 #define GGE_free(x)  OSFree(x, PMS_MemoryPoolPMS)
+#else
+/*! Define a common malloc function for this TIFF module */
+#define GGE_malloc(x)  malloc(x)
+/*! Define a common free function for this TIFF module */
+#define GGE_free(x)  free(x)
+#endif
 
 /*! GGETIFF major version */
 #define VER_MAJOR 2

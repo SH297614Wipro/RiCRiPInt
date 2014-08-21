@@ -47,6 +47,11 @@
 #define UNUSED_PARAM(_type_, _param_)  ((void)_param_)
 #endif
 
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#ifdef USE_PJL
+#undef USE_PJL
+#endif
+#endif
 /* oil-wide defines */
 #define OIL_READBUFFER_LEN          16 * 1024      /* may need to change later */
 #define LINEBUFF_LEN                1024
@@ -192,6 +197,8 @@ enum {
     OIL_Red,                              /*!< Red */
     OIL_Green,                            /*!< Green */
     OIL_Blue,                             /*!< Blue */
+
+	OIL_TOTAL_NUMBER_OF_COLORANTS         /**< Always last, equal to number of colorants. */
 };
 typedef int OIL_eColorant;
 
@@ -263,6 +270,37 @@ enum {
 };
 typedef int OIL_ePrintableMode;
 
+/*! \brief An enumeration defining constants used to denote device status either online
+* or offline.
+*/
+enum {
+    Device_Offline,                         /*!< 0 = device offline */
+    Device_Online,                        /*!< 1 = device online */
+};
+typedef int Device_eStatus;
+
+/*! \brief A global variable representing the device status.
+ * 
+*/
+int deviceStatus;
+#ifndef PMS_OIL_MERGE_DISABLE
+/*! \brief Render Modes defined in PMS.
+*/
+enum {
+    PMS_RenderMode_Color = 0,             /*!< Render mode color */
+    PMS_RenderMode_Grayscale,             /*!< Render mode grayscale */
+};
+typedef int PMS_eRenderMode;
+
+/*! \brief Render Models defined in PMS.
+*/
+enum {
+    PMS_RenderModel_CMYK8B = 0,           /*!< Render model for PCL5c jobs */
+    PMS_RenderModel_G1,                   /*!< Render model for PCL5e jobs */
+};
+typedef int PMS_eRenderModel;
+#endif
+
 /*! \brief A structure representing the current system state.
  * 
 */
@@ -291,7 +329,7 @@ typedef struct tyBand{
 typedef struct tyPlane{
     OIL_eColorant   ePlaneColorant;         /*!< C=0, M=1, Y=2, K=3 Invalid = -1 */
     unsigned int    uBandTotal;             /*!< Total number of bands in the page */
-    OIL_TyBand      atBand[OIL_BAND_LIMIT]; /*!< Pointer to band data */
+    OIL_TyBand      atBand[OIL_BAND_LIMIT]; /*!< Pointer to band data */  //PMS_BAND_LIMIT = 1024(new code has 9457), revisit 
     unsigned char   bBlankPlane;            /*!< True if plane has no data OR blank data */
 } OIL_TyPlane;
 
@@ -309,6 +347,9 @@ typedef struct tyMedia{
     double          dWidth;              /**< Media width in ps points */
     double          dHeight;             /**< Media height in ps points */
     void            *pUser;              /**< User data, typically PMS media reference */
+#ifndef PMS_OIL_MERGE_DISABLE
+    unsigned int    ePaperSize;          /**< Paper size ID. */
+#endif
 } OIL_TyMedia;
 
 
@@ -320,7 +361,10 @@ typedef struct tyMedia{
  * along with settings for various features such as duplex printing.
 */
 typedef struct tyPage{
+//revisit
+#ifdef PMS_OIL_MERGE_DISABLE
     void            *ptPMSpage ;         /*!< Pointer to the equivalent PMS Page structure */
+#endif
     unsigned int    uPageNo;             /*!< Page number */
     struct TyPage   *pNext;              /*!< Pointer to next page */
     int             nPageWidthPixels;    /*!< Page width in pixels (user page width not inc padding) */
@@ -349,6 +393,11 @@ typedef struct tyPage{
     unsigned char   nBlankPage;          /*!< 0=not blank, 1=blank in job, 2=blank created by OIL to resolve duplex/media issues */
     unsigned int    bPageComplete;       /*!< Flag to indicate if page is completely rendered. */
     struct tyJob    *pstJob;             /*!< Pointer to job details */
+#ifndef PMS_OIL_MERGE_DISABLE
+    unsigned long   ulPickupTime;            /**< Arrival time. */
+    unsigned long   ulOutputTime;            /**< Output time. */
+    int             eState;                  /**< Page state. */
+#endif
 } OIL_TyPage;
 
 /*! \brief Structure for error handling.
@@ -367,7 +416,9 @@ BOOL   bErrorPageComplete;  /**< Error Page printed */
 */
 typedef struct tyJob
 {
+#ifdef PMS_OIL_MERGE_DISABLE
     void            *pJobPMSData;        /*!< Pointer to PMS job structure */
+#endif
     unsigned int    uJobId;              /*!< Job ID number */
     OIL_eTyJobState eJobStatus;          /*!< Job status */
     char szHostName[OIL_MAX_HOSTNAME_LENGTH]; /*!< Printer hostname */
@@ -439,6 +490,13 @@ typedef struct tyJob
     char szEojJobName[MAX_PJL_JOBNAME_LEN+1];  /*!< Value of NAME parameter to EOJ command */
 #endif
     struct tyPage   *pPage;           /*!< Pointer to a list of pages in the job */
+#ifndef PMS_OIL_MERGE_DISABLE
+    char			szPjlJobName[OIL_MAX_JOBNAME_LENGTH]; /**< Job name from PJL JOBNAME. */
+    PMS_eRenderMode eRenderMode;         /**< Render mode */
+    PMS_eRenderModel eRenderModel;       /**< Render model */
+    unsigned int      uOutputBPP;          /*!< Output bit depth if not matching rendered bit depth */
+#endif
+
 } OIL_TyJob;
 
 /*! \brief Band delivery methods.

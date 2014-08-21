@@ -18,7 +18,11 @@
 #ifndef _PMS_ENGINE_SIMULATOR_H_
 #define _PMS_ENGINE_SIMULATOR_H_
 
+#ifdef PMS_OIL_MERGE_DISABLE
 extern PMS_TyJob g_tJob;
+#else
+extern OIL_TyJob g_tJob;
+#endif
 
 /*! \brief Frequency in milliseconds for checking if new page has been checked in by the RIP.*/
 #define PAGECHECK_FREQUENCY     (100)         /* typicaly 100 milliseconds*/
@@ -38,11 +42,20 @@ extern PMS_TyJob g_tJob;
 #define INTERPAGE_GAP(x)        (60000L/x)    /* convert ppm into milliseconds */
 
 void PMSOutput(void * dummy);
+#ifdef PMS_OIL_MERGE_DISABLE
 int EngineGetTravelTime(PMS_TyPage *pstPMSPage);
 int EngineGetInterpageGap(PMS_TyPage *pstThisPage, PMS_TyPage *pstLastPage);
+#else
+int EngineGetTravelTime(OIL_TyPage *pstPMSPage);
+int EngineGetInterpageGap(OIL_TyPage *pstThisPage, OIL_TyPage *pstLastPage);
+#endif
 int EngineGetTrayInfo(void);
 int EngineGetOutputInfo(void);
+#ifdef PMS_OIL_MERGE_DISABLE
 PMS_TyJob * EngineGetJobSettings(void);
+#else
+OIL_TyJob * EngineGetJobSettings(void);
+#endif
 void EngineSetJobDefaults(void);
 
 #endif /* _PMS_ENGINE_SIMULATOR_H_ */

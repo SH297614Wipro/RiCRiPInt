@@ -33,6 +33,9 @@
 #include "oil_main.h"
 #include "oil_stream.h"
 #include <string.h>
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+#include "gwid_eventhandle.h"
+#endif
 
 #ifdef USE_PJL
 #include "oil_pjl.h"
@@ -81,7 +84,11 @@ OIL_tyRIPFeatures  stRIPFeatures;
 static void GetRIPFeatures(OIL_tyRIPFeatures  *);
 static void ShowRIPFeatures();
 extern char *GG_build_variants[];      /* corerip features */
-
+extern OIL_TyJob g_tJob;
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+extern int current_pdlid;
+int  find_PDLType(int* );
+#endif
 /* Globals used by various bits of OIL */
 
 /*! \brief Always points to the current job's OIL_TyJob structure */
@@ -105,11 +112,30 @@ int g_bLogTiming;
 /*! \brief Enable page checksum  (1 = ON). */
 int g_bPageChecksum;
 
-
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+ extern gwmsg_client_t *gps_client ;
+#endif
 /**************************/
 /* oil external functions */
 /**************************/
 
+/*! \brief setDeviceStatus.
+*/
+void setDeviceStatus(int devStatus)
+{
+    printf("Inside setDeviceStatus function...\n\n");
+	deviceStatus = devStatus;
+	printf("deviceStatus = %d...\n\n",deviceStatus);
+}
+
+/*! \brief getDeviceStatus.
+*/
+int getDeviceStatus()
+{
+    printf("Inside getDeviceStatus function...\n\n");
+	printf("deviceStatus = %d...\n\n",deviceStatus);
+	return deviceStatus;
+}
 
 /**
  * \brief Initialization routine for the OIL.
@@ -125,7 +151,7 @@ int OIL_Init(void (**apfn_funcs[])())
 {
   char *pSrc, *pDst;
   char szProbeOptions[MAX_PROBE_ARG_LEN + 1];
-
+ 
   /* hook up the HQNc-standard  assertion handlers */
   HqAssertHandlers_t assert_handlers = { HqCustomAssert, HqCustomTrace } ;
 
@@ -137,6 +163,9 @@ int OIL_Init(void (**apfn_funcs[])())
   /* Initialise bare essential structures, this memory will never be released */
   g_pstCurrentJob = NULL;
   g_SystemState.eCurrentState = OIL_Sys_Uninitialised;
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+  Call_gps_InterpNotifyState(g_SystemState.eCurrentState);
+#endif
   g_SystemState.pUserData = NULL;
   g_SystemState.bJobCancelReq = FALSE;
   g_ConfigurableFeatures.bGenoaCompliance = TRUE;
@@ -190,6 +219,9 @@ int OIL_Init(void (**apfn_funcs[])())
   /* initialize the PMS callback pointers */
   *g_apfn_pms_calls = (void *)apfn_funcs;
   g_SystemState.eCurrentState = OIL_Sys_Inactive;
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+  Call_gps_InterpNotifyState(g_SystemState.eCurrentState);
+#endif
   GGglobal_timing(SW_TRACE_OIL_RESET, 0);
 
    /* Configure some configurable features from PMS */
@@ -309,7 +341,11 @@ int OIL_Init(void (**apfn_funcs[])())
  *
  * \return TRUE if a PDL is detected, FALSE otherwise.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 static int32 OIL_DeterminePDL( PMS_TyJob *pms_ptJob, int * pPDL )
+#else
+static int32 OIL_DeterminePDL( OIL_TyJob *pms_ptJob, int * pPDL )
+#endif
 {
   int32 fGotPDL = FALSE;
 
@@ -358,13 +394,11 @@ static int32 OIL_DeterminePDL( PMS_TyJob *pms_ptJob, int * pPDL )
     {
 #endif
 
-
-
-
       cbBytesInBuffer = PMS_PeekDataStream( buffer, MAX_SIGNATURE_BYTES );
 
-      if (cbBytesInBuffer < MAX_SIGNATURE_BYTES)
+      if ((cbBytesInBuffer < MAX_SIGNATURE_BYTES) && pms_ptJob->eTestPage)
       {
+		eOIL_PDL = OIL_PDL_PCL5c;
         /* todo - can not determine PDL with less than 4 bytes, read more data */
         GG_SHOW(GG_SHOW_PSCONFIG, "OIL_DeterminePDL: too few characters read in first read to reliably determine PDL\n");
       }
@@ -424,7 +458,11 @@ static int32 OIL_DeterminePDL( PMS_TyJob *pms_ptJob, int * pPDL )
  * the job has been processed.  When there is no further PDL data found,
  * the function will return false.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int OIL_Start( PMS_TyJob *pms_ptJob, int * pbSubmittedJob )
+#else
+int OIL_Start( OIL_TyJob *pms_ptJob, int * pbSubmittedJob )
+#endif
 {
   int retVal = FALSE;
 
@@ -436,7 +474,11 @@ int OIL_Start( PMS_TyJob *pms_ptJob, int * pbSubmittedJob )
   OIL_PjlSetEnvironment( pms_ptJob );
 #endif
 
+#ifdef PMS_OIL_MERGE_DISABLE_JS
   if( OIL_DeterminePDL( pms_ptJob, &eOIL_PDL ) )
+#else
+  if(find_PDLType(&eOIL_PDL))
+#endif
   {
     Stream_Reset();
 
@@ -510,11 +552,17 @@ void OIL_StopRIP(int bForcedShutdown)
     if(bForcedShutdown || (g_NextJobConfiguration.g_eShutdownMode == OIL_RIPShutdownTotal))
     {
       g_SystemState.eCurrentState = OIL_Sys_Active;
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+      Call_gps_InterpNotifyState(g_SystemState.eCurrentState);
+#endif
     }
     else
     {
       GG_SHOW(GG_SHOW_OIL, "**RIP suspended\n");
       g_SystemState.eCurrentState = OIL_Sys_Suspended;
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+      Call_gps_InterpNotifyState(g_SystemState.eCurrentState);
+#endif
     }
   }
 
@@ -601,7 +649,9 @@ void OIL_JobCancel(void)
 
   /* g_SystemState.bJobCancelReq = TRUE; not required with events */
   g_SystemState.eCurrentState = OIL_Sys_JobCancel;
-
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+  Call_gps_InterpNotifyState(g_SystemState.eCurrentState); 
+#endif
   if(g_pstCurrentJob)
   {
   /* g_pstCurrentJob->eJobStatus = OIL_Job_Abort; not required with events */
@@ -704,4 +754,68 @@ static void ShowRIPFeatures()
   GG_SHOW(GG_SHOW_OILVER, " )\r\n");
 }
 
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+void Call_gps_InterpNotifyState(int state)
+{
+ 
+  switch(state)
+  {
+  case OIL_Sys_Uninitialised:
+  case OIL_Sys_Inactive:
+  case OIL_Sys_Active :
+  case OIL_Sys_Suspended:
+        		GPS_InterpNotifyState(gps_client, GPS_INTERP_STATE_IDLE);
+		        break;
+  case OIL_Sys_JobActive:
+			 GPS_InterpNotifyState(gps_client, GPS_INTERP_STATE_PROCESSING);
+		         break;
+  case OIL_Sys_JobCancel:
+			 GPS_InterpNotifyState(gps_client, GPS_INTERP_STATE_FLUSHING);
+		         break;
+  default :
+                 break;
+  }
+}
+
+int  find_PDLType(int *pPDL)
+{
+	OIL_eTyPDLType ePDLType = OIL_PDL_Unknown;
+        int32 fGotPDL = FALSE;
+
+	switch(current_pdlid)
+	{
+	case GPS_PDL_POSTSCRIPT:
+		ePDLType = OIL_PDL_PS;
+                break;	
+
+	case GPS_PDL_PCL:
+		ePDLType = OIL_PDL_PCL5c;
+                break;
+
+	case GPS_PDL_PCLXL:
+		ePDLType = OIL_PDL_PCLXL;
+                break;
+
+	case GPS_PDL_TIFF:
+		ePDLType = OIL_IMG;
+                break;
+
+	case GPS_PDL_PDF:
+		ePDLType = OIL_PDL_PDF;
+                break;
+
+	default:
+		ePDLType = OIL_PDL_Unknown;
+                break;
+// GPS Supports many other PDL Types mentioned in "Interp.h". As of now, other PDL types are being redirected to PCL5c.
+	}
+    if (g_tJob.eTestPage)
+    {
+        ePDLType = OIL_PDL_PCL5c;
+    }
+        fGotPDL = (ePDLType != OIL_PDL_Unknown) ? TRUE : FALSE;
+        *pPDL = ePDLType; //Now at this point, *pPDL is OIL_PDL_PCL5c...
+	return fGotPDL;
+}
+#endif
 

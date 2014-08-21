@@ -87,11 +87,17 @@ void TestXRuler1bpp(OIL_TyPage *ptCurrentPage);
  *                           defined by OIL_eColorMode.
  * \return      This function always returns TRUE.
  */
+#ifdef PMS_OIL_MERGE_DISABLE
 int TestCreateRaster (PMS_TyJob *pms_ptJob, OIL_eColorMode eColorMode)
+#else
+int TestCreateRaster (OIL_TyJob *pms_ptJob, OIL_eColorMode eColorMode)
+#endif
 {
   struct rasterDescription * ptRasterDescription;
   static OIL_TyPage *ptCurrentPage;
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyPage *ptPMSPage;
+#endif
 
   /* create a RIP style raster description */
   ptRasterDescription = (struct rasterDescription *)OIL_malloc(OILMemoryPoolJob, OIL_MemBlock, sizeof(struct rasterDescription));
@@ -144,13 +150,18 @@ int TestCreateRaster (PMS_TyJob *pms_ptJob, OIL_eColorMode eColorMode)
     GG_SHOW(GG_SHOW_TEST, "Test: data can only be added to raster when output depth is 1bpp\n");
   }
 
-
+#ifdef PMS_OIL_MERGE_DISABLE
   /* translate the OIL page into a PMS style page in preparation for passing to PMS */
   ptPMSPage = CreatePMSPage(ptCurrentPage);
+#endif
 
   /* pass assembled page containing the raster to PMS */
   GGglobal_timing(SW_TRACE_OIL_CHECKIN, 0);
+#ifdef PMS_OIL_MERGE_DISABLE
   PMS_CheckinPage(ptPMSPage);
+#else
+  PMS_CheckinPage(ptCurrentPage);
+#endif
 
   /* tidy up */
 /*  OIL_free(OIL_MemoryPoolA, g_pstCurrentJob); */

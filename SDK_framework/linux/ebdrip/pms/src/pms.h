@@ -61,6 +61,7 @@
 #endif /* mac */
 #endif /* SDK_PANDA_GRANITE */
 
+#ifdef PMS_OIL_MERGE_DISABLE
 #ifdef WIN32
 #define PMS_HOT_FOLDER_SUPPORT
 #else
@@ -68,14 +69,15 @@
 #define PMS_HOT_FOLDER_SUPPORT
 #endif
 #endif
+#endif
 
 /*! \brief RIP minimum memory requirement. */
-#define MIN_REQUIRED_RIP_MEM    10*1024*1024
+#define MIN_REQUIRED_RIP_MEM    8*1024*1024
 
 /*! \brief Number of trays avilable. */
 #define PMS_MAX_TRAY 3
 
-#define DEFAULT_WORKING_MEMSIZE  256           /* may need to change later */
+#define DEFAULT_WORKING_MEMSIZE  10           /* may need to change later */
 
 #ifdef PMS_DEBUG
 
@@ -151,7 +153,11 @@ extern int g_nTimeZero;
 /*! \brief Count of pages checked-in. */
 extern int g_nPageCount;
 /*! \brief pointer to the page currently being processed. */
+#ifdef PMS_OIL_MERGE_DISABLE
 extern PMS_TyPage *g_pstCurrentPMSPage;
+#else
+extern OIL_TyPage *g_pstCurrentPMSPage;
+#endif
 /*! \brief Indicates current state of the RIP. */
 extern PMS_eRIPState g_eRipState;
 /*! \brief Indicates current state of the Job. */

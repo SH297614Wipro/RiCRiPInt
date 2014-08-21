@@ -17,7 +17,9 @@
 #include "pms.h"
 #include "pms_malloc.h"
 #include "pms_platform.h"
-
+#ifndef PMS_OIL_MERGE_DISABLE_MEM
+#include "mem.h"
+#endif
 #ifdef SDK_MEMTRACE
 #define PMS_MALLOC_TRACE PMS_SHOW
 #else
@@ -57,7 +59,9 @@ typedef struct {
 
 /** \brief Current amount of memory allocated by PMS. */
 PMS_TyMemoryUsage l_tPMSMem[PMS_NumOfMemPools] = { {0},{0},{0},{0},{0} }; 
-
+#ifndef PMS_OIL_MERGE_DISABLE_MEM
+static int count1=0;
+#endif
 #ifdef PMS_MEM_LIMITED_POOLS
 void * l_apUsed[PMS_NumOfMemPools][1000];
 unsigned int l_uCount[PMS_NumOfMemPools];
@@ -135,7 +139,17 @@ void *OSMallocEx(size_t size, PMS_TyMemPool pool)
   }
 #endif
 
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
   ptr=(void*)malloc(size);
+#else
+  ptr=(void*)MemAlloc(size, FALSE, FALSE);
+  memVal+=size;
+  if(memVal>count1)
+  {
+	count1=memVal;
+	PMS_SHOW_ERROR("max memory %d\n", count1);
+  }
+#endif
 
   p = (unsigned char*)ptr;
 
@@ -250,9 +264,17 @@ void OSFreeEx(void *ptr, PMS_TyMemPool pool)
     }
 #endif 
 
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     free(p);
 #else
+    MemFree((void *)p);
+#endif
+#else
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
     free(ptr);
+#else
+    MemFree(ptr);
+#endif
 #endif
 
 #ifdef PMS_MEM_LIMITED_POOLS
@@ -263,6 +285,9 @@ void OSFreeEx(void *ptr, PMS_TyMemPool pool)
     }
 
     l_tPMSMem[pool].iCurrentMemory-=size;
+#ifndef PMS_OIL_MERGE_DISABLE_MEM
+    memVal -= size;
+#endif
 #ifdef SDK_MEMTRACE
     if(uCount < (sizeof(l_apUsed[pool]) / sizeof(l_apUsed[pool][0])))
       l_apUsed[pool][uCount] = NULL;

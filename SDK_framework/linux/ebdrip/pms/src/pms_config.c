@@ -111,11 +111,7 @@ EnumAndString *pStartTable;
 PMS_TyMediaSource *ThisMediaSource;
 int i;
 
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
   pStartTable = (EnumAndString *)OSMalloc(NumFixedMedia*sizeof(EnumAndString), PMS_MemoryPoolPMS);
-#else
-  pStartTable = (EnumAndString *)mmalloc(NumFixedMedia*sizeof(EnumAndString));
-#endif
   pTableEntry = pStartTable;
 /* we need to ignore the first PMS enum for AUTO selection */
   for(i = 1; i < NumFixedMedia; i++)
@@ -139,11 +135,7 @@ EnumAndString *pStartTable;
 PMS_TyMediaType *ThisMediaType;
 int i;
 /* needs the number of fixed media + 2 (for the DONT_KNOW + NULL pointer) */
-#ifdef PMS_OIL_MERGE_DISABLE_MEM 
   pStartTable = (EnumAndString *)OSMalloc((NumFixedMedia+2)*sizeof(EnumAndString), PMS_MemoryPoolPMS);
-#else
-  pStartTable = (EnumAndString *)mmalloc((NumFixedMedia+2)*sizeof(EnumAndString));
-#endif
   pTableEntry = pStartTable;
 
   for(i = 0; i < NumFixedMedia; i++)
@@ -170,11 +162,7 @@ EnumAndString *pStartTable;
 PMS_TyMediaColor *ThisMediaColor;
 int i;
 /* needs the number of fixed media + 2 (for the DONT_KNOW + NULL pointer) */
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
   pStartTable = (EnumAndString *)OSMalloc((NumFixedMedia+2)*sizeof(EnumAndString), PMS_MemoryPoolPMS);
-#else
-  pStartTable = (EnumAndString *)mmalloc((NumFixedMedia+2)*sizeof(EnumAndString));
-#endif
   pTableEntry = pStartTable;
 
   for(i = 0; i < NumFixedMedia; i++)
@@ -201,11 +189,7 @@ EnumAndString *pStartTable;
 PMS_TyPaperInfo *ThisPaperInfo;
 int i;
 /* needs the number of fixed media * 2 + 2 (for the rotated sizes plus DONT_KNOW and NULL pointer) */
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
   pStartTable = (EnumAndString *)OSMalloc(((NumFixedMedia * 2) +2)*sizeof(EnumAndString), PMS_MemoryPoolPMS);
-#else
-  pStartTable = (EnumAndString *)mmalloc(((NumFixedMedia * 2) +2)*sizeof(EnumAndString));
-#endif
   pTableEntry = pStartTable;
 /* we need to double the loop to pick up the _R selections */
   for(i = 0; i < NumFixedMedia*2; i++)
@@ -244,17 +228,10 @@ int ReadConfigFile( char * pFilename )
     fSuccess = ProcessFileContents( &parseState );
     fclose( parseState.pFile );
     /* delete the temporary media lookup tables */
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OSFree(gMediaSourceEnum, PMS_MemoryPoolPMS);
     OSFree(gMediaTypeEnum, PMS_MemoryPoolPMS);
     OSFree(gMediaColorEnum, PMS_MemoryPoolPMS);
     OSFree(gPaperSizeEnum, PMS_MemoryPoolPMS);
-#else
-  mfree(gMediaSourceEnum);
-  mfree(gMediaTypeEnum);
-  mfree(gMediaColorEnum);
-  mfree(gPaperSizeEnum);
-#endif
   }
 
   return fSuccess;
@@ -583,11 +560,7 @@ static int ProcessArrayStart( ParseState * pState )
   if( strcmp( pState->acName, "$InputTrays" ) == 0 )
   {
     /* Allocate a local PMS_TyTrayInfo to hold data read from file */
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
     pState->pData = OSMalloc( sizeof(PMS_TyTrayInfo), PMS_MemoryPoolPMS );
-#else
-    pState->pData = mmalloc( sizeof(PMS_TyTrayInfo));
-#endif
 
     if( pState->pData == NULL )
     {
@@ -598,11 +571,7 @@ static int ProcessArrayStart( ParseState * pState )
       /* Free any existing tray info */
       if( g_pstTrayInfo != NULL )
       {
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
         OSFree( g_pstTrayInfo, PMS_MemoryPoolPMS );
-#else
-	    mfree( g_pstTrayInfo);
-#endif
         g_pstTrayInfo = NULL;
         g_nInputTrays = 0;
       }
@@ -628,11 +597,7 @@ static int ProcessArrayEnd( ParseState * pState )
   if( strcmp( pState->acName, "$InputTrays" ) == 0 )
   {
     /* Free the local PMS_TyTrayInfo */
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
     OSFree( pState->pData, PMS_MemoryPoolPMS );
-#else
-    mfree( pState->pData);
-#endif
   }
   else
   {
@@ -690,20 +655,12 @@ static int ProcessDictEnd( ParseState * pState )
 
     pTrayInfo->bTrayEmptyFlag = ( pTrayInfo->nNoOfSheets == 0 ) ? TRUE : FALSE;
 
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
     g_pstTrayInfo = (PMS_TyTrayInfo *) OSMalloc( ( g_nInputTrays + 1 ) * sizeof(PMS_TyTrayInfo), PMS_MemoryPoolPMS );
-#else
-    g_pstTrayInfo = (PMS_TyTrayInfo *) mmalloc( ( g_nInputTrays + 1 ) * sizeof(PMS_TyTrayInfo));
-#endif
 
     if( pExistingTrayInfo != NULL )
     {
       memcpy( g_pstTrayInfo, pExistingTrayInfo, g_nInputTrays * sizeof(PMS_TyTrayInfo) );
-#ifdef PMS_OIL_MERGE_DISABLE_MEM
       OSFree( pExistingTrayInfo, PMS_MemoryPoolPMS );
-#else
-      mfree( pExistingTrayInfo);
-#endif
     }
 
     memcpy( g_pstTrayInfo + g_nInputTrays, pTrayInfo, sizeof(PMS_TyTrayInfo) );

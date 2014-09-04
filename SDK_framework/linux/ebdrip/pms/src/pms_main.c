@@ -24,8 +24,8 @@
 #include <string.h> /* for strcpy */
 #ifdef PMS_OIL_MERGE_DISABLE
 #include "pms_filesys.h"
-#endif
 #include "pms_config.h"
+#endif
 #ifdef PMS_INPUT_IS_FILE
 #include "pms_file_in.h"
 #endif
@@ -112,7 +112,9 @@ const char *g_mps_log = NULL ;
 unsigned long g_mps_telemetry = 0x63 ; /* User, Alloc, Pool, Arena */
 const char *g_profile_scope = NULL ;
 
+#ifdef PMS_OIL_MERGE_DISABLE
 char * g_pPMSConfigFile = NULL;
+#endif
 #ifdef PMS_HOT_FOLDER_SUPPORT
 char * g_pPMSHotFolderPath = NULL;
 #endif
@@ -233,7 +235,6 @@ int PMS_main()
 #else
   g_tSystemInfo.eOutputType = PMS_TIFF;
   strcpy(g_tSystemInfo.szOutputPath, "../../output");
-  g_pPMSConfigFile = "../../output/tray_SEF.cnf";
   nJobs = 1;
   char *JobName = "../../output/test.prn";
   g_tSystemInfo.uUseEngineSimulator = FALSE;
@@ -256,7 +257,7 @@ int PMS_main()
   GPS_GetPaperInfo(gps_client, gps_paperId, &gpsPaperInfo, gps_notify);
 #endif
 
-
+#ifdef PMS_OIL_MERGE_DISABLE
   /* Read any config file specified on command line */
   if( g_pPMSConfigFile != NULL )
   {
@@ -267,6 +268,7 @@ int PMS_main()
       return 0;
     }
   }
+#endif
 
   /* Set up default job settings (after ParseCommandLine() so as to honour its settings) */
 #ifdef PMS_OIL_MERGE_DISABLE_JS

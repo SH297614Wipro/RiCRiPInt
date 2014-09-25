@@ -407,4 +407,10 @@ OMEnum OMGetDefaultEnum(OMenum omvar, OMenum omsystem);
 Boolean OMGetCurrentBool(OMenum omvar, OMenum omtype);
 OMEnum OMCurrentEnum(OMenum omvar, OMenum omsystem);
 
- 
+//int CMDTYPE_PAPERSRC,CMDTYPE_OUTBIN;
+typedef int CmdType; 
+//typedef PMS_TyMedia OMenum;
+
+void mnInitTrayBinCmd(CmdType type, OMenum * traybintbl, Uint32 ntraybin);
+void PrintSysReinitTrayInfo(void);
+void PrintSysReinitBinInfo(void); 

@@ -146,6 +146,7 @@ static sim_prtinfo_t simPrtInfo;
 static gps_pageparam_t pageparam;
 gps_color_rid_t rID[4];
 caddr_t memaddr;
+long szFree=0;
 #endif
 
 
@@ -233,7 +234,7 @@ int PMS_main()
   /* Parse command line */
   ParseCommandLine();
 #else
-  g_tSystemInfo.eOutputType = PMS_TIFF;
+  g_tSystemInfo.eOutputType = PMS_NONE;
   strcpy(g_tSystemInfo.szOutputPath, "../../output");
   nJobs = 1;
   char *JobName = "../../output/test.prn";
@@ -294,7 +295,7 @@ int PMS_main()
 		  g_tSystemInfo.eDefaultColMode = OIL_Mono;
 		  break;
 		case GPS_CM_FULL_COLOR_MACHINE: // Color
-		  g_tSystemInfo.eDefaultColMode = OIL_CMYK_Separations; // revisit OIL_eColorMode
+		  g_tSystemInfo.eDefaultColMode = OIL_CMYK_Composite; // revisit OIL_eColorMode
 		  break;
 		case GPS_CM_TWIN_COLOR_MACHINE:  //two-color
 		  g_tSystemInfo.eDefaultColMode = OIL_Mono; // revisit OIL_eColorMode
@@ -434,7 +435,7 @@ static void InitGlobals(void)
 #ifdef PMS_OIL_MERGE_DISABLE
   g_tSystemInfo.ePaperSelectMode = PMS_PaperSelNone;
 #else
-  g_tSystemInfo.ePaperSelectMode = OIL_PaperSelNone;
+  g_tSystemInfo.ePaperSelectMode = OIL_PaperSelRIP;
 #endif
   g_tSystemInfo.uDefaultResX = 0;    /* set the default resolution in ParseCommandLine() */
   g_tSystemInfo.uDefaultResY = 0;
@@ -443,16 +444,16 @@ static void InitGlobals(void)
   g_tSystemInfo.uOutputBPP = 1;
   g_tSystemInfo.bForceMonoIfCMYblank = TRUE;
 #ifdef PMS_OIL_MERGE_DISABLE
-  g_tSystemInfo.eDefaultColMode = PMS_CMYK_Separations;
+  g_tSystemInfo.eDefaultColMode = PMS_CMYK_Composite;
   g_tSystemInfo.eDefaultScreenMode = PMS_Scrn_ORIPDefault;
 #else
-  g_tSystemInfo.eDefaultColMode = OIL_CMYK_Separations;
+  g_tSystemInfo.eDefaultColMode = OIL_CMYK_Composite;
   g_tSystemInfo.eDefaultScreenMode = OIL_Scrn_ORIPDefault;
 #endif
   g_tSystemInfo.cPagesPrinted = 0;                    /* TODO: make this value persist */
   g_tSystemInfo.uPjlPassword = 0;                     /* TODO: make this value persist */
   g_tSystemInfo.ePersonality = PMS_PERSONALITY_AUTO;  /* TODO: make this value persist */
-  g_tSystemInfo.eBandDeliveryType = PMS_PUSH_PAGE;
+  g_tSystemInfo.eBandDeliveryType = PMS_PUSH_BAND; //PMS_PUSH_PAGE; -- commented as part of integration
   g_tSystemInfo.bScanlineInterleave = FALSE;
   g_tSystemInfo.fTrapWidth = 0.0f;
   g_tSystemInfo.uColorManagement = 0;
@@ -460,7 +461,7 @@ static void InitGlobals(void)
   memset(g_tSystemInfo.szProbeTraceOption,0,sizeof(g_tSystemInfo.szProbeTraceOption));
   g_tSystemInfo.nRestart = 0;
   g_tSystemInfo.nStrideBoundaryBytes = 4;
-  g_tSystemInfo.nPrintableMode = 0;
+  g_tSystemInfo.nPrintableMode = 1;
   g_tSystemInfo.nStoreJobBeforeRip = FALSE;
   g_tSystemInfo.cbReceiveBuffer = (1 * 1024 * 1024);
   strcpy(g_tSystemInfo.szManufacturer, PMS_PRINTER_MANUFACTURER);
@@ -475,6 +476,7 @@ static void InitGlobals(void)
 #else
   g_tSystemInfo.eOutputType = PMS_NONE;
 #endif
+  g_tSystemInfo.eOutputType = PMS_NONE;
 
   /* Initialise all the memory pools to 0, which means unrestricated */
   g_tSystemInfo.cbSysMemory = 0;
@@ -1313,8 +1315,8 @@ static void ParseCommandLine(void)
             g_tSystemInfo.eDefaultColMode = OIL_RGB_PixelInterleaved;
             break;
           default:
-            PMS_SHOW_ERROR("Error: -r (%d) - Unsupported color mode request, setting cmyk sep\n", atoi(str));
-            g_tSystemInfo.eDefaultColMode = OIL_CMYK_Separations;
+            PMS_SHOW_ERROR("Error: -r (%d) - Unsupported color mode request, setting cmyk comp\n", atoi(str));
+            g_tSystemInfo.eDefaultColMode = OIL_CMYK_Composite;
             break;
           }
 #endif
@@ -1843,8 +1845,8 @@ void Init_gps(void)
   gpsPmInit(gps_client, 0, 0);
   gpsPmDispSetEmulation(SET_DISP, SET_DISP,SET_DISP, "PCL5e");
   
-  if ( gpsWkSizeFree(gps_client) > REQ_MEMORY )
-    memaddr = gpsWkMalloc(gps_client, REQ_MEMORY );
+  if ( (szFree=gpsWkSizeFree(gps_client)) > MIN_REQUIRED_RIP_MEM )
+    memaddr = gpsWkMalloc(gps_client, szFree );
   else
   {
     printf("Not enough memory \n");

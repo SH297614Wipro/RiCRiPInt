@@ -26,6 +26,8 @@
 #include "oil_job_handler.h"
 #include "oil_interface_oil2pms.h"
 
+#include "gw_gps.h"
+
 #ifdef USE_PJL
 #include "oil_pjl.h"
 #endif
@@ -41,6 +43,7 @@
 #include "pfinff.h"
 #define PCLFONTLIST
 #endif
+
 /* extern variables */
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;
@@ -49,6 +52,17 @@ extern OIL_TyPage *g_pstCurrentPage;
 #ifndef PMS_OIL_MERGE_DISABLE
 extern OIL_TyJob g_tJob;
 #endif
+
+
+PMS_TyBandPacket *ptBandPacket;
+
+extern gwmsg_client_t     *gps_client ;
+
+extern short Map[OIL_MAX_PLANES_COUNT];
+
+ gwmsg_GpsPage_FrameGetBand_Res_t pFGBR;
+
+
 
 static char SetA4[] = "<< /PageSize [ 595 842 ] /ImagingBBox null >> setpagedevice ";
 static char SetLetter[] = "<< /PageSize [ 612 792 ] /ImagingBBox null >> setpagedevice ";
@@ -382,6 +396,146 @@ PMS_TyBandPacket *CreateBandPacket(int nColorants, int nColorFamilyOffset, int n
 }
 
 /**
+ * \brief Fill in the OIL band packet structure
+ *
+ * PMS band packet structure is created and populated with data from the
+ * current page structure
+ */
+PMS_TyBandPacket *CreateBandPacketForPage(int nColorants, int nColorFamilyOffset, int nSeparations, int nReqBytesPerLine, int nReqLinesPerBand, short Map[])
+{
+  printf("\nIn CreateBandPacket \n");
+  int j;
+  int PlaneID;
+  int GPSFrameGetBandResretval;
+  PMS_TyBandPacket *ptBandPacket;
+  /* initialize the band buffers */
+  /* allocate memory for the band */
+  ptBandPacket= (PMS_TyBandPacket *)OIL_malloc(OILMemoryPoolJob, OIL_MemBlock, sizeof(PMS_TyBandPacket));
+  if(!ptBandPacket)
+  {
+    HQASSERTV(ptBandPacket!=NULL,
+              ("CreateBandPacket: Failed to allocate %d bytes", (sizeof(PMS_TyBandPacket))));
+    return NULL;
+  }
+
+  /* initialize the band buffers */
+  ptBandPacket->uBandNumber = 0;
+  ptBandPacket->uTotalPlanes = nColorants;
+  for(j=0; j < OIL_MAX_PLANES_COUNT; j++)
+  {
+#ifdef PMS_OIL_MERGE_DISABLE
+    ptBandPacket->atColoredBand[j].ePlaneColorant = PMS_INVALID_COLOURANT;
+#else
+    ptBandPacket->atColoredBand[j].ePlaneColorant = OIL_InvalidColor;
+#endif  
+  }
+
+  if(nSeparations > 1) /* in case of separations there will be only 1 color. Allocate 0th band */
+  {
+    /* determine the colorants of the planes */
+#ifdef PMS_OIL_MERGE_DISABLE
+    ptBandPacket->atColoredBand[0].ePlaneColorant = (PMS_eColourant)(Map[0] + nColorFamilyOffset);
+#else
+    ptBandPacket->atColoredBand[0].ePlaneColorant = (OIL_eColorant)(Map[0] + nColorFamilyOffset);
+#endif
+
+    /* in case of separations, the band packet will have data only in first plane 
+    irrespective of the colour. so set the mapping table to first plane */
+    Map[0]=0;
+  }
+  else /* composite job */
+  {
+    
+    for(j=0; j < nColorants; j++)
+    {
+      if(Map[j] != -1)
+      {
+        /* determine the colorants of the planes */
+#ifdef PMS_OIL_MERGE_DISABLE
+        ptBandPacket->atColoredBand[Map[j]].ePlaneColorant = (PMS_eColourant)(Map[j] + nColorFamilyOffset);
+#else
+        ptBandPacket->atColoredBand[Map[j]].ePlaneColorant = (OIL_eColorant)(Map[j] + nColorFamilyOffset);
+#endif
+      }
+    }
+  }
+
+  for(j=0; j < OIL_MAX_PLANES_COUNT; j++)
+  {
+    /* initialize the band planes */
+    ptBandPacket->atColoredBand[j].uBandHeight = 0;
+    ptBandPacket->atColoredBand[j].cbBandSize = 0;
+    /* allocate memory for the band data only in valid planes, if
+       we're not in band direct mode */
+#ifdef PMS_OIL_MERGE_DISABLE
+    if(g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_SINGLE &&
+       g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_FRAME &&
+       ptBandPacket->atColoredBand[j].ePlaneColorant != PMS_INVALID_COLOURANT)
+#else
+    if(g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_SINGLE &&
+       g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_FRAME &&
+       ptBandPacket->atColoredBand[j].ePlaneColorant != OIL_InvalidColor)
+#endif
+    {
+        switch(Map[j])
+        {
+            case OIL_Cyan:
+                PlaneID = GPS_COLOR_C;
+                break;
+            case OIL_Magenta:
+                PlaneID = GPS_COLOR_M;
+                break;
+            case OIL_Yellow:
+                PlaneID = GPS_COLOR_Y;
+                break;
+            case OIL_Black:
+                PlaneID = GPS_COLOR_K;
+                break;
+            case OIL_InvalidColor:
+            default:
+                PlaneID = -1;
+                break;
+        }
+     
+        if(PlaneID != -1)
+        {
+            GPSFrameGetBandResretval = GPS_FrameGetBandRes(gps_client, 1, ptBandPacket->uBandNumber, PlaneID, &pFGBR); 
+
+            if(!GPSFrameGetBandResretval)
+		    {
+			    printf("GPS_FrameGetBandRes : Success\n");
+                ptBandPacket->atColoredBand[j].pBandRaster = pFGBR.band_addr;
+                printf("------pfgbr size =%d\n",sizeof(*pFGBR.band_addr));
+                printf("\nCreated memory for pBandRaster = %d, nReqLinesPerBand = %d, nReqBytesPerLine= %d",sizeof(*ptBandPacket->atColoredBand[j].pBandRaster), nReqLinesPerBand, nReqBytesPerLine);
+		    }
+		    else
+		    {
+                printf("GPS_FrameGetBandRes : Failed\n");
+                ptBandPacket->atColoredBand[j].pBandRaster = NULL;
+		    }
+        }
+        else
+        {
+            printf("Invalid Frame ID\n");
+            ptBandPacket->atColoredBand[j].pBandRaster = NULL;
+        }
+
+        if(!ptBandPacket->atColoredBand[j].pBandRaster)
+        {
+            HQASSERTV(ptBandPacket->atColoredBand[j].pBandRaster!=NULL,
+                  ("CreateBandPacket: Failed to allocate %d bytes", (nReqLinesPerBand * nReqBytesPerLine)));
+            return NULL;
+        }
+    }
+    else
+    {
+        ptBandPacket->atColoredBand[j].pBandRaster = NULL;
+    }
+  }
+  return ptBandPacket;
+}
+
+/**
  * \brief Processes notification of a 'page done' event.
  *
  * This function is called once a page has been fully processed by the PMS.  It
@@ -457,12 +611,12 @@ void DeleteOILPage(OIL_TyPage *ptOILPage)
         if ( ptOILPage->atPlane[i].atBand[j].pBandRaster )
           {
 #ifdef PMS_OIL_MERGE_DISABLE_MEM
-            OIL_free(OILMemoryPoolJob,(void *)ptOILPage->atPlane[i].atBand[j].pBandRaster);
+           //  OIL_free(OILMemoryPoolJob,(void *)ptOILPage->atPlane[i].atBand[j].pBandRaster);
 #else
-            free(ptOILPage->atPlane[i].atBand[j].pBandRaster);
+           //free(ptOILPage->atPlane[i].atBand[j].pBandRaster);
 #endif
 #ifndef PMS_OIL_MERGE_DISABLE
-            ptOILPage->atPlane[i].atBand[j].pBandRaster = NULL;
+           // ptOILPage->atPlane[i].atBand[j].pBandRaster = NULL;
 #endif
           }
       }
@@ -481,13 +635,13 @@ void DeleteOILPage(OIL_TyPage *ptOILPage)
       {
         if(ptBandPacket->atColoredBand[j].pBandRaster)
         {
-          OIL_free(OILMemoryPoolJob,(void *)ptBandPacket->atColoredBand[j].pBandRaster);
+    //      OIL_free(OILMemoryPoolJob,(void *)ptBandPacket->atColoredBand[j].pBandRaster);
 #ifndef PMS_OIL_MERGE_DISABLE
-          ptBandPacket->atColoredBand[j].pBandRaster = NULL;
+      //    ptBandPacket->atColoredBand[j].pBandRaster = NULL;
 #endif
 		}
       }
-      OIL_free(OILMemoryPoolJob,(void *)ptBandPacket);
+     // OIL_free(OILMemoryPoolJob,(void *)ptBandPacket);
     }
     else if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
              g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_FRAME)

@@ -571,7 +571,6 @@ OIL_OFILES=\
 #endif
  $(OBJ_DIR)/oil/oil_utils.o \
  $(OBJ_DIR)/oil/oil_virtualfile.o \
- $(OBJ_DIR)/oil/diutil_func.o \
  $(OBJ_DIR)/oil/gwid_eventhandle.o \
  $(OBJ_DIR)/oil/GPSWrapper.o \
  $(PMS_OFILES) 

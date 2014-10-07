@@ -139,7 +139,7 @@ static PMS_TyPaperInfo l_apPapers[] = {
     UNPRINTABLE, LOGICALPAGE75PX,
     PMS_PCL5_LETTER, PMS_PCLX_LETTER,
     "/Letter", "(LETTER)"},
-  { PMS_SIZE_A4,         571.20,  817.68, "A4",
+  { PMS_SIZE_A4,         595.20,  841.68, "A4",
     UNPRINTABLE, LOGICALPAGE71PX,
     PMS_PCL5_A4, PMS_PCLX_A4,
     "/A4", "(A4)"},
@@ -676,91 +676,6 @@ unsigned long FP_flag;
   OIL_TyPage *pstPageToPrint;
 #endif
 
-
-#if 0
-
- /***************pageinfo2 struc initialization*************/
-
-
- 
- // pageinfo2.paper_width = ceil((ptRasterDescription->imageWidth / g_pstCurrentJob->uXResolution) * INCH_TO_0DOT1MM_FACTOR);
-  
-    pageinfo2.paper_width = 2032;//ceil((ptPMSPage->nPageWidthPixels / 600) * INCH_TO_0DOT1MM_FACTOR);
-
-  pageinfo2.paper_length = 2794; //ceil((ptPMSPage->nPageHeightPixels / 600) * INCH_TO_0DOT1MM_FACTOR);
-
-  pageinfo2.dummy_page =  1;//g_pstCurrentPage->nBlankPage;
-
-  pageinfo2.orientation =  0; //g_pstCurrentPage-> uOrientation ;
-  pageinfo2.print_face = 0;//g_pstCurrentPage-> bDuplex;
-
-  pageinfo2.frame_width = 4960;//ptPMSPage->nPageWidthPixels;// g_pstCurrentPage-> nPageWidthPixels;// nLinesInFrame;//6814;
-
-  pageinfo2.frame_length = 7014;//ptPMSPage->nPageHeightPixels;// g_pstCurrentPage-> nPageHeightPixels ;// nFramesToWrite; //4760;
-  pageinfo2.band_length = 128;// ptPMSPage->uRIPBandHeight;// ptRasterDescription->bandHeight; //UPDATING
-  
-  pageinfo2.flag= GPS_INFO2_BYPASS_DIR ||
-                  GPS_INFO2_PWIDTH     ||
-                  GPS_INFO2_PLENGTH    ||           
-                  GPS_INFO2_FWIDTH     ||           
-                  GPS_INFO2_FLENGTH    ||           
-                  GPS_INFO2_BAND       ||           
-                  GPS_INFO2_PRINT_MODE ||		
-                  GPS_INFO2_PAGE_SHIFT ||	
-                  GPS_INFO2_PRINT_FACE ||     	
-                  GPS_INFO2_DUMMY_PAGE ||     	
-                  GPS_INFO2_DITHER_MODE ||		
-                  GPS_INFO2_COLOR_MATCH	||	
-                  GPS_INFO2_ORIENT		||
-                  GPS_INFO2_GRAY_PRINT	||
-                  GPS_INFO2_RGB_COLOR	||	
-                  GPS_INFO2_ECO_COLOR	||	
-                  GPS_INFO2_FUSER_CTL       ;//126;
-  pageinfo2.bypass_dir=GPS_BYPASS_DIR_SEF;
-  pageinfo2.page_shift=GPS_PAGE_SHIFT_NONE;
-  pageinfo2.print_mode= GPS_PRINT_MODE_NORMAL;
-  pageinfo2.dither_mode[0] = GPS_DITHER_AUTO;
-  pageinfo2.dither_mode[1] = GPS_DITHER_AUTO;
-  pageinfo2.dither_mode[2] = GPS_DITHER_AUTO;
-  pageinfo2.dither_mode[3] = GPS_DITHER_AUTO;
-  pageinfo2.color_match[0] = GPS_COLOR_MATCH_OFF;
-  pageinfo2.color_match[1] = GPS_COLOR_MATCH_OFF;
-  pageinfo2.color_match[2] = GPS_COLOR_MATCH_OFF;
-  pageinfo2.color_match[3] = GPS_COLOR_MATCH_OFF;
-  pageinfo2.gray_print[0]=0;
-  pageinfo2.rgb_color_mode =0;
-  pageinfo2.eco_color =0;
-  pageinfo2.fuser_ctl =0;
-
-
-/*------------Page info structure---------------*/
-
- pageinfo.band_length =  128;//uRIPBandHeight; /*nOutputLinesPerBand ;//2048;*/
-  /*pageinfo.band_length = ptRasterDescription->bandHeight ;//UPDATING  */
-  pageinfo.line_size=0;
-  pageinfo.xoffset =100;
-  pageinfo.yoffset=100;
-  pageinfo.compress=4;
-  pageinfo.color =1;
-  pageinfo.fci =0;
-  pageinfo.limitless_feed =1;
-  pageinfo.paper_count= 1; /*g_pstCurrentJob->uPagesToPrint   ;//1;*/
-  pageinfo.count_off =0;
-  pageinfo.frame_width = 4960;//nPageWidthPixels; /*g_pstCurrentPage-> nPageWidthPixels;*/
-  pageinfo.frame_length =  7014;//nPageHeightPixels; /*g_pstCurrentPage-> nPageHeightPixels ;*/
- pageinfo.paper_width = 209;//(nPageWidthPixels * 25.4)/600; /*((g_pstCurrentPage -> nPageWidthPixels * 25.4)/g_pstCurrentJob->uXResolution)   ; //2970;*/
-    pageinfo.paper_length= 296;// (nPageHeightPixels * 25.4)/600;/*((g_pstCurrentPage -> nPageHeightPixels * 25.4)/g_pstCurrentJob->uXResolution)    ; //2100;*/
-   pageinfo.resolution_x = 600; /*g_pstCurrentJob->uXResolution; //600;*/
-   pageinfo.resolution_y = 600; /*g_pstCurrentJob->uXResolution; //600;*/
-    
-   pageinfo.paper_code=142;
-   pageinfo.input_tray= 0; /*g_pstCurrentJob->tCurrentJobMedia.uInputTray;//15;*/
-
-
-
-#endif
-
-
   pstPageToPrint = g_pstCurrentPMSPage;
 
   if(ThisBand == NULL) /* last band */
@@ -771,8 +686,6 @@ unsigned long FP_flag;
     }
     else
     {
-
-
       /* No RIP ahead, output the page and signal pagedone before returning */
 
 	 GPSFramePrintInforetval = GPS_FramePrintInfo(gps_client, gps_frameid, &pageinfo2, &FP_flag);
@@ -858,7 +771,10 @@ unsigned long FP_flag;
 #endif
           }
 
-          pRasterBuffer = (unsigned char*)OSMalloc(bytesPerBand, PMS_MemoryPoolPMS);
+         /* pRasterBuffer = (unsigned char*)OSMalloc(bytesPerBand, PMS_MemoryPoolPMS);*/
+
+	pRasterBuffer = (unsigned char*)malloc(bytesPerBand);/* change it back to OSMalloc, need to recheck */
+
           if(!pRasterBuffer)
           {
             PMS_SHOW_ERROR("\n**** Page Handler: Memory allocation failed **** \n\n");

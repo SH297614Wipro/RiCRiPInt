@@ -4,6 +4,7 @@
 #include <string.h>
 #include "gps/gps_client.h"
 #include "gps/gwipc.h"
+#include "bfd.h"
 #include "gw_gps.h"
 #include "gps_func.h"
 #include "modelinfo.h"
@@ -12,57 +13,32 @@
 #include "pageprint.h"
 #include "memory.h"
 #include "gps/pageio.h"
+#include "pms_export.h"
+#include "gps/device.h"
 
-/*
-#define	GPS_INTERP_RTIFF		6
-#define GPS_PRMINFO_SUCCESS     0
-#define GPS_PRMINFO_FAILED      1
-#define PM_SUCCESS              0
-#define GPS_PRMINFO_GET_COLOR_MODEL 6
-
-#define GPS_PENV_NAME_COMMON "COMMON"
-#define GPS_PENV_NAME_PCL "PCL"
-
-#define	PENV_HANDLER 	      5
-#define	GPS_PENV_ERR_NOTABLE  (-3)
-#define	GPS_PENV_ERR_BUSY	  (-2)
-
-#define	GPS_PENV_VAR_ID_COPIES			1
-#define	GPS_PENV_VAR_ID_RESOLUTION		5
-#define	GPS_FONT_PCL		            2
-
-
-#define GPS_INTERP_PCL5c            10  
-#define BIT_SW_003                   2  
-#define BIT_SW_001					 0
-#define BIT_SW_004                   3
-#define BIT_SW_016					15   
-#define SET_DISP                   3
-#define	GPS_HDD_TMP		             4 
-#define PHOTO_DRAWMODE               0
-#define	HIGH_PRINTMODE		         1	
-#define GPS_PAPER_NORMAL        (0x01)      
-#define   RESET_DISP           5
-#define GPS_INTERP_FIN_NORMAL 0 /* Normal end */
-/*#define GPS_PRINT_NORMAL (0) /* Normal printing */
-
-
-//typedef	unsigned short	gps_color_rid_t;
-
-//static gwmsg_client_t gpsClient;
 extern gwmsg_client_t *gps_client;
-//static char *shdm_addr;
+extern char *gps_shdm_addr;
 gps_color_rid_t rID[4];
 
-static gps_bininfo_t gpsBinInfo;
-static gps_trayinfo_t gpsTrayInfo;
-//static gps_sysinfo_t  sysinfo;
-static gps_hddinfo2_t hddinfo;
-static gps_paperinfo_t gpsPaperInfo;
+extern gps_bininfo_t *gpsBinInfo;
+extern gps_trayinfo_t *gpsTrayInfo;
+extern PMS_TyTrayInfo * g_pstTrayInfo;
+extern PMS_TyOutputInfo * g_pstOutputInfo;
+extern int g_nInputTrays;
+extern int g_nOutputTrays;
+extern PMS_HddInfo g_tHddInfo;
+unsigned char outbuf[MAX_VALUE_LEN];
+long loffset;
+gps_nclr_shdm_t *clr_shm;
+
+extern gps_sysinfo_t  sysinfo;
+extern gps_hddinfo2_t hddinfo_download;
+extern gps_paperinfo_t gpsPaperInfo;
 static gps_prtstatus2_t prtStatus;
 static gps_plotprepareparam_t plotPrepare;
 static gps_pageparam_shm_t param;
 static gps_pagemode2_t pagemode2;
+gps_fontinfo_t fontinfo;
 
 static gps_pageinfo2_t pageinfo2;
 static gps_pagemode_t pagemode;
@@ -70,37 +46,19 @@ static gps_pageinfo_t pageinfo;
 static gwmsg_GpsPage_FrameCreate_Res_t	pFCR;
 static gwmsg_GpsPage_FrameGetBand_Res_t pFGBR;
 static gwmsg_GpsPage_FrameFlushBand_Res_t pFFBR;
-static int gwmsg_interp_handler(void *cl, gwmsg_t *m)
-{
-    printf("interp handler\n");
-    return 0;
-}
 
-
-int  GPS_Open(gwmsg_client_t *client, gwmsg_handler_t gwmsg_interp_handler, pthread_attr_t attr, void **shdm_addr);
-int  GPS_GetPrmInfo(gwmsg_client_t *client, int f_id, int *status, int size, long *maxsize);
 char  GPS_PmInit(gwmsg_client_t *client, void(*pfunc1)(), void(*pfunc2)());
-int  GPS_GetModelInfo(gwmsg_client_t *client, char dummy, char num,	char	*key, char *category, unsigned char value_len, unsigned char	*value);
 int GPS_PenvOpen(gwmsg_client_t *client, char *penv_name, long size);
 int	GPS_PenvGetValue( gwmsg_client_t* client, int penv, long gps_var, long *penv_val );
 void GPS_PenvClose(gwmsg_client_t *client, int penv);
-long GPS_Color_getShrd(gwmsg_client_t *client);
-int	GPS_Color_getRID( gwmsg_client_t* client, int modeID, gps_color_rid_t *rID, long *rID_size );
 int GPS_Color_getProfile(gwmsg_client_t 	*client, void **addr, long	*num);
-int GPS_GetFontInfo(gwmsg_client_t *client, int font, gps_fontinfo_t *fontinfo);
-int  GPS_GetBitSw(gwmsg_client_t *, int);
 int  GPS_InterpNotifyStart(gwmsg_client_t *, int);
 void GPS_InterpNotifyOnline(gwmsg_client_t *);
 int  GPS_PenvGetValueList(gwmsg_client_t *, int, long, long, long, long *, long *);
 int  GPS_PenvGetDefValue(gwmsg_client_t *, int, long, long *);
-int  GPS_BinInfo(gwmsg_client_t *, int , gps_bininfo_t *, long *, int );
-int  GPS_TrayInfo(gwmsg_client_t *, int , gps_trayinfo_t *, long *, int); 
 void GPS_PmDispSetEmulation(char, char, char, char *);
-int GPS_GetSysInfo(gwmsg_client_t *, gps_sysinfo_t *);
 caddr_t GPS_WkMalloc(gwmsg_client_t *client, long mallocsize);
 int GPS_WkSizeFree(gwmsg_client_t *);
-int GPS_ColorgetID2(gwmsg_client_t *, int, int, int, int, unsigned char, unsigned char, int *) ; 
-int GPS_gpsGetHddInfo2(gwmsg_client_t *, int, int, gps_hddinfo2_t);
 
 int GPS_GetPdlPrintConditionShm(gwmsg_client_t *, int, int *, unsigned long *);
 int GPS_GetPaperInfo(gwmsg_client_t *, int, gps_paperinfo_t *, int);
@@ -191,21 +149,6 @@ pageinfo.count_off = 0;
  
  
 /***********************************************************************************************************
-*Function Name: GPS_Open()
-*Attributes:
-*client  IN   Client identifier
-*handler IN   GW-IPC handler to process events coming from GPS
-*attr    IN   Specifies an attribute of pthread to process GW-IPC events.
-*shm_addr OUT   Sheared memory address that is necessary to receive/send data with GPS.
-*Description: This function initializes the system to act as the client connected to GPS.
-************************************************************************************************************/
-int GPS_Open(gwmsg_client_t *client, gwmsg_handler_t gwmsg_handler_t, pthread_attr_t attr, void **shm_addr)
-{
-    printf("------------------------------------- \n");
-	printf("Call gpsOpen\n");
-    return gpsOpen(gps_client, gwmsg_interp_handler, &attr, (void *)(&shm_addr));
-}
-/***********************************************************************************************************
 *Function Name: GPS_GetPrmInfo()
 *Attributes:
 *client  IN   Client identifier
@@ -215,13 +158,11 @@ int GPS_Open(gwmsg_client_t *client, gwmsg_handler_t gwmsg_handler_t, pthread_at
 *buf OUT Obtained information // use only when the ID is designated to use buf 
 *Description: This function obtains information of print material.
 ************************************************************************************************************/
-int GPS_GetPrmInfo(gwmsg_client_t *client, int f_id, int *status, int size,	long *maxsize)
+int GPS_GetPrmInfo(int f_id, int *status, int size,   long *maxsize)
 {
-	printf("------------------------------------- \n");   
-   printf("Call gpsGetPrmInfo\n");
-    return gpsGetPrmInfo( client, f_id, status, size, maxsize );
-    printf("Returned from gpsGetPrmInfo\n");
+    return gpsGetPrmInfo( gps_client, f_id, status, size, maxsize );
 }
+
 /***********************************************************************************************************
 *Function Name: GPS_PmInit()
 *Attributes:
@@ -246,12 +187,24 @@ char GPS_PmInit(gwmsg_client_t *client, void(*pfunc1)(), void(*pfunc2)())
 *value     OUT The address for the array for return value. Values acceptable for key are copied.
 *Description: This function retrieves model-specific information.
 ************************************************************************************************************/
-int GPS_GetModelInfo(gwmsg_client_t *client, char  dummy, char num,char	*key, char	*category, 	unsigned char value_len, unsigned char	*value)
+int GPS_GetModelInfo(char  dummy, char num,char       *key, char      *category,      unsigned char value_len)
 {
-   printf("------------------------------------- \n");
-   printf("Call gpsGetModelInfo \n");
-   return gpsGetModelInfo(client, 0, 1, (unsigned char *) key, (unsigned char *)category, value_len, value);
+	printf("Call gpsGetModelInfo \n");
+	int retval;
+
+	printf("GPS_GetModelInfo(), key = [%s]\n",key);
+	printf("GPS_GetModelInfo(), value_len  = [%d]\n",value_len);
+	retval = gpsGetModelInfo(gps_client, dummy, num, (unsigned char *) key, (unsigned char *)category, value_len, outbuf) ;
+	
+	printf("GPS_GetModelInfo(), outbuf  = [%s]\n",outbuf);
+	if(retval != SERCH_OK)
+		return -1;
+
+   /* To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 208 209	*/
+
+   return 0;
 }
+
 /***********************************************************************************************************
 *Function Name: GPS_PenvOpen()
 *Attributes:
@@ -289,12 +242,18 @@ int GPS_PenvGetValue( gwmsg_client_t* client, int penv, long gps_var, long *penv
 *Offset from the shared memory pointer to the color data shared memory pointer.
 *Description: This function retrieves color data shared memory
 ************************************************************************************************************/
-long GPS_Color_getShrd(gwmsg_client_t *client)
+long GPS_Color_getShrd(void)
 {
-    printf("------------------------------------- \n");
-	printf("Calling gpsColor_getShrd\n");
-   return gpsColor_getShrd( gps_client );
+
+  if(loffset = gpsColor_getShrd( gps_client ))
+    clr_shm = (gps_nclr_shdm_t*)((long)gps_shdm_addr + loffset);
+  else
+    return -1;
+
+  /* To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 292	*/
+  return 0;
 }
+
 /***********************************************************************************************************
 *Function Name: GPS_Color_getRID()
 *Attributes:
@@ -304,12 +263,14 @@ long GPS_Color_getShrd(gwmsg_client_t *client)
 *rID_size OUT Number of bytes of rID
 *Description: This function retrieves ID for Page Structure's rearrange matrix pattern ID, from color mode ID.
 ************************************************************************************************************/
-int	GPS_Color_getRID( gwmsg_client_t *client, int modeID, gps_color_rid_t *rID, long *rID_size )
-{ 
-    printf("------------------------------------- \n");
+int GPS_Color_getRID( int modeID, gps_color_rid_t *rID, long *rID_size )
+{
+	int ret;
 	printf("Calling gpsColor_getRID\n");
-   return gpsColor_getRID(client, 1, rID, rID_size);
+	ret = gpsColor_getRID(gps_client, modeID, rID, rID_size);
+	return ret;
 }
+
 /***********************************************************************************************************
 *Function Name: GPS_Color_getProfile()
 *Attributes:
@@ -332,12 +293,15 @@ int GPS_Color_getProfile(gwmsg_client_t  *client, void **addr, long	*num)
 **fontinfo OUT Font Information Structure
 *Description: This function obtains font information.
 ************************************************************************************************************/
-int GPS_GetFontInfo(gwmsg_client_t *client, int font, gps_fontinfo_t *fontinfo)
+int GPS_GetFontInfo(int font)
 {
-     printf("------------------------------------- \n");
-	 printf("Calling gpsGetFontInfo\n");
-	return gpsGetFontInfo(gps_client, font, fontinfo);
+  if( -1 == gpsGetFontInfo(gps_client, font, &fontinfo) )
+    return -1;
+
+  /*No need to map the GPS font structure with SDK, as we have created similar struct in SDK..	*/
+  return 0;
 }
+
 /***********************************************************************************************************
 *Function Name: GPS_PenvClose()
 *Attributes:
@@ -363,11 +327,276 @@ void GPS_PenvClose(gwmsg_client_t *client, int penv)
 *notify IN Set to receive / not receive event whenever there is a change in the information.
 *Description: This function obtains input tray information.
 ************************************************************************************************************/
-int GPS_TrayInfo(gwmsg_client_t *client, int num, gps_trayinfo_t *gpsTrayInfo, long *trayNum, int notify)
+int GPS_TrayInfo()
 {
-	 printf("------------------------------------- \n");
-	 printf("Call Tray Info value\n");
-	return gpsGetTrayInfo(client, num, gpsTrayInfo, trayNum, notify);
+  long trayNum;
+  int nTrayIndex;
+
+#define YET_TO_FIND_0 200
+#define YET_TO_FIND_1 201
+#define YET_TO_FIND_2 202
+#define YET_TO_FIND_3 203
+#define YET_TO_FIND_4 204
+#define YET_TO_FIND_5 205
+#define YET_TO_FIND_6 206
+#define YET_TO_FIND_7 207
+
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  gpsTrayInfo = (gps_trayinfo_t*) OSMalloc(sysinfo.num_tray * sizeof(gps_trayinfo_t), PMS_MemoryPoolPMS);
+  g_pstTrayInfo = (PMS_TyTrayInfo*) OSMalloc(sysinfo.num_tray * sizeof(PMS_TyTrayInfo), PMS_MemoryPoolPMS);
+#else
+  gpsTrayInfo = (gps_trayinfo_t*) mmalloc(sysinfo.num_tray * sizeof(gps_trayinfo_t));
+  g_pstTrayInfo = (PMS_TyTrayInfo*) mmalloc(sysinfo.num_tray * sizeof(PMS_TyTrayInfo));
+#endif
+
+  if( -1 == gpsGetTrayInfo(gps_client, sysinfo.num_tray, gpsTrayInfo, &trayNum, GPS_NOTIFY_CHANGE_OFF) )
+    return -1;
+  /* To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 37	*/
+  /* gpsGetTrayInfo - page no 197	*/
+
+  for(nTrayIndex = 0; nTrayIndex < trayNum; nTrayIndex++)
+  {
+    switch(gpsTrayInfo[nTrayIndex].id)
+	{
+	  case 0:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_MANUALFEED;
+		break;
+      case 1:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_TRAY1;
+		break;
+      case 2:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_TRAY2;
+		break;
+      case 3:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_TRAY3;
+		break;
+      default:
+        g_pstTrayInfo[nTrayIndex].eMediaSource = PMS_TRAY_AUTO; 
+		break;
+		
+		//Yet to map PMS_TRAY_BYPASS, PMS_TRAY_ENVELOPE
+	}
+	
+	
+	//Guess!!!!!!  the paper size.
+	/*
+	GPS_CODE_NO_PAPER = 0,
+	GPS_CODE_A0,		GPS_CODE_A1,		GPS_CODE_A2,		GPS_CODE_A3,
+	GPS_CODE_A4,		GPS_CODE_A5,		GPS_CODE_A6,		GPS_CODE_A7,
+	GPS_CODE_B0,		GPS_CODE_B1,		GPS_CODE_B2,		GPS_CODE_B3,
+	GPS_CODE_B4,		GPS_CODE_B5,		GPS_CODE_B6,		GPS_CODE_B7,
+	GPS_CODE_WMAIL,		GPS_CODE_MAIL,		GPS_CODE_LINE1,		GPS_CODE_LINE2,
+	GPS_CODE_LIB6,		GPS_CODE_LIB8,		GPS_CODE_210x170,	GPS_CODE_210x182,
+	GPS_CODE_267x388,
+
+	GPS_CODE_FREEmm = 31,
+	GPS_CODE_11x17,
+	GPS_CODE_11x14,		GPS_CODE_10x15,		GPS_CODE_10x14,		GPS_CODE_8Hx14,
+	GPS_CODE_8Hx13,		GPS_CODE_8Hx11,		GPS_CODE_8Qx14,		GPS_CODE_8Qx13,
+	GPS_CODE_8x13,		GPS_CODE_8x10H,		GPS_CODE_8x10,		GPS_CODE_5Hx8H,
+	GPS_CODE_7Qx10H,
+
+	GPS_CODE_12x18 = 47,
+	GPS_CODE_12x14H,
+	GPS_CODE_11x15,		GPS_CODE_9Hx11,		 GPS_CODE_8Hx12,	GPS_CODE_13x19,
+
+	GPS_CODE_8KAI = 66,
+	GPS_CODE_16KAI,
+
+	GPS_CODE_NO_10 = 80,
+	GPS_CODE_NO_7,
+
+	GPS_CODE_C5 = 83,
+	GPS_CODE_C6,		GPS_CODE_DL,
+
+	GPS_CODE_NO_SIZE = 128,
+	GPS_CODE_A0T,		GPS_CODE_A1T,		GPS_CODE_A2T,		GPS_CODE_A3T,
+	GPS_CODE_A4T,		GPS_CODE_A5T,		GPS_CODE_A6T,		GPS_CODE_A7T,
+	GPS_CODE_B0T,		GPS_CODE_B1T,		GPS_CODE_B2T,		GPS_CODE_B3T,
+	GPS_CODE_B4T,		GPS_CODE_B5T,		GPS_CODE_B6T,		GPS_CODE_B7T,
+	GPS_CODE_WMAILT,	GPS_CODE_MAILT,		GPS_CODE_LINE1T,	GPS_CODE_LINE2T,
+	GPS_CODE_LIB6T,		GPS_CODE_LIB8T,		GPS_CODE_210x170T,	GPS_CODE_210x182T,
+	GPS_CODE_267x388T,
+
+	GPS_CODE_FREEmmT = 159,
+	GPS_CODE_11x17T,
+	GPS_CODE_11x14T,	GPS_CODE_10x15T,	GPS_CODE_10x14T,	GPS_CODE_8Hx14T,
+	GPS_CODE_8Hx13T,	GPS_CODE_8Hx11T,	GPS_CODE_8Qx14T,	GPS_CODE_8Qx13T,
+	GPS_CODE_8x13T,		GPS_CODE_8x10HT,	GPS_CODE_8x10T,		GPS_CODE_5Hx8HT,
+	GPS_CODE_7Qx10HT,
+
+	GPS_CODE_12x18T = 175,
+	GPS_CODE_12x14HT,
+	GPS_CODE_11x15T,	GPS_CODE_9Hx11T,	 GPS_CODE_8Hx12T,	GPS_CODE_13x19T,
+
+	GPS_CODE_8KAIT = 194,
+	GPS_CODE_16KAIT,
+
+	GPS_CODE_NO_10T = 208,
+	GPS_CODE_NO_7T,
+
+	GPS_CODE_C5T = 211,
+	GPS_CODE_C6T,		GPS_CODE_DL_T
+	*/
+	
+	switch(gpsTrayInfo[nTrayIndex].p_size)
+	{
+	  case GPS_CODE_8Hx11:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LETTER;
+	    break;
+	  case GPS_CODE_A4:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A4;
+	    break;
+	  case GPS_CODE_8Hx14:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEGAL;
+	    break;
+	  case GPS_CODE_7Qx10H:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_EXE;
+	    break;
+	  case GPS_CODE_A3:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A3;
+	    break;
+	  case GPS_CODE_11x17:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_TABLOID;
+	    break;
+	  case GPS_CODE_A5:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A5;
+	    break;
+	  case GPS_CODE_A6:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A6;
+	    break;
+	  case GPS_CODE_C5:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_C5_ENV;
+	    break;
+	  case GPS_CODE_DL:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_DL_ENV;
+	    break;
+	  case YET_TO_FIND_0:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEDGER;
+	    break;
+	  case YET_TO_FIND_2:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_OFUKU;
+	    break;
+	  case GPS_CODE_10x14:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB4;
+	    break;
+	  case YET_TO_FIND_3:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB5;
+	    break;
+	  case GPS_CODE_8Hx11T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LETTER_R;
+	    break;
+	  case GPS_CODE_A4T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A4_R;
+	    break;
+	  case GPS_CODE_8Hx14T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEGAL_R;
+	    break;
+	  case GPS_CODE_7Qx10HT:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_EXE_R;
+	    break;
+	  case GPS_CODE_A3T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A3_R;
+	    break;
+	  case GPS_CODE_11x17T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_TABLOID_R;
+	    break;
+	  case GPS_CODE_A5T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A5_R;
+	    break;
+	  case GPS_CODE_A6T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_A6_R;
+	    break;
+	  case GPS_CODE_C5T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_C5_ENV_R;
+	    break;
+	  case GPS_CODE_DL_T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_DL_ENV_R;
+	    break;
+	  case YET_TO_FIND_4:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_LEDGER_R;
+	    break;
+	  case YET_TO_FIND_5:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_OFUKU_R;
+	    break;
+	  case GPS_CODE_10x14T:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB4_R;
+	    break;
+	  case YET_TO_FIND_6:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_JISB5_R;
+	    break;
+	  case YET_TO_FIND_7:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_CUSTOM;
+	    break;
+	  default:
+	    g_pstTrayInfo[nTrayIndex].ePaperSize = PMS_SIZE_DONT_KNOW;
+	    break;
+	}
+	
+	switch(gpsTrayInfo[nTrayIndex].p_kind)
+	{
+	  case DI_PAPER_NORMAL:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_PLAIN;
+	    break;
+	  case DI_PAPER_BOND:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_BOND;
+	    break;
+	  case DI_PAPER_SPECIAL:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_SPECIAL;
+	    break;
+	  case DI_PAPER_GLOSSY:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_GLOSSY;
+	    break;
+	  case DI_PAPER_OHP:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_TRANSPARENCY;
+	    break;
+	  case DI_PAPER_RECYCLE:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_RECYCLED;
+	    break;
+	  case DI_PAPER_MIDDLETHICK:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_THICK;
+	    break;
+	  case DI_PAPER_ENVELOPE:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_ENVELOPE;
+	    break;
+	  case DI_PAPER_POSTCARD:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_POSTCARD;
+	    break;
+	  case DI_PAPER_THIN:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_THIN;
+	    break;
+	  case DI_PAPER_LABEL:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_LABEL;
+	    break;
+	  case DI_PAPER_PREPRINT:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_PREPRINTED;
+	    break;
+	  case DI_PAPER_LETTER_HEAD:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_LETTERHEAD;
+	    break;
+	  default:
+	    g_pstTrayInfo[nTrayIndex].eMediaType = PMS_TYPE_DONT_KNOW;
+	    break;
+	}
+	
+	g_pstTrayInfo[nTrayIndex].eMediaColor = PMS_COLOR_DONT_KNOW; /* yet to map	*/
+    g_pstTrayInfo[nTrayIndex].uMediaWeight = 0; /* yet to map	*/
+    g_pstTrayInfo[nTrayIndex].nPriority = nTrayIndex; /* assumption yet to conform. 	*/
+	
+	g_pstTrayInfo[nTrayIndex].bTrayEmptyFlag = (GPS_TRAY_PAPEREND == gpsTrayInfo[nTrayIndex].status);
+    g_pstTrayInfo[nTrayIndex].nNoOfSheets = gpsTrayInfo[nTrayIndex].remain;
+
+  }
+  
+  g_nInputTrays = sysinfo.num_tray;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  OSFree( gpsTrayInfo, PMS_MemoryPoolPMS );
+#else
+  mfree( gpsTrayInfo );
+#endif
+  gpsTrayInfo = NULL;
+    
+  return 0;
 }
 /***********************************************************************************************************
 *Function Name: GPS_BinInfo()
@@ -379,11 +608,52 @@ int GPS_TrayInfo(gwmsg_client_t *client, int num, gps_trayinfo_t *gpsTrayInfo, l
 *notify  IN Enable/disable receiving an event whenever there is a change in the information.
 *Description: This function obtains output bin information.
 ************************************************************************************************************/
-int GPS_BinInfo(gwmsg_client_t *client, int num, gps_bininfo_t *gpsBinInfo, long *binInfo, int notify)
+int GPS_BinInfo()
 {
-	 printf("------------------------------------- \n");
-	 printf("Call Bin Info value\n");
-	return gpsGetBinInfo(client, num, gpsBinInfo, binInfo, notify);
+  long binInfo;
+  int nTrayIndex;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  gpsBinInfo = (gps_bininfo_t*) OSMalloc(sysinfo.num_bin * sizeof(gps_bininfo_t), PMS_MemoryPoolPMS);
+  g_pstOutputInfo = (PMS_TyOutputInfo*) OSMalloc(sysinfo.num_bin * sizeof(PMS_TyOutputInfo), PMS_MemoryPoolPMS);
+#else
+  gpsBinInfo = (gps_bininfo_t*) mmalloc(sysinfo.num_bin * sizeof(gps_bininfo_t));
+  g_pstOutputInfo = (PMS_TyOutputInfo*) mmalloc(sysinfo.num_bin * sizeof(PMS_TyOutputInfo));
+#endif
+
+  if( -1 == gpsGetBinInfo(gps_client, sysinfo.num_bin, gpsBinInfo, &binInfo, GPS_NOTIFY_CHANGE_OFF) )
+    return -1;
+  
+  /* To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 40	*/
+  /* gpsGetTrayInfo - page no 200	*/
+  
+  for(nTrayIndex = 0; nTrayIndex < binInfo; nTrayIndex++)
+  {
+    /*g_pstOutputInfo[nTrayIndex].eOutputTray = gpsBinInfo[nTrayIndex].id;	*/
+	switch (gpsBinInfo[nTrayIndex].id)
+	{
+	  case 1:
+	  case 2:
+	  case 3:
+	    g_pstOutputInfo[nTrayIndex].eOutputTray = gpsBinInfo[nTrayIndex].id;
+	    break;
+	  default:
+	    g_pstOutputInfo[nTrayIndex].eOutputTray = PMS_OUTPUT_TRAY_AUTO;
+	    break;
+      /* yet to map  PMS_OUTPUT_TRAY_UPPER, PMS_OUTPUT_TRAY_LOWER, PMS_OUTPUT_TRAY_EXTRA	*/
+	}
+    g_pstOutputInfo[nTrayIndex].nPriority = nTrayIndex;	/*assumption yet to conform. 	*/
+	
+  }
+
+  g_nOutputTrays = sysinfo.num_bin;
+#ifdef PMS_OIL_MERGE_DISABLE_MEM
+  OSFree( gpsBinInfo, PMS_MemoryPoolPMS );
+#else
+  mfree( gpsBinInfo );
+#endif
+  gpsBinInfo = NULL;
+  
+  return 0;
 }
 /***********************************************************************************************************
 *Function Name: GPS_PenvGetDefValue()
@@ -429,12 +699,13 @@ int  GPS_PenvGetValueList(gwmsg_client_t *client, int p_env, long Var, long Star
 *no IN Bit Switch number (BIT_SW_001 -- BIT_SW_016)
 *Description: This function obtains values of specified Bit Switch number.
 ************************************************************************************************************/
-int GPS_GetBitSw(gwmsg_client_t *client, int num)
+int GPS_GetBitSw(int num)
 {
 	 printf("------------------------------------- \n");
 	 printf("Call GPS_getBitSW\n");
-	return gpsGetBitSw(client, num);
+	 return gpsGetBitSw(gps_client, num);
 }
+
 /***********************************************************************************************************
 *Function Name: GPS_InterpNotifyStart()
 *Attributes:
@@ -481,13 +752,26 @@ void GPS_PmDispSetEmulation(char	cond_exist,	char	pnum_exist,	char	tray_exist,	c
 *sysinfo OUT System Information Structure
 *Description: This function obtains system information.
 ************************************************************************************************************/
-int GPS_GetSysInfo(gwmsg_client_t	*client, gps_sysinfo_t *sysinfo)
+int GPS_GetSysInfo()
 {
-     printf("------------------------------------- \n");
-	 printf("Call gpsGetSysInfo\n");
-   	return gpsGetSysInfo( client, sysinfo );
+  printf("Call gpsGetSysInfo()..\n");
+  if( 0 != gpsGetSysInfo(gps_client, &sysinfo) )
+    return -1;
 
+/*  strcpy(g_tSystemInfo.szManufacturer, sysinfo.maker);	*/
+/*  strcpy(g_tSystemInfo.szProduct, sysinfo.model);	*/
+/*  g_nInputTrays = sysinfo.num_tray; 	*/	/*Override by EngineGetTrayInfo(), Do reassign in GPS_TrayInfo.*/
+/*  g_nOutputTrays = sysinfo.num_bin; 	*/	/*Override by EngineGetTrayInfo(), Do reassign in GPS_BinInfo.	*/
+
+  /* To do - Map SDK str from GPS Specification DB - 01.pdf  : page no 8 to 13	*/
+  /*
+  num_tray ----- Number of input trays.
+  num_bin ------ Number of output bins.
+  disp_lines/disp_columns  -------  The number of lines displayed on the screen, and the number of characters per line.
+  */
+  return 0;
 }
+
 /***********************************************************************************************************
 *Function Name: GPS_WkSizeFree()
 *Attributes:
@@ -516,7 +800,6 @@ caddr_t GPS_WkMalloc(gwmsg_client_t *client, long mallocsize)
   printf("------------------------------------- \n");
   printf("Call gpsWkMalloc\n");
   return gpsWkMalloc(client, mallocsize );
-  
 }
 /***********************************************************************************************************
 *Function Name: GPS_ColorgetID2()
@@ -531,15 +814,14 @@ caddr_t GPS_WkMalloc(gwmsg_client_t *client, long mallocsize)
 *modeID OUT Color mode ID
 *Description: Obtains dither data and gamma data array number within shared memory.
 ************************************************************************************************************/
-int GPS_ColorgetID2(gwmsg_client_t *client, int hdpi, int vdpi, int bit, int draw, unsigned char prt,unsigned char paper, int *modeID)  
+int GPS_Color_getID2(int hdpi, int vdpi, int bit, int draw, unsigned char prt,unsigned char paper)
 {
-	printf("------------------------------------- \n");
-	printf("Call gpsColor_getID2\n");
-	return gpsColor_getID2(client, hdpi, vdpi, bit, draw, prt, paper, modeID);
+  int modeID ;
+  gpsColor_getID2(gps_client, hdpi, vdpi, bit, draw, prt, paper, &modeID);
+  return modeID;
 }
-
 /***********************************************************************************************************
-*Function Name: PS_gpsGetHddInfo2()
+*Function Name: GPS_gpsGetHddInfo2()
 *Attributes:
 *client   IN   Client identifier
 *hdd      IN   Memory type: HDD/RAM/SD
@@ -547,12 +829,13 @@ int GPS_ColorgetID2(gwmsg_client_t *client, int hdpi, int vdpi, int bit, int dra
 **hddinfo2 OUT HDD information structure 2
 *Description: Obtains information of HDD/RAM/SD.
 ************************************************************************************************************/
-int GPS_gpsGetHddInfo2(gwmsg_client_t* client, int hdd, int status, gps_hddinfo2_t hddinfo2)  
+int GPS_gpsGetHddInfo2(int hdd)
 {
-	printf("------------------------------------- \n");
-	printf("Call gpsGetHddInfo2\n");
-	return gpsGetHddInfo2( client, hdd, &status, &hddinfo2 );
+  int status;
+	gpsGetHddInfo2(gps_client, hdd, &status, &hddinfo_download);
+	return status;
 }
+
 
 /***********************************************************************************************************
 *Function Name: GPS_GetPdlPrintConditionShm()
@@ -661,7 +944,6 @@ int GPS_GetPrtStatus2(gwmsg_client_t *client, gps_prtstatus2_t *prtStatus, int p
 	printf("Call gpsGetPrtStatus2\n");
 	return gpsGetPrtStatus2(client, prtStatus, prt_notify, prt_res);
 }
-
 /***********************************************************************************************************
 *Function Name: GPS_PlotPrepare()
 *Attributes:
@@ -674,7 +956,7 @@ int GPS_PlotPrepare(gwmsg_client_t *client, int uJobid, gps_plotprepareparam_t *
 {
 	printf("------------------------------------- \n");
 	printf("Call gpsPlotPrepare\n");
-	/*return 0;/* Call to gpsPlotPrepare(client, uJobid, Param); is commented
+	/*return 0;*/ /* Call to gpsPlotPrepare(client, uJobid, Param); is commented
                 as there is dependency on _CNF_API_gpsPlotPrepare*/
     return gpsPlotPrepare(client, uJobid, Param);
 }
@@ -707,7 +989,8 @@ int GPS_PlotSetPageParamShm(gwmsg_client_t *client, int	PlotSet_plotid, gps_page
 {
 	printf("------------------------------------- \n");
 	printf("Call gpsPlotSetPageParamShm\n");
-	//return 0;/* Call to gpsPlotSetPageParamShm(client, PlotSet_plotid, param, PlotSet_result); is commented as there is dependency on _CNF_API_gpsPlotSetPageParamShm */
+	/*return 0;		*/	
+	/* Call to gpsPlotSetPageParamShm(client, PlotSet_plotid, param, PlotSet_result); is commented as there is dependency on _CNF_API_gpsPlotSetPageParamShm */
 	return gpsPlotSetPageParamShm(client, PlotSet_plotid, param, PlotSet_result);
 }
 

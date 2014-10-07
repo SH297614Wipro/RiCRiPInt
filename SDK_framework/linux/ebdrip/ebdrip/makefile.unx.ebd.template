@@ -37,6 +37,7 @@ SRC_DIR=../lib
 SW_ROOT_DIR=../SW
 CORELIB_DIR=../bin
 GPSLIB=$(OBJ_DIR)/../../../../../libgps.a
+CMMLIB=$(OBJ_DIR)/../../../../../libcmm.a
 #ifdef DYLIB
 CORELIB=$(CORELIB_DIR)/corelib$(DYLIB_SUFFIX)
 #else
@@ -230,6 +231,43 @@ LNARGS = \
   -m32 \
 #endif
 
+CFLAGS=		-Wreturn-type 	-DUNIX -DLINUX -DX86 -DCONIC_X86 -DCOMP_X86 -DDRAW_X86 -DDR_X86
+CFLAGS+= 	-Wall
+CFLAGS+=	-O0
+#CFLAGS+=	-DPR_XPS_SUPPORT
+CFLAGS+=	-DSUPPORT_IPS
+CFLAGS+=	-DTARGET_IRIPS -DTARGET_09A
+#CFLAGS+=	-DUSE_MEMCPY
+CFLAGS+=	-DPR_HAVE_XRGB_DRAW
+#CFLAGS+=	-D_RELEASE
+
+CFLAGS+=	-DPR3_SUPPORT_GIPA1
+CFLAGS+=	-DPR3_SUPPORT_GIPA1_OUT_FILE
+CFLAGS+=	-DPR3_SUPPORT_RTL_GIPA
+#CFLAGS+=	-DPR3_GIPA1_OUTFILE_RENDERER
+#CFLAGS+=	-DEXCEPT_AUTO_TEST
+
+# for gipa.h
+CFLAGS+=	-DNOTUSE_GPS
+
+#CFLAGS+=	-DDEBUG_MSG
+#CFLAGS+=	-DDBG_MSG_TYPE=1 -DDBG_MSG_FUNC_DISP=1 -DDBG_MSG_FUNC_NAME_DISP=1
+#CFLAGS+=	-DDBG_MSG_FUNC_ARG_DISP=1 -DDBG_MSG_FUNC_INFO_DISP=1
+#CFLAGS+=	-DDBG_MSG_COMMON=1
+#CFLAGS+=	-DDBG_MSG_ALL=3
+
+CFLAGS+=	-I. -I../src -I../include -I../../../include
+CFLAGS+=	-I../include/gps
+CFLAGS+=	-I/gpsexport/gps
+CFLAGS+=	-I../../inc
+# include library header file
+CFLAGS+=	-I../../libge2/include
+CFLAGS+=	-I../../libmm/src
+CFLAGS+=	-I../../libdraw4/include
+CFLAGS+=	-I../../libdi/inc
+
+CFLAGS+=	-c 
+
 #
 # It is less likely you will need to edit these to compile on your system
 
@@ -300,6 +338,12 @@ PTDEV_INCLUDES= \
   -I$(SRC_DIR)/threads/export \
   $(STANDARD_INCLUDES)
 
+CMM_INCLUDES=\
+  -I$(SRC_DIR)/CMM/src \
+  -I$(SRC_DIR)/gpsexport \
+  -I$(SRC_DIR)/gpsexport/gps \
+  $(STANDARD_INCLUDES)
+  
 OIL_INCLUDES= \
   -I$(SRC_DIR)/dlliface/export \
   -I$(SRC_DIR)/$(IF_CONTROL) \
@@ -309,6 +353,7 @@ OIL_INCLUDES= \
   -I$(SRC_DIR)/$(IF_SCREENING) \
   -I$(SRC_DIR)/$(IF_VERSION) \
   -I$(SRC_DIR)/core/types/export \
+  -I$(SRC_DIR)/core/interface/control \
   -I$(SRC_DIR)/core/v20/export \
   -I$(SRC_DIR)/oil/export \
   -I$(SRC_DIR)/oil/unix/export \
@@ -326,6 +371,7 @@ OIL_INCLUDES= \
   -I$(SRC_DIR)/timer/export \
   -I$(SRC_DIR)/gpsexport \
   -I$(SRC_DIR)/mediahandling/src \
+  -I$(SRC_DIR)/CMM/src \
 #ifdef SDK_OPT_FF
   -I$(SRC_DIR)/ff/core \
   -I$(SRC_DIR)/ff/export \
@@ -541,6 +587,9 @@ OIL_PJL_OFILES= \
  $(OBJ_DIR)/oil/oil_pjl.o
 endif
 
+CMM_OFILES=\
+ $(OBJ_DIR)/CMM/PRColor.o \
+ 
 OIL_OFILES=\
  $(OIL_SCRN1BPP_OFILES) \
  $(OIL_SCRN2BPP_OFILES) \
@@ -682,6 +731,7 @@ PMS_OFILES=\
  $(PMS_SCRN2BPP_OFILES) \
  $(PMS_SCRN4BPP_OFILES) \
  $(PMS_SOCKET_OFILES) \
+ $(OBJ_DIR)/pms/pms_config.o \
  $(OBJ_DIR)/pms/pms_engine_simulator.o \
  $(OBJ_DIR)/pms/pms_file_in.o \
  $(OBJ_DIR)/pms/pms_interface_oil2pms.o \
@@ -773,6 +823,7 @@ MEDIAHANDLING_OFILES=\
  $(OBJ_DIR)/mediahandling/paperricoh.o \
  $(OBJ_DIR)/mediahandling/ricohpaper.o \
  $(OBJ_DIR)/mediahandling/ricohqman.o \
+ $(OBJ_DIR)/mediahandling/di_info.o \
 
 #ifdef SDK_OPT_UFST5
 PFINUFST5_OFILES=\
@@ -808,6 +859,11 @@ TIMERU_OFILES=\
 
 
 ####################### Rules ###################################
+
+## CMM ##
+$(CMM_OFILES): $(OBJ_DIR)/CMM/%.o: $(SRC_DIR)/CMM/src/%.cpp
+	@echo building ${<F}
+	$(LN) -o $(OBJ_DIR)/CMM/${@F} $(CFLAGS) $(CCARGS) $(WARNARGS) $(CMM_INCLUDES) $(SRC_DIR)/CMM/src/${<F}
 
 ## OIL ##
 $(OIL_OFILES): $(OBJ_DIR)/oil/%.o: $(SRC_DIR)/oil/src/%.c
@@ -946,7 +1002,7 @@ $(OBJ_DIR)/libskin.a:  $(SKIN_OBJECTS) $(PFINUFST5_OBJECTS) $(PFINUFST7_OBJECTS)
 	$(AR) rvu $@ $^
 
 # OIL library ... 
-$(OBJ_DIR)/liboil.a:  $(OIL_OFILES) $(OILP_OFILES)
+$(OBJ_DIR)/liboil.a:  $(OIL_OFILES) $(OILP_OFILES) $(CMM_OFILES)
 	@echo creating $(@F) from object files
 	$(AR) rvu $@ $^
 
@@ -1006,6 +1062,7 @@ $(OBJ_DIR)/liboil.a \
 $(OBJ_DIR)/libskin.a \
 $(OBJ_DIR)/libggetiff.a \
 $(GPSLIB) \
+$(CMMLIB) \
 $(OBJ_DIR)/mediahandling.a \
 $(PJLLIB) \
 $(OBJ_DIR)/libpdfspool.a \
@@ -1022,6 +1079,7 @@ objdirs: FRC
 	@if [ ! -d $(OBJ_DIR)/timeline ]; then mkdir -p $(OBJ_DIR)/timeline; fi
 	@if [ ! -d $(OBJ_DIR)/timer  ]; then mkdir -p $(OBJ_DIR)/timer;  fi
 	@if [ ! -d $(OBJ_DIR)/oil  ]; then mkdir -p $(OBJ_DIR)/oil;  fi
+	@if [ ! -d $(OBJ_DIR)/CMM  ]; then mkdir -p $(OBJ_DIR)/CMM;  fi
 	@if [ ! -d $(OBJ_DIR)/pdfspool  ]; then mkdir -p $(OBJ_DIR)/pdfspool;  fi
 	@if [ ! -d $(OBJ_DIR)/pjl  ]; then mkdir -p $(OBJ_DIR)/pjl;  fi
 	@if [ ! -d $(OBJ_DIR)/mediahandling  ]; then mkdir -p $(OBJ_DIR)/mediahandling;  fi

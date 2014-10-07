@@ -43,7 +43,6 @@
 #include "pfinff.h"
 #define PCLFONTLIST
 #endif
-
 /* extern variables */
 extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TyJob *g_pstCurrentJob;

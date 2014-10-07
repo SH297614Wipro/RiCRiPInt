@@ -27,19 +27,13 @@
 #include "oil_probelog.h"
 #include "oil_pjl.h"
 #include "oil_utils.h"
-
 #ifndef PMS_OIL_MERGE_DISABLE_JS
 #include "gw_gps.h"
 #endif
 
 #include <stdio.h>
-#include <string.h>
-
-
+#include <string.h>     /* for memset and memcpy */
 #include "pms_export.h"
-
-
-     /* for memset and memcpy */
 
 #ifdef DIRECTPRINTPCLOUT
 
@@ -54,15 +48,9 @@
 #endif
 #define INCH_TO_0DOT1MM_FACTOR 254 /* (25.4*10) TO CONVERT INCH TO 0.1MM  */
 #define LEFT_MARGIN 100
-
 #define RIGHT_MARGIN 100
 #define TOP_MARGIN 100
 #define BOTTOM_MARGIN 100
-
-
-
-extern PMS_TyBandPacket *ptBandPacket;
-
 
 /* extern variables */
 extern OIL_TyPage *g_pstCurrentPage;
@@ -71,6 +59,8 @@ extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TySystem g_SystemState;
 extern unsigned char *gFrameBuffer;
 extern void OIL_JobCancel(void);
+extern PMS_TyBandPacket *ptBandPacket;
+extern int bc_in_createbandpacket;
 
 #ifndef PMS_OIL_MERGE_DISABLE_JS
 extern gwmsg_client_t     *gps_client ;
@@ -85,8 +75,6 @@ static BOOL l_PageDuplex = 0;
 #ifdef DIRECTPRINTPCLOUT
 static PMS_TySystem pmsSysInfo;
 #endif
-extern int bc_in_createbandpacket;
-
 
 /**
  * Raster layout data. If PMS provides band memory for the rip, we store
@@ -366,10 +354,10 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
   unsigned char *pBandBuffer = NULL, *pDestPtr = NULL, *pSrcPtr;
   static int nOutputBytesPerLine, nOutputLinesPerBand = 200;
   static int nOutputPixelsPerLineIncRIPPadding, nOutputPixelsPerLineNoPadding;
- // static PMS_TyBandPacket *ptBandPacket, *ptCurrentBandPacket;
- static PMS_TyBandPacket *ptCurrentBandPacket;
- int y;
-unsigned char *pTemp =NULL,*pTemp1=NULL;
+  // static PMS_TyBandPacket *ptBandPacket, *ptCurrentBandPacket;
+  static PMS_TyBandPacket *ptCurrentBandPacket;
+  int y;
+  unsigned char *pTemp =NULL,*pTemp1=NULL;
   PMS_TyBandInfo stPMSBandInfo;
   static OIL_eTyRasterState stRasterNextState = OIL_Ras_ProcessNewPage;
   static BOOL bPartialBand = FALSE;
@@ -378,8 +366,6 @@ unsigned char *pTemp =NULL,*pTemp1=NULL;
   static short Map[OIL_MAX_PLANES_COUNT];
   static int j = 0;
   int x, a;
-   FILE *fp;
-
 #ifdef USE_64
   ras64 *pDestPtr64;
 #else
@@ -404,7 +390,7 @@ unsigned char *pTemp =NULL,*pTemp1=NULL;
   int    GPSFramePrintInforetval;
   int    GPSFrameCreateInfoResretval;
   int prevband=0; //VENKAT ADDED
-  static int GPSMaxBandNum= 0;
+  int GPSMaxBandNum= 0;
 
   #endif
 
@@ -459,6 +445,7 @@ unsigned char *pTemp =NULL,*pTemp1=NULL;
     }
   }
 #endif
+
   while (1)
   {
     switch(stRasterNextState)
@@ -568,6 +555,7 @@ unsigned char *pTemp =NULL,*pTemp1=NULL;
             return FALSE ;
           }
           /* at this point nColorants contains number of colorants actually present */
+
           if(nColorants == 0)
           {
             /* the page is blank. simply return. Blank pages will be handled later in SubmitPageToPMS */
@@ -577,6 +565,7 @@ unsigned char *pTemp =NULL,*pTemp1=NULL;
           }
 
           nColorsInThisBand = ptRasterDescription->numChannels;
+
           if(ptRasterDescription->nSeparations == 1) /*composite job*/
           {
             /* for composite job iteration variable nColorants contains number of colorants actually present */
@@ -586,7 +575,6 @@ unsigned char *pTemp =NULL,*pTemp1=NULL;
             {
               /* If it is frame interleaved, all single color frames will come before frames of next colorant */
               nColorsInThisBand = 1;
-              nColorsInThisBand = 4; //for CMYK temporarily
               nFramesToWrite = ptRasterDescription->numChannels;
             } else if(ptRasterDescription->interleavingStyle == interleavingStyle_pixel) {
               nColorsInThisBand = 1; /* Really means number of color bands in this band rather than different colors */
@@ -617,37 +605,10 @@ unsigned char *pTemp =NULL,*pTemp1=NULL;
             nOutputDepth, &stPMSBandInfo);
 
 /****************pageinfo2 struc initialization*************/
-#if 0
-float pw = ((float)( g_pstCurrentPage -> nPageWidthPixels + LEFT_MARGIN+RIGHT_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution;
-float pwf = pw - floor(pw);
-if(pwf > 0)
-{
-  pageinfo2.paper_width =floor(pw) + 1;
-  pageinfo.paper_width =floor(pw) + 1;	
-}
-else 
-{ 
-  pageinfo2.paper_width =(int)pw;
-  pageinfo.paper_width =(int)pw;
-}
 
-
-float pl = ((float)( g_pstCurrentPage -> nPageHeightPixels + TOP_MARGIN+BOTTOM_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution;
-float plf = pl - floor(pl);
-if(plf > 0)
-{
-  pageinfo2.paper_length =floor(pl) + 1;
-  pageinfo.paper_length=floor(pl) + 1;
-}
-else 
-{ 
-  pageinfo2.paper_length =(int)pl;
-  pageinfo.paper_length=(int)pl;
-}
-#endif 
  pageinfo2.paper_width = ceil(((float)( g_pstCurrentPage -> nPageWidthPixels + LEFT_MARGIN+ RIGHT_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);
-  
- //pageinfo2.paper_length= ((g_pstCurrentPage -> nPageHeightPixels * 25.4)/g_pstCurrentJob->uXResolution)    ; //2100;
+ //pageinfo2.paper_length= ((g_pstCurrentPage -> nPageHeightPixels * 25.4)/g_pstCurrentJob->uXResolution)    ; //2100; 
+ 
   
  pageinfo2.paper_length = ceil(((float)( g_pstCurrentPage -> nPageHeightPixels + TOP_MARGIN+BOTTOM_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);
 
@@ -856,7 +817,7 @@ else
 
 	printf("nLinesInFrame = [%d]\n",nLinesInFrame);
 	printf("ptRasterDescription->bandHeight = [%d]\n",ptRasterDescription->bandHeight);
-#if 1
+#if 0
 	GPSMaxBandNum = (nLinesInFrame+ptRasterDescription->bandHeight-1)/ptRasterDescription->bandHeight;
 	printf("GPSMaxBandNum = [%d]\n",GPSMaxBandNum);
     printf("nLinesInFrame = %d\n ptRasterDescription->bandHeight = %d\n",nLinesInFrame, ptRasterDescription->bandHeight);
@@ -864,7 +825,7 @@ else
 
           /* Comment out the two following lines to use oil's hard-coded bandheight and rip's linewidth */
           nOutputLinesPerBand = stPMSBandInfo.LinesPerBand;
-          nOutputBytesPerLine = stPMSBandInfo.BytesPerLine;
+          nOutputBytesPerLine = ceil(((float)ptRasterDescription->imageWidth) /8); //stPMSBandInfo.BytesPerLine;
 
           if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND ||
               g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
@@ -1107,76 +1068,7 @@ else
 
         nRIPDepth = g_pstCurrentPage->uRIPDepth;
         nOutputDepth = g_pstCurrentPage->uOutputDepth;
-#if 1
-        if(g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND)
-          {
-                int PlaneID = GPS_COLOR_K;
-#if 0
-	            GPSMaxBandNum = (nLinesInFrame + ptRasterDescription->bandHeight - 1) / ptRasterDescription->bandHeight;
-#endif
-                if((iBandNumber != 0) && (iBandNumber < GPSMaxBandNum))
-                {  
-                  
-                    for(j=0; j < OIL_MAX_PLANES_COUNT; j++)
-                    { 
-                        switch(Map[j])
-                        {
-                            case OIL_Cyan:
-                                PlaneID = GPS_COLOR_C;
-                                break;
-                            case OIL_Magenta:
-                                PlaneID = GPS_COLOR_M;
-                                break;
-                            case OIL_Yellow:
-                                PlaneID = GPS_COLOR_Y;
-                                break;
-                            case OIL_Black:
-                                PlaneID = GPS_COLOR_K;
-                                break;
-                            case OIL_InvalidColor:
-                            default:
-                            PlaneID = -1;
-                            break;
-                        }
 
-                        /* initialize the band planes */
-                        ptBandPacket->atColoredBand[j].uBandHeight = 0;
-                        ptBandPacket->atColoredBand[j].cbBandSize = 0;
-                        /* allocate memory for the band data only in valid planes, if
-                        we're not in band direct mode */
-                        if(g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND &&
-                        ptBandPacket->atColoredBand[j].ePlaneColorant != 7
-/*PMS_INVALID_COLOURANT*/)
-                        {
-                            /* GPS to Allocate memory for the Bands */
-                            GPSFrameGetBandResretval = GPS_FrameGetBandRes(gps_client,1,iBandNumber, PlaneID, &pFGBR); 
-                            if(!GPSFrameGetBandResretval)
-		                    {
-			                    printf("GPS_FrameGetBandRes : Success\n");
-                                ptBandPacket->atColoredBand[j].pBandRaster = pFGBR.band_addr;
-                                printf("------pfgbr size =%d\n",sizeof(*pFGBR.band_addr));
-		                    }
-		                    else
-		                    {
-                                printf("GPS_FrameGetBandRes : Failed\n");
-                                ptBandPacket->atColoredBand[j].pBandRaster = NULL;
-		                    }
-
-                            if(!ptBandPacket->atColoredBand[j].pBandRaster)
-                            {
-                                HQASSERTV(g_pstCurrentptBandPacket->atColoredBand[j].pBandRaster!=NULL,
-                                ("Failed to allocate %d bytes", (nOutputLinesPerBand * nOutputBytesPerLine)));
-                                return NULL;
-                            }
-                        }
-                        else
-                        {
-                            ptBandPacket->atColoredBand[j].pBandRaster = NULL;
-                        }
-                   }
-              }
-          }
-#endif
         /* main loop which writes incoming rasters into oil page according to requested bandheight and bandwidth */
         do
         {
@@ -1185,7 +1077,7 @@ else
             ? nRemainingLinesToWrite : nLinesInSrcBand;
           nLinesThisTime = (nLinesThisTime < (nOutputLinesPerBand - nLinesAlreadyWritten))
             ? nLinesThisTime : (nOutputLinesPerBand - nLinesAlreadyWritten);
-#if 0
+
           if(g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND)
           {
 	            GPSMaxBandNum = (nLinesInFrame + ptRasterDescription->bandHeight - 1) / ptRasterDescription->bandHeight;
@@ -1225,12 +1117,14 @@ else
 /*PMS_INVALID_COLOURANT*/)
                         {
                             /* GPS to Allocate memory for the Bands */
+
                             GPSFrameGetBandResretval = GPS_FrameGetBandRes(gps_client,1,iBandNumber, PlaneID, &pFGBR); 
                             if(!GPSFrameGetBandResretval)
 		                    {
 			                    printf("GPS_FrameGetBandRes : Success\n");
                                 ptBandPacket->atColoredBand[j].pBandRaster = pFGBR.band_addr;
                                 printf("------pfgbr size =%d\n",sizeof(*pFGBR.band_addr));
+                                    pDestPtr =  ptBandPacket->atColoredBand[j].pBandRaster;
 		                    }
 		                    else
 		                    {
@@ -1252,7 +1146,7 @@ else
                    }
               }
           }
-#endif
+
 
           if(g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
               g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_FRAME)
@@ -1299,8 +1193,31 @@ else
           }
 
           /* loop to copy rasters into correct planes and hook them into g_pstCurrentPage */
-          for ( i = 0 ; i < nColorsInThisBand ; i++ )
+          int k;
+          for ( k = 0 ; k < nColorsInThisBand ; k++ )
           {
+
+            printf("\nColorsInThisBand = %d\n",nColorsInThisBand);
+            	switch(Map[k])
+                        {
+                            case OIL_Cyan:
+                                i = GPS_COLOR_C;
+                                break;
+                            case OIL_Magenta:
+                                i = GPS_COLOR_M;
+                                break;
+                            case OIL_Yellow:
+                                i = GPS_COLOR_Y;
+                                break;
+                            case OIL_Black:
+                                i = GPS_COLOR_K;
+                                break;
+                            case OIL_InvalidColor:
+                            default:
+                            	i = -1;
+                            break;
+                        }
+
             if(Map[i] == -1)
               continue;
             if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
@@ -1328,7 +1245,6 @@ else
               continue;
             }
 
-
             if(bPartialBand == TRUE)
             {
               /* this band is partially filled with data. determine the end address of the filled data */
@@ -1347,7 +1263,7 @@ else
                 if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND)
                 {
                     /* set pDestPtr to point to the allocated memory in the band buffer */
- 	                pDestPtr = ptBandPacket->atColoredBand[i].pBandRaster;
+ 	              pDestPtr = ptBandPacket->atColoredBand[i].pBandRaster;
                 }
                 else
                 {
@@ -1377,23 +1293,26 @@ else
             {
               if(nOutputBytesPerLine == nBytesPerLineSrc)
               { /* the entire band can be written in 1 go */
-#if 0
-                pSrcPtr += nLinesThisTime * nBytesPerLineSrc;  
-#endif         
-                memcpy(pDestPtr, pSrcPtr, nLinesThisTime * nOutputBytesPerLine);
-#if 0
-                printf("-----------pdestptr address= %u-------\n",pDestPtr);
-		        printf("-----------pdestptr = %s--------------\n",pDestPtr); 
- 	            printf("-----------psrcptr address= %u-------\n",pSrcPtr);
-		        printf("-----------psrcptr = %s--------------\n",pSrcPtr);
-                printf("\nnLinesThisTime = %d\n nOutputBytesPerLine =%d\n",nLinesThisTime,nOutputBytesPerLine);
-                printf("\npSrcPtr = %s \n",pSrcPtr);
-		        printf("---size of srcptr =  %d----\n",sizeof(*pSrcPtr));
-		        printf("---size of Destptr =  %d----\n",sizeof(*pTemp));
-#endif
-#if 1
-                pSrcPtr += (nLinesThisTime * nBytesPerLineSrc); 
-#endif
+
+				for(line = 0; line < nLinesThisTime; line++)
+                {	
+                  memcpy(pDestPtr, pSrcPtr, nOutputBytesPerLine);
+                  pDestPtr += nOutputBytesPerLine;
+                  pSrcPtr += nBytesPerLineSrc;
+                }         
+                  //memcpy(pDestPtr, pSrcPtr, nLinesThisTime * nOutputBytesPerLine);
+                  //printf("-----------pdestptr address= %u-------\n",pDestPtr);
+ 	              //printf("-----------psrcptr address= %u-------\n",pSrcPtr);
+                  printf("iBandnumber = %d and for colorant = %d \n",iBandNumber, i);
+		          printf("-----------psrcptr = %s--------------\n",pSrcPtr);
+                  printf("pDestPtr = %s \n",pDestPtr);
+                  printf("\npSrcPtr = %s \n",pSrcPtr);
+                  printf("\nnLinesThisTime = %d\n nOutputBytesPerLine =%d\n",nLinesThisTime,nOutputBytesPerLine);
+                  
+		          //printf("---size of srcptr =  %d----\n",sizeof(*pSrcPtr));
+		          //printf("---size of Destptr =  %d----\n",sizeof(*pTemp));
+                  pSrcPtr += (nLinesThisTime * nBytesPerLineSrc); 
+
               }
               else if(nOutputBytesPerLine < nBytesPerLineSrc)
               { /* write only requested no of bytes per line */

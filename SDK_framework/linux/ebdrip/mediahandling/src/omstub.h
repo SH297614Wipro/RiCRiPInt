@@ -164,7 +164,7 @@
 #define GPS_TRAY_LOCKED (1 << 3)
 
 int XRESOLUTION, YRESOLUTION;
-
+#if 0
 enum
 {
   PMS_SIZE_LETTER = 0,          /**< Letter paper size */
@@ -249,7 +249,7 @@ enum
   PMS_PCL5_CUSTOM = 101,        /**< Custom Envelope paper size */
   PMS_PCL5_TABLOID              /**< Unknown value for PCL5???*/
 };
-
+#endif
 /*PAPERINFO structure variables are provided by RICOH*/
 typedef struct {
    OMenum size, printable, offset, nominal, nomoffset, rotnomsize, rotnomoffset,

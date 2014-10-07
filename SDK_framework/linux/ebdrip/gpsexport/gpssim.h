@@ -770,7 +770,7 @@ typedef	struct _gps_product_codes {
  */
 #define	_CNF_CONF_FILE			".gpsconf"		/* gps configuration file.	*/
 #define	_CNF_DEF_PROOF_DIR		"./prof"		/* directory of logging.	*/
-#define	_CNF_DEF_OUTPUT_DIR		"/home/ubuntu/integrated_code/SDK_framework/output"		/* directory of image file.	*/
+#define	_CNF_DEF_OUTPUT_DIR		"./output"		/* directory of image file.	*/
 #define	_CNF_DEF_PREFIX			"result"		/* prefix of image file.	*/
 #define	_CNF_DEF_ENVIRONMENT	"07a.env"		/* environment file.		*/
 #define	_CNF_DEF_IDENTIFIER		"07a.ident"		/* identifier file.			*/

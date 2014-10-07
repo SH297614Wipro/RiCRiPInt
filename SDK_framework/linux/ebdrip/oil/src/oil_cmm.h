@@ -23,6 +23,47 @@
 #include "skinkit.h"
 #include "swcmm.h"
 
+
+/*FOR CMM*/
+typedef struct Color_State_CP 
+{
+  unsigned char nColorProfile; 
+  unsigned char nGrayReproduction; 
+  int nDitherObj;
+} Color_State_CP ;
+
+/* Keys for color Profile*/
+#define VIVID_KEY 0x10001
+#define GRADA_KEY 0x10002
+#define TEXT_KEY  0x10003
+#define SIM_1_KEY 0x10011
+
+// Color Match
+enum
+{
+    NO_COLOR_MATCH = 0,
+    TEXT_COLOR_MATCH,
+    VIVID_COLOR_MATCH,
+    TRANS_COLOR_MATCH,
+    OUT_OF_GAMUT
+};
+
+// color mode.
+#define	PAGE_COLOR_K	0x00		// mono print mode.		
+#define	PAGE_COLOR_CMYK	0x80		// CMYK color print mode.	
+#define	PAGE_COLOR_RK	0x40		// RK color print mode.		
+#define	PAGE_COLOR_CMY	0x20		// CMY color print mode.	
+#define	PAGE_COLOR_MASK	0xFC		// color mode mask.	
+#define	PAGE_COLOR_XRGB	0x10	// XRGB color print mode.	
+#define	PAGE_COLOR_XG	0x08	//XG color print mode.	
+#define	PAGE_COLOR_RK2	0x04		// RK2 color print mode.	
+
+#define	COLOR_DEPTH_1	0x00		// 1 bit color by each plane.	
+#define	COLOR_DEPTH_2	0x01		// 2 bit color by each plane.	
+#define	COLOR_DEPTH_4	0x02		// 4 bit color by each plane.	
+#define	COLOR_DEPTH_8	0x03		// 8 bit color by each plane.	
+#define	DEPTH_MASK	0x03			// bit depth mask	
+
 sw_cmm_api* oilccs_getInstance ();
 
 

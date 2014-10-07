@@ -1056,17 +1056,20 @@ currentglobal false setglobal
 
     (%embedded%) currentdevparams /Cfg_ColorManageMode get
     dup 0 eq {
-      % No color management
-      % Treat CIE spaces as device spaces where possible
-      <<
-        /OverrideCMYK true  /OverrideRGB true  /OverrideGray true
-        % Check for Mono, set if a color mode selected %
- %      Restored setting to same as prototype while issues in AC8Z61EC.pdf resolved 
- %       (%embedded%) currentdevparams /GGColorMode get 1 ne {
- %         /Black false /BlackTint false } if
-      >> setinterceptcolorspace
-      % Treat more CIE spaces as device spaces where possible
-      << /PhotoshopInput true >> setuserparams
+	<< /AlternateCMM (CMM_OILExample) >> setpagedevice
+	 <<
+	    % Each colorspace supports the following object types
+	    % /Default, /Picture, /Text, /Vignette, /Other
+	    /DeviceCMYK
+	    <<
+	      /Text 	[ /CMM (TextColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
+	      /Other 	[ /CMM (OtherColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
+	    >>
+	    /DeviceRGB
+	    <<
+	      /Default 	[ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
+	    >>
+	 >> setinterceptcolorspace
     } {
       dup 1 eq {
         % Enable color management using ICC profiles

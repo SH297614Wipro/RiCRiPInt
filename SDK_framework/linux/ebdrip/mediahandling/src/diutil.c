@@ -6,6 +6,9 @@
 #include "gw_gps.h"
 #include "gpssim.h"
 #include "omstub.h"
+#include "diutil.h" 
+#include "gps/di_getinfo.h" 
+#include "gps/di_info.h"
 
 
 extern gps_trayinfo_t *gpsTrayInfo;
@@ -28,6 +31,46 @@ di_devinfo_t diDevInfo;
 long CustomSizeWidth;
 long CustomSizeLength;
 gps_chkdirprm_t condition;
+
+
+void PrintSysStart_GPS()
+{
+        int bsw3, bsw5, bsw8, bsw4, bsw1;
+		unsigned int penwidth_extend;	
+
+        bsw3 = gpsGetBitSw(gps_client, BIT_SW_003);
+        printf("bsw3 = [%d]\n",bsw3);
+        penwidth_extend = (bsw3 & (1 << 3)) ? TRUE : FALSE;
+        printf("Inside PrintSysStart_GPS(), penwidth_extend = [%d]\n",penwidth_extend);
+
+        bsw5 = gpsGetBitSw(gps_client, BIT_SW_005);
+        printf("bsw5 = [%d]\n",bsw5);
+/*      BitSWConfig.is_mixedrot_old = (bsw5 & (1 << 6)) ? TRUE : FALSE;		*/
+
+        bsw8 = gpsGetBitSw(gps_client, BIT_SW_008);
+        printf("bsw8 = [%d]\n",bsw8);
+
+        bsw4 = gpsGetBitSw(gps_client, BIT_SW_004);
+        printf("bsw4 = [%d]\n",bsw4);
+/*      BitSWConfig.is_direction_SEF = (bsw4 & (1 << 6)) ? TRUE : FALSE;	*/
+
+        bsw1 = gpsGetBitSw(gps_client, BIT_SW_001);
+        printf("bsw1 = [%d]\n",bsw1);
+/*      BitSWConfig.is_timeout_invalid = (bsw1 & (1 << 6)) ? TRUE : FALSE;	*/
+
+}
+
+void di_getinfo_GPS_update(di_devinfo_GPS_t *devinfo, char *dither_gamma_file)
+{
+	int val;
+
+	printf("Entered di_getinfo_GPS_update()..\n");
+
+	val = di_getinfo_GPS(devinfo, dither_gamma_file);
+
+	printf("di_getinfo_GPS() returned [%d]\n",val);
+	printf("Exiting di_getinfo_GPS_update()..\n");
+}
 
 int PrintSysCheckQualityMode (int *om_media, OMenum *om_qmode)
 {

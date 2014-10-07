@@ -7,14 +7,14 @@ static long memcount=0;
 static long maxmem = 0;
 char *ripAddr = NULL;
 extern caddr_t memaddr;
-extern long szFree;
+extern long szFreeBytes;
 int minit()
 {
     FL = (BLK) memaddr;
     if(FL!=NULL)
     {
         FL->next =  NULL;
-        FL->msize = szFree - sizeof(struct memblk);
+        FL->msize = szFreeBytes - sizeof(struct memblk);
     }
     else
     {

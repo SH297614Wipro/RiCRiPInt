@@ -164,7 +164,7 @@
 #define GPS_TRAY_LOCKED (1 << 3)
 
 int XRESOLUTION, YRESOLUTION;
-
+#if 0
 enum
 {
   PMS_SIZE_LETTER = 0,          /**< Letter paper size */
@@ -249,7 +249,7 @@ enum
   PMS_PCL5_CUSTOM = 101,        /**< Custom Envelope paper size */
   PMS_PCL5_TABLOID              /**< Unknown value for PCL5???*/
 };
-
+#endif
 /*PAPERINFO structure variables are provided by RICOH*/
 typedef struct {
    OMenum size, printable, offset, nominal, nomoffset, rotnomsize, rotnomoffset,
@@ -407,4 +407,10 @@ OMEnum OMGetDefaultEnum(OMenum omvar, OMenum omsystem);
 Boolean OMGetCurrentBool(OMenum omvar, OMenum omtype);
 OMEnum OMCurrentEnum(OMenum omvar, OMenum omsystem);
 
- 
+//int CMDTYPE_PAPERSRC,CMDTYPE_OUTBIN;
+typedef int CmdType; 
+//typedef PMS_TyMedia OMenum;
+
+void mnInitTrayBinCmd(CmdType type, OMenum * traybintbl, Uint32 ntraybin);
+void PrintSysReinitTrayInfo(void);
+void PrintSysReinitBinInfo(void); 

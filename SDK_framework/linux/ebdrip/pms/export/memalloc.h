@@ -3,7 +3,6 @@
 #include <malloc.h>
 #include <unistd.h>
 
-#define ALLOCSZ ((12 * 1024 * 1024))
 #define RIPSIZ ((8 * 1024 * 1024))
 struct memblk {
     struct memblk *next;

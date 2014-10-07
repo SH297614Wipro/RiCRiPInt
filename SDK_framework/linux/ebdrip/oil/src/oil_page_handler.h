@@ -25,6 +25,7 @@ extern void DeleteOILPage(OIL_TyPage *ptOILPage);
 extern OIL_TyPage* CreateOILBlankPage(OIL_TyPage *ptOILPage, struct rasterDescription *pstRasterDescription);
 extern void CreateOILBlankPlane(OIL_TyPage *ptOILPage, int colorant, OIL_TyPlane *ptOILSamplePlane);
 PMS_TyBandPacket *CreateBandPacket(int nColorants, int nColorFamilyOffset, int nSeparations, int nReqBytesPerLine, int nReqLinesPerBand, short Map[]);
+PMS_TyBandPacket *CreateBandPacketForPage(int nColorants, int nColorFamilyOffset, int nSeparations, int nReqBytesPerLine, int nReqLinesPerBand, short Map[]);
 
 extern void CreateConfigTestPage(unsigned char *sz);
 extern void CreatePSTestPage(unsigned char *sz);

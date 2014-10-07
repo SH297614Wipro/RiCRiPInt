@@ -157,22 +157,22 @@ OIL_TyJob * CreateOILJob(PMS_TyJob *pms_ptJob, int ePDL)
   {
     switch(pms_ptJob->eColorMode)  /* set mono or color */
     {
-    case PMS_Mono:
+    case OIL_Mono:  
       pstJob->eColorMode = OIL_Mono;
       break;
-    case PMS_CMYK_Separations:
+    case OIL_CMYK_Separations:
       pstJob->eColorMode = OIL_CMYK_Separations;
       break;
-    case PMS_CMYK_Composite:
-      pstJob->eColorMode = OIL_CMYK_Composite;
+    case OIL_CMYK_Composite:
+	  pstJob->eColorMode = OIL_CMYK_Composite;
       break;
-    case PMS_RGB_Separations:
+   	case OIL_RGB_Separations:
       pstJob->eColorMode = OIL_RGB_Separations;
       break;
-    case PMS_RGB_Composite:
+    case OIL_RGB_Composite:
       pstJob->eColorMode = OIL_RGB_Composite;
       break;
-    case PMS_RGB_PixelInterleaved:
+    case OIL_RGB_PixelInterleaved:
       pstJob->eColorMode = OIL_RGB_PixelInterleaved;
       break;
     default:

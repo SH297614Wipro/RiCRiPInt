@@ -2,7 +2,7 @@ prof								./prof
 profmode							0
 output								output
 prefix								page
-output_format						7
+output_format						0
 environment							./.variable
 identifier							./.identifier
 profile								./.profile

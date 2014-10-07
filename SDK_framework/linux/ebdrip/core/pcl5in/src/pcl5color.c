@@ -206,6 +206,20 @@ ColorState *get_color_state(PCL5Context *pcl5_ctxt)
   return color_state ;
 }
 
+/* FOR CMM */
+Color_State_CP *get_color_state_CP(PCL5Context *pcl5_ctxt)
+{
+	PCL5PrintState *print_state ;
+	Color_State_CP *pColor_State_CP ;
+   
+     HQASSERT(pcl5_ctxt != NULL, "pcl5_ctxt is NULL") ;
+	 print_state = pcl5_ctxt->print_state ;
+	 HQASSERT(print_state != NULL, "print_state is NULL") ;
+	 pColor_State_CP= &(print_state->sColor_State_CP) ;
+      
+    return pColor_State_CP;
+}
+
 ColorInfo* get_color_info(PCL5Context *pcl5_ctxt)
 {
   PCL5PrintEnvironment *mpe ;
@@ -1991,8 +2005,15 @@ Bool pcl5op_star_t_J(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numeric va
   UNUSED_PARAM(PCL5Context*, pcl5_ctxt) ;
   UNUSED_PARAM(int32, explicit_sign) ;
   UNUSED_PARAM(PCL5Numeric, value) ;
-
+  Color_State_CP *pColor_State_CP; 
+  PCL5PrintState *print_state ;
+   
   HQASSERT(pcl5_ctxt != NULL, "pcl5_ctxt is NULL") ;
+  print_state = pcl5_ctxt->print_state ;
+  HQASSERT(print_state != NULL, "print_state is NULL") ;
+  pColor_State_CP= &(print_state->sColor_State_CP) ;
+  pColor_State_CP->nDitherObj = value.integer; 
+ 
 
   return TRUE ;
 }
@@ -2065,12 +2086,36 @@ Bool pcl5op_star_i_W(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numeric va
 Bool pcl5op_star_o_W(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numeric value)
 {
   int32 numbytes ;
+  uint8 buf[3];
+  Color_State_CP *pColor_State_CP;    
+  UNUSED_PARAM(int32, explicit_sign) ; 
+  PCL5PrintState *print_state ;
 
-  UNUSED_PARAM(int32, explicit_sign) ;
-
-  numbytes = min(value.integer, 32767);
-  if ( numbytes == 0 ) {
-    return(TRUE);
+   HQASSERT(pcl5_ctxt != NULL, "pcl5_ctxt is NULL") ;
+   print_state = pcl5_ctxt->print_state ;
+   HQASSERT(print_state != NULL, "print_state is NULL") ;
+   pColor_State_CP= &(print_state->sColor_State_CP) ;
+      
+   numbytes = min(value.integer, 32767);  
+   if ( numbytes == 0 ) 
+  	{    
+  		return(TRUE);  
+	}
+  /*Commented for CMM  return(file_skip(pcl5_ctxt->flptr, numbytes, NULL) > 0); */ 
+    if(file_read(pcl5_ctxt->flptr, &buf, numbytes, &numbytes))  
+  	{  
+	  	if((int)buf[1] == PCL_COLOR_MAPPING)  	
+	  	{    		
+	  		pColor_State_CP->nColorProfile = buf[2];   	
+	    } 	
+		else if((int)buf[1] == PCL_GRAY_REPRODUCTION) 	
+	    {		   
+	  		pColor_State_CP->nGrayReproduction = buf[2];	
+	    }  
+    } 
+  else 
+  {
+  	return FALSE;
   }
 
   return(file_skip(pcl5_ctxt->flptr, numbytes, NULL) > 0);

@@ -33,9 +33,10 @@
 
 #include <stdio.h>
 #include <string.h>     /* for memset and memcpy */
+#include "pms_export.h"
 
 #ifdef DIRECTPRINTPCLOUT
-#include "pms_export.h"
+
 #include "oil_entry.h"
 #include "oil_pcl5rast.h"
 #include "oil_pcl6rast.h"
@@ -45,6 +46,12 @@
 #undef USE_PJL
 #endif
 #endif
+#define INCH_TO_0DOT1MM_FACTOR 254 /* (25.4*10) TO CONVERT INCH TO 0.1MM  */
+#define LEFT_MARGIN 100
+#define RIGHT_MARGIN 100
+#define TOP_MARGIN 100
+#define BOTTOM_MARGIN 100
+
 /* extern variables */
 extern OIL_TyPage *g_pstCurrentPage;
 extern OIL_TyJob *g_pstCurrentJob;
@@ -52,6 +59,8 @@ extern OIL_TyConfigurableFeatures g_ConfigurableFeatures;
 extern OIL_TySystem g_SystemState;
 extern unsigned char *gFrameBuffer;
 extern void OIL_JobCancel(void);
+extern PMS_TyBandPacket *ptBandPacket;
+extern int bc_in_createbandpacket;
 
 #ifndef PMS_OIL_MERGE_DISABLE_JS
 extern gwmsg_client_t     *gps_client ;
@@ -72,7 +81,13 @@ static PMS_TySystem pmsSysInfo;
  * the details here.
  */
 static RASTER_LAYOUT sRasterLayout;
- gps_pageinfo_t        pageinfo;
+
+extern gwmsg_GpsPage_FrameGetBand_Res_t pFGBR;
+  gwmsg_GpsPage_FrameFlushBand_Res_t pFFBR;
+  gps_pageinfo2_t       pageinfo2;
+  gps_pagemode2_t       pagemode2;
+  gps_pagemode_t        pagemode;
+  gps_pageinfo_t        pageinfo;
 
 
 /**
@@ -339,13 +354,17 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
   unsigned char *pBandBuffer = NULL, *pDestPtr = NULL, *pSrcPtr;
   static int nOutputBytesPerLine, nOutputLinesPerBand = 200;
   static int nOutputPixelsPerLineIncRIPPadding, nOutputPixelsPerLineNoPadding;
-  static PMS_TyBandPacket *ptBandPacket, *ptCurrentBandPacket;
+  // static PMS_TyBandPacket *ptBandPacket, *ptCurrentBandPacket;
+  static PMS_TyBandPacket *ptCurrentBandPacket;
+  int y;
+  unsigned char *pTemp =NULL,*pTemp1=NULL;
   PMS_TyBandInfo stPMSBandInfo;
   static OIL_eTyRasterState stRasterNextState = OIL_Ras_ProcessNewPage;
   static BOOL bPartialBand = FALSE;
   int nColorantOffset, nLinesThisTime, i, line, nColorants;
   RasterColorant *ptColor;
   static short Map[OIL_MAX_PLANES_COUNT];
+  static int j = 0;
   int x, a;
 #ifdef USE_64
   ras64 *pDestPtr64;
@@ -355,6 +374,26 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
   unsigned char *p, *pDst8;
   int nRIPDepth;
   int nOutputDepth;
+  static int color = 1;
+
+#ifndef PMS_OIL_MERGE_DISABLE_JS
+  int	FGband_frameid=1, FGband_bandid=0, FGband_planeid=0;
+  int FFB_frameid=1, FFB_bandid=0, FFB_planeid=0, FFB_drawn=1, FFB_flush=0;
+  int    FP_frameid=1;
+  unsigned long FP_flag;
+  gwmsg_GpsPage_FrameCreate_Res_t	pFCR;
+  int                *framecreate_result;
+
+  int    GPSFrameGetBandResretval;
+  int    GPSFrameCreateExretval;
+  int    GPSFrameFlushBandResRetVal;
+  int    GPSFramePrintInforetval;
+  int    GPSFrameCreateInfoResretval;
+  int prevband=0; //VENKAT ADDED
+  int GPSMaxBandNum= 0;
+
+  #endif
+
 
 #ifdef DIRECTPRINTPCLOUT
   static RASTER_handle rasterFile = NULL;
@@ -413,6 +452,7 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
     {
     case OIL_Ras_ProcessNewPage: /*will enter here at the start of each page*/
       {
+         printf("\nIn case OIL_Ras_ProcessNewPage \n");
         /* check for unsupported rasterdepth*/
         if((ptRasterDescription->rasterDepth != 1)
           && (ptRasterDescription->rasterDepth != 2)
@@ -563,16 +603,236 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
           /* determine bandheight and bandwidth requested by pms */
           GetBandInfoFromPMS(nOutputPixelsPerLineIncRIPPadding, g_pstCurrentPage->nPageHeightPixels,
             nOutputDepth, &stPMSBandInfo);
+
+/****************pageinfo2 struc initialization*************/
+
+ pageinfo2.paper_width = ceil(((float)( g_pstCurrentPage -> nPageWidthPixels + LEFT_MARGIN+ RIGHT_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);
+ //pageinfo2.paper_length= ((g_pstCurrentPage -> nPageHeightPixels * 25.4)/g_pstCurrentJob->uXResolution)    ; //2100; 
+ 
+  
+ pageinfo2.paper_length = ceil(((float)( g_pstCurrentPage -> nPageHeightPixels + TOP_MARGIN+BOTTOM_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);
+
+  pageinfo2.dummy_page =  0;//g_pstCurrentPage->nBlankPage;
+
+  pageinfo2.orientation =  g_pstCurrentPage-> uOrientation ;
+  pageinfo2.print_face = g_pstCurrentPage-> bDuplex;
+
+  pageinfo2.frame_width = g_pstCurrentPage-> nPageWidthPixels;// nLinesInFrame;//6814;
+//  pageinfo2.frame_width = ptRasterDescription->imageWidth ; //UPDATING VENKAT
+
+  pageinfo2.frame_length = g_pstCurrentPage-> nPageHeightPixels ;// nFramesToWrite; //4760;
+  //pageinfo2.band_length = nOutputLinesPerBand ;//2048;
+  pageinfo2.band_length = ptRasterDescription->bandHeight; //UPDATING
+  
+   /***************pageinfo2 struc initialization*************/
+  pageinfo2.flag= 126; 
+  int checkflag =   GPS_INFO2_BYPASS_DIR |
+                  GPS_INFO2_PWIDTH      |
+                  GPS_INFO2_PLENGTH     |           
+                  GPS_INFO2_FWIDTH     |           
+                  GPS_INFO2_FLENGTH    |           
+                  GPS_INFO2_BAND       |           
+                  GPS_INFO2_PRINT_MODE |		
+                  GPS_INFO2_PAGE_SHIFT |	
+                  GPS_INFO2_PRINT_FACE |     	
+                  GPS_INFO2_DUMMY_PAGE |     	
+                  GPS_INFO2_DITHER_MODE |		
+                  GPS_INFO2_COLOR_MATCH	|	
+                  GPS_INFO2_ORIENT		|
+                  GPS_INFO2_GRAY_PRINT	|
+                  GPS_INFO2_RGB_COLOR	|	
+                  GPS_INFO2_ECO_COLOR	|	
+                  GPS_INFO2_FUSER_CTL       ;//126;
+  pageinfo2.bypass_dir=GPS_BYPASS_DIR_SEF;
+  pageinfo2.page_shift=GPS_PAGE_SHIFT_NONE;
+  pageinfo2.print_mode= GPS_PRINT_MODE_NORMAL;
+  pageinfo2.dither_mode[0] = GPS_DITHER_AUTO;
+  pageinfo2.dither_mode[1] = GPS_DITHER_AUTO;
+  pageinfo2.dither_mode[2] = GPS_DITHER_AUTO;
+  pageinfo2.dither_mode[3] = GPS_DITHER_AUTO;
+  pageinfo2.color_match[0] = GPS_COLOR_MATCH_OFF;
+  pageinfo2.color_match[1] = GPS_COLOR_MATCH_OFF;
+  pageinfo2.color_match[2] = GPS_COLOR_MATCH_OFF;
+  pageinfo2.color_match[3] = GPS_COLOR_MATCH_OFF;
+  pageinfo2.gray_print[0]=0;
+  pageinfo2.rgb_color_mode =0;
+  pageinfo2.eco_color =0;
+  pageinfo2.fuser_ctl =0;
+
+
+
+   /******Pagemode2 struc initialization ****/
+
+
+/******Pagemode2 struc initialization ****/
+  pagemode2.flag= GPS_PAGEMODEFLAG_FWIDTH |GPS_PAGEMODEFLAG_FLENGTH|GPS_PAGEMODEFLAG_BAND;
+  //pagemode2.frame_width =nOutputBytesPerLine;// nLinesInFrame ; //814;
+//  pagemode2.frame_width = ptRasterDescription->imageWidth ; //UPDATING VENKAT
+     pagemode2.frame_width = g_pstCurrentPage-> nPageWidthPixels;
+     pagemode2.frame_length =   g_pstCurrentPage-> nPageHeightPixels ;
+ // pagemode2.frame_length= nLinesInFrame;//nFramesToWrite; //   4760;
+  //pagemode2.band_length = nOutputLinesPerBand ; //2048;
+  pagemode2.band_length = ptRasterDescription->bandHeight; //UPDATING
+  for (i=0;i<32;i++)
+      pagemode2.res[i]=0;
+
+
+
+
+     /*************pagemode  struc initialization********/
+
+
+
+  pagemode.depth = g_pstCurrentJob->uRIPDepth; //1;
+    pagemode.rotate =  g_pstCurrentPage-> uOrientation ;
+    
+   // pageinfo.paper_width = ((g_pstCurrentPage -> nPageWidthPixels * 25.4)/g_pstCurrentJob->uXResolution)   ; //2970;
+
+
+ pageinfo.paper_width = ceil(((float)( g_pstCurrentPage -> nPageWidthPixels + LEFT_MARGIN+ RIGHT_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);
+  
+ //pageinfo2.paper_length= ((g_pstCurrentPage -> nPageHeightPixels * 25.4)/g_pstCurrentJob->uXResolution)    ; //2100;
+  
+ pageinfo.paper_length = ceil(((float)( g_pstCurrentPage -> nPageHeightPixels + TOP_MARGIN+BOTTOM_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);
+
+
+
+/* pageinfo.paper_width =ceil((( g_pstCurrentPage -> nPageWidthPixels + LEFT_MARGIN+RIGHT_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);
+ pageinfo.paper_length= ceil(((g_pstCurrentPage -> nPageHeightPixels + LEFT_MARGIN + RIGHT_MARGIN)*INCH_TO_0DOT1MM_FACTOR )/g_pstCurrentJob->uXResolution);*/
+ //   pageinfo.paper_length= ((g_pstCurrentPage -> nPageHeightPixels * 25.4)/g_pstCurrentJob->uXResolution)    ; //2100;
+   pageinfo.resolution_x =g_pstCurrentJob->uXResolution; //600;
+   pageinfo.resolution_y =g_pstCurrentJob->uXResolution; //600;
+    
+   pageinfo.paper_code=142;
+   pageinfo.input_tray= g_pstCurrentJob->tCurrentJobMedia.uInputTray;//15;
+  // set_paper_type(); 
+    pagemode.color_count = 4;
+  //pagemode.frame_width= nOutputBytesPerLine;// nLinesInFrame ; //6814;
+//  pagemode.frame_width= ptRasterDescription->imageWidth ; //UPDATING VENKAT
+     pagemode.frame_width = g_pstCurrentPage-> nPageWidthPixels; 
+      pagemode.frame_length =   g_pstCurrentPage-> nPageHeightPixels ;
+//  pagemode.frame_length= nLinesInFrame;//nFramesToWrite; //4760;
+  //pagemode.band_length= nOutputLinesPerBand ; //2048;
+  pagemode.band_length= ptRasterDescription->bandHeight; //UPDATING
+  pagemode.skip_level= 0;
+  pagemode.face = 1;
+  pagemode.upsidedown=0;
+//  pagemode.ra_id_k= 1;
+//  pagemode.ra_id_c=1;
+//  pagemode.ra_id_m=1;
+//  pagemode.ra_id_y=1;
+
+  pagemode.ra_id_k=rID[0];
+  pagemode.ra_id_c=rID[1];
+  pagemode.ra_id_m=rID[2];
+  pagemode.ra_id_y=rID[3];
+
+  pagemode.ra_offx_k=0;
+  pagemode.ra_offy_k=0;
+  pagemode.ra_offx_c=0;
+  pagemode.ra_offy_c=0;
+  pagemode.ra_offx_m=0;
+  pagemode.ra_offy_m=0;
+  pagemode.ra_offx_y=0;
+  pagemode.ra_offy_y=0;
+
+
+
+  
+  /*************pageinfo struc********/
+//  pageinfo.frame_width =  nOutputBytesPerLine;//nLinesInFrame;//6814;
+//  pageinfo.frame_width =  ptRasterDescription->imageWidth ; //UPDATING VENKAT
+     pageinfo.frame_width = g_pstCurrentPage-> nPageWidthPixels;
+     pageinfo.frame_length =  g_pstCurrentPage-> nPageHeightPixels ;
+//pageinfo.frame_length =  nLinesInFrame;//nFramesToWrite;//4760;
+  pageinfo.band_length = nOutputLinesPerBand ;//2048;
+  pageinfo.band_length = ptRasterDescription->bandHeight ;//UPDATING  
+  pageinfo.line_size=0;
+  pageinfo.xoffset =100;
+  pageinfo.yoffset=100;
+  pageinfo.compress=4;
+  pageinfo.color =1;
+  pageinfo.fci =0;
+  pageinfo.limitless_feed =1;
+  pageinfo.paper_count=g_pstCurrentJob->uPagesToPrint   ;//1;
+  pageinfo.count_off =0;
+
+
+
+  
+    set_paper_type(); 
+//need to check
+   pageinfo.line_size=0;
+   pageinfo.xoffset =100;
+   pageinfo.yoffset=100;
+   pageinfo.compress=4;
+
+
+    if(g_pstCurrentPage->eColorantFamily == OIL_ColorantFamily_CMYK || OIL_ColorantFamily_RGB)
+    {
+             pageinfo.color =1;
+    }
+    else if(g_pstCurrentPage->eColorantFamily == OIL_ColorantFamily_Gray )
+    {
+           pageinfo.color=0;
+    }
+    else
+    {
+            pageinfo.color=0;       //need to update
+    }
+
+  pageinfo.fci =0;
+  pageinfo.limitless_feed =1;
+  pageinfo.paper_count=g_pstCurrentJob->uPagesToPrint   ;//1;
+  pageinfo.count_off =0;
+
+   /*************************Call to gpsFrameCreateEx******************************/
+
+ printf("checkflag = %d\n",checkflag);
+  GPSFrameCreateExretval = GPS_FrameCreateEx(gps_client, PlotSet_plotid, &pagemode2, &pageinfo2, &framecreate_result);
+	if(GPSFrameCreateExretval)
+	{
+		printf("GPS_FrameCreateExval : Success\n");
+	}
+	else
+	{
+		printf("GPS_FrameCreateExval : Failed\n");
+	}
+
+ /*****************************Call to gpsFrameCreateInfoRes*****************************/
+
+
+    GPSFrameCreateInfoResretval = GPS_FrameCreateInfoRes(gps_client, PlotSet_plotid, &pagemode, &pageinfo, GPS_PRINT_NORMAL, &pFCR);
+	if(GPSFrameCreateInfoResretval>=0)
+	{
+		printf("GPS_FrameCreateInfoRes : Success\n");
+	}
+	else
+	{
+		printf("GPS_FrameCreateInfoRes : Failed\n");
+	}
+
+	ptRasterDescription->pageNumber = pFCR.frame_id;
+	gps_frameid = ptRasterDescription->pageNumber; // VENKAT - To make use ptRasterDescription->pageNumber in GPS_FramePrint() in oil_interface_oil2pms.c file
+
+	printf("nLinesInFrame = [%d]\n",nLinesInFrame);
+	printf("ptRasterDescription->bandHeight = [%d]\n",ptRasterDescription->bandHeight);
+#if 0
+	GPSMaxBandNum = (nLinesInFrame+ptRasterDescription->bandHeight-1)/ptRasterDescription->bandHeight;
+	printf("GPSMaxBandNum = [%d]\n",GPSMaxBandNum);
+    printf("nLinesInFrame = %d\n ptRasterDescription->bandHeight = %d\n",nLinesInFrame, ptRasterDescription->bandHeight);
+#endif
+
           /* Comment out the two following lines to use oil's hard-coded bandheight and rip's linewidth */
           nOutputLinesPerBand = stPMSBandInfo.LinesPerBand;
-          nOutputBytesPerLine = stPMSBandInfo.BytesPerLine;
+          nOutputBytesPerLine = ceil(((float)ptRasterDescription->imageWidth) /8); //stPMSBandInfo.BytesPerLine;
 
           if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND ||
               g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
               g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_FRAME)
           {
             /* create the band packet structure */
-            ptBandPacket = CreateBandPacket(nColorsInThisBand, nColorFamilyOffset, ptRasterDescription->nSeparations, nOutputBytesPerLine, nOutputLinesPerBand, Map);
+            ptBandPacket = CreateBandPacketForPage(nColorsInThisBand, nColorFamilyOffset, ptRasterDescription->nSeparations, nOutputBytesPerLine, nOutputLinesPerBand, Map);
             /* hook the band packet to the current page structure */
             g_pstCurrentPage->ptBandPacket=(void*)ptBandPacket;
             /* notify PMS that OIL is ready for rendering */
@@ -728,7 +988,7 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
           int32 topline = ptRasterDescription->imageHeight - nLinesToWrite - nLinesThisTime ;
           int32 linesThisChannel = nLinesThisTime ;
           int32 linesAtOnce = linesThisChannel ;
-
+          printf("\nchannelsPerBand = %d, linesThisChannel = %d, nLinesToWrite = %d",nchannelsPerBand, linesThisChannel, nLinesToWrite);
           do {
 #ifdef USE_PJL
             if(OIL_PjlShouldOutputPage(g_pstCurrentJob->uPagesParsed + 1, g_pstCurrentJob)==TRUE)
@@ -818,6 +1078,76 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
           nLinesThisTime = (nLinesThisTime < (nOutputLinesPerBand - nLinesAlreadyWritten))
             ? nLinesThisTime : (nOutputLinesPerBand - nLinesAlreadyWritten);
 
+          if(g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND)
+          {
+	            GPSMaxBandNum = (nLinesInFrame + ptRasterDescription->bandHeight - 1) / ptRasterDescription->bandHeight;
+                if(iBandNumber != 0 && iBandNumber < GPSMaxBandNum) 
+                {  
+                  
+                    int PlaneID = GPS_COLOR_K;
+                    for(j=0; j < OIL_MAX_PLANES_COUNT; j++)
+                    { 
+                        switch(Map[j])
+                        {
+                            case OIL_Cyan:
+                                PlaneID = GPS_COLOR_C;
+                                break;
+                            case OIL_Magenta:
+                                PlaneID = GPS_COLOR_M;
+                                break;
+                            case OIL_Yellow:
+                                PlaneID = GPS_COLOR_Y;
+                                break;
+                            case OIL_Black:
+                                PlaneID = GPS_COLOR_K;
+                                break;
+                            case OIL_InvalidColor:
+                            default:
+                            PlaneID = -1;
+                            break;
+                        }
+
+                        /* initialize the band planes */
+                        ptBandPacket->atColoredBand[j].uBandHeight = 0;
+                        ptBandPacket->atColoredBand[j].cbBandSize = 0;
+                        /* allocate memory for the band data only in valid planes, if
+                        we're not in band direct mode */
+                        if(g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND &&
+                        ptBandPacket->atColoredBand[j].ePlaneColorant != 7
+/*PMS_INVALID_COLOURANT*/)
+                        {
+                            /* GPS to Allocate memory for the Bands */
+
+                            GPSFrameGetBandResretval = GPS_FrameGetBandRes(gps_client,1,iBandNumber, PlaneID, &pFGBR); 
+                            if(!GPSFrameGetBandResretval)
+		                    {
+			                    printf("GPS_FrameGetBandRes : Success\n");
+                                ptBandPacket->atColoredBand[j].pBandRaster = pFGBR.band_addr;
+                                printf("------pfgbr size =%d\n",sizeof(*pFGBR.band_addr));
+                                    pDestPtr =  ptBandPacket->atColoredBand[j].pBandRaster;
+		                    }
+		                    else
+		                    {
+                                printf("GPS_FrameGetBandRes : Failed\n");
+                                ptBandPacket->atColoredBand[j].pBandRaster = NULL;
+		                    }
+
+                            if(!ptBandPacket->atColoredBand[j].pBandRaster)
+                            {
+                                HQASSERTV(g_pstCurrentptBandPacket->atColoredBand[j].pBandRaster!=NULL,
+                                ("Failed to allocate %d bytes", (nOutputLinesPerBand * nOutputBytesPerLine)));
+                                return NULL;
+                            }
+                        }
+                        else
+                        {
+                            ptBandPacket->atColoredBand[j].pBandRaster = NULL;
+                        }
+                   }
+              }
+          }
+
+
           if(g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
               g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_FRAME)
           {
@@ -863,8 +1193,31 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
           }
 
           /* loop to copy rasters into correct planes and hook them into g_pstCurrentPage */
-          for ( i = 0 ; i < nColorsInThisBand ; i++ )
+          int k;
+          for ( k = 0 ; k < nColorsInThisBand ; k++ )
           {
+
+            printf("\nColorsInThisBand = %d\n",nColorsInThisBand);
+            	switch(Map[k])
+                        {
+                            case OIL_Cyan:
+                                i = GPS_COLOR_C;
+                                break;
+                            case OIL_Magenta:
+                                i = GPS_COLOR_M;
+                                break;
+                            case OIL_Yellow:
+                                i = GPS_COLOR_Y;
+                                break;
+                            case OIL_Black:
+                                i = GPS_COLOR_K;
+                                break;
+                            case OIL_InvalidColor:
+                            default:
+                            	i = -1;
+                            break;
+                        }
+
             if(Map[i] == -1)
               continue;
             if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
@@ -907,13 +1260,13 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
             }
             else /*new band */
             {
-              if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND)
-              {
-                /* set pDestPtr to point to the allocated memory in the band buffer */
-                pDestPtr = ptCurrentBandPacket->atColoredBand[Map[i]].pBandRaster;
-              }
-              else
-              {
+                if (g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND)
+                {
+                    /* set pDestPtr to point to the allocated memory in the band buffer */
+ 	              pDestPtr = ptBandPacket->atColoredBand[i].pBandRaster;
+                }
+                else
+                {
                 /* allocate and initialize memory for the band */
 #ifdef PMS_OIL_MERGE_DISABLE_MEM
                 pBandBuffer = (unsigned char *)OIL_malloc(OILMemoryPoolJob, OIL_MemBlock, (nOutputLinesPerBand * nOutputBytesPerLine));
@@ -940,8 +1293,26 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
             {
               if(nOutputBytesPerLine == nBytesPerLineSrc)
               { /* the entire band can be written in 1 go */
-                  memcpy(pDestPtr, pSrcPtr, nLinesThisTime * nOutputBytesPerLine);
-                  pSrcPtr += nLinesThisTime * nBytesPerLineSrc;
+
+				for(line = 0; line < nLinesThisTime; line++)
+                {	
+                  memcpy(pDestPtr, pSrcPtr, nOutputBytesPerLine);
+                  pDestPtr += nOutputBytesPerLine;
+                  pSrcPtr += nBytesPerLineSrc;
+                }         
+                  //memcpy(pDestPtr, pSrcPtr, nLinesThisTime * nOutputBytesPerLine);
+                  //printf("-----------pdestptr address= %u-------\n",pDestPtr);
+ 	              //printf("-----------psrcptr address= %u-------\n",pSrcPtr);
+                  printf("iBandnumber = %d and for colorant = %d \n",iBandNumber, i);
+		          printf("-----------psrcptr = %s--------------\n",pSrcPtr);
+                  printf("pDestPtr = %s \n",pDestPtr);
+                  printf("\npSrcPtr = %s \n",pSrcPtr);
+                  printf("\nnLinesThisTime = %d\n nOutputBytesPerLine =%d\n",nLinesThisTime,nOutputBytesPerLine);
+                  
+		          //printf("---size of srcptr =  %d----\n",sizeof(*pSrcPtr));
+		          //printf("---size of Destptr =  %d----\n",sizeof(*pTemp));
+                  pSrcPtr += (nLinesThisTime * nBytesPerLineSrc); 
+
               }
               else if(nOutputBytesPerLine < nBytesPerLineSrc)
               { /* write only requested no of bytes per line */
@@ -966,6 +1337,7 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
             }
             else
             {
+                printf("\nIn RIP Conversion \n");
               /* Convert RIP 1bpp to 8bpp, 0x00 or 0xff */
               if((nRIPDepth==1) && (nOutputDepth==8))
               {

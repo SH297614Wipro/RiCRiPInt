@@ -37,6 +37,8 @@
 #include <stdio.h>
 #endif
 
+#include "gw_gps.h"
+
 #define PMS_TRAY_TRACE(_msg_, ...)
 /* #define PMS_TRAY_TRACE(_msg_, ...) printf(_msg_, ## __VA_ARGS__) */
 
@@ -55,6 +57,15 @@
 #ifdef USE_FF
 #include "pms_ff.h"
 #endif
+
+
+ extern gps_pageinfo2_t       pageinfo2;
+ extern gps_pageinfo_t        pageinfo;
+ extern gps_pageinfo_t pageinfo;
+ extern int FP_force=GPS_PRINT_NORMAL;
+ extern gwmsg_client_t     *gps_client ;
+ extern unsigned int gps_frameid;
+
 
 #ifdef UFST_ENABLED
 extern const unsigned char *g_fontset_fco;
@@ -653,6 +664,12 @@ int PMS_CheckinBand(PMS_TyBandPacket *ThisBand)
 {
   int i, nColorant;
   unsigned char   *pRasterBuffer;
+
+int GPSFramePrintInforetval;
+int GPSFramePrintretval;
+unsigned long FP_flag;
+
+
 #ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyPage *pstPageToPrint;
 #else
@@ -670,7 +687,33 @@ int PMS_CheckinBand(PMS_TyBandPacket *ThisBand)
     else
     {
       /* No RIP ahead, output the page and signal pagedone before returning */
-      PrintPage(g_pstCurrentPMSPage);
+
+	 GPSFramePrintInforetval = GPS_FramePrintInfo(gps_client, gps_frameid, &pageinfo2, &FP_flag);
+
+	 if(GPSFramePrintInforetval)
+	 {
+		printf("GPS_FramePrintInfo : Success\n");
+	 }
+	 else
+	 {
+		printf("GPS_FramePrintInfo : Failed\n");
+	 }
+         
+         printf("Before GPS_FramePrint() call, gps_frameid = [%d]\n",gps_frameid);
+	GPSFramePrintretval = GPS_FramePrint(gps_client, gps_frameid /*ptRasterDescription->pageNumber*/, &pageinfo, FP_force);
+	if(!GPSFramePrintretval)
+	{
+		printf("GPS_FramePrint : Success\n");
+	}
+	else
+	{
+		printf("GPS_FramePrint : Failed\n");
+	}
+		printf("After GPS_FramePrint() call, gps_frameid = [%d]\n",gps_frameid);
+
+
+
+     // PrintPage(g_pstCurrentPMSPage);
       OIL_PageDone(g_pstCurrentPMSPage);
       /* clear frame buffer so next page set up is called from oil */
       if ( gFrameBuffer != NULL )
@@ -728,7 +771,10 @@ int PMS_CheckinBand(PMS_TyBandPacket *ThisBand)
 #endif
           }
 
-          pRasterBuffer = (unsigned char*)OSMalloc(bytesPerBand, PMS_MemoryPoolPMS);
+         /* pRasterBuffer = (unsigned char*)OSMalloc(bytesPerBand, PMS_MemoryPoolPMS);*/
+
+	pRasterBuffer = (unsigned char*)malloc(bytesPerBand);/* change it back to OSMalloc, need to recheck */
+
           if(!pRasterBuffer)
           {
             PMS_SHOW_ERROR("\n**** Page Handler: Memory allocation failed **** \n\n");

@@ -44,7 +44,6 @@ int GWID_Event_Handler(void *cl, gwmsg_t *m);
 void Get_Env_var_From_GPS(OIL_TyJob *pstJob);
 
 int       gpsJobId, gpsPDLType;
-static gwmsg_GpsEv_Req_Proc_Data_t *processJobData;
 int  plotID, frameID;
 //int job_pdlid;
 int current_pdlid;

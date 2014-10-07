@@ -29,8 +29,12 @@
 #include "oil.h"
 #include "oil_cmm.h"
 #include "oil_interface_oil2pms.h"
-
+#include "gps/cl_color.h"
+#include "gps/pager.h"
+#include "colormatching.h"
+#include "gps/cml.h"
 #include <string.h>  /* memcpy */
+#include "gps/di_info.h"
 
 #define kInternalName  "CMM_OILExample"  /**< Short CMM name for configuration. */
 #define kDisplayName   "Custom color space example OIL CMM"  /**< UTF-8 CMM name for display. */
@@ -38,8 +42,183 @@
 #define kRGBChannelCount   (3)
 #define kCMYKChannelCount  (4)
 
+di_bgucrinfo_t *pBgucr;
+di_gcrinfo_t *pWishgcr;
+di_gcrinfo_t *pGcrhgr;
+unsigned char** ppucSrcGam;
+di_dropinfo_t* pDropinfo;
+
+#define GPS_CLR_PLANE 4
+
+long CMMalloc(unsigned long size, void* lprh);
+void CMMfree(void* addr, void* lprh);
+long            cmm = 0;
+unsigned long cmmProfile = 0;
 /* extern variables */
 extern OIL_TyJob *g_pstCurrentJob;
+extern di_devinfo_GPS_t *devinfo;
+
+/* ------------ */
+int nGrayMode = 0;
+int nObjMode  = 0;
+unsigned long ulFlag = 0/*16908811*/;
+void* ColorData;
+/* New */
+ulong ulOpe;
+unsigned char ucColorMode;
+/* New */
+
+extern di_tlimitinfo_t  tlimit;
+extern di_ditinfo_t   dit[GPS_CLR_PLANE];
+
+void setColorProfile()
+{
+    unsigned char* pProfilePath = NULL;
+    Color_State_CP* pColorProfile = NULL;
+    pColorProfile = get_color_state_CP( pcl5_current_context() );
+
+    switch( pColorProfile->nColorProfile)
+    {
+        case NO_COLOR_MATCH:    
+             cmmProfile   = NO_COLOR_MATCH;
+             break;
+        case TEXT_COLOR_MATCH:  
+             cmmProfile = TEXT_KEY;
+             break;
+        case VIVID_COLOR_MATCH: 
+             cmmProfile = VIVID_KEY;
+             break;
+        case OUT_OF_GAMUT:  
+             cmmProfile = GRADA_KEY;
+             break;    
+        default: 
+             break;
+            
+    }
+}
+
+void setColorMode()
+{ 
+    switch( g_pstCurrentJob->eColorMode )
+    {
+         case OIL_Mono: //MONO
+              ulOpe = PR_DEVICE_MONO;
+              break;
+         case OIL_CMYK_Separations:
+         case OIL_CMYK_Composite:
+              ulOpe = PR_DEVICE_CMYK;
+              break;
+         case OIL_RGB_Separations:
+         case OIL_RGB_Composite:
+         case OIL_RGB_PixelInterleaved:
+              ulOpe = PR_DEVICE_RGB;
+              break;
+    }
+
+	// Setting of bit depth
+	
+	switch (ulOpe & PR_DEPTH_MASK)
+	{
+		case PR_DEPTH_1BIT:
+			ucColorMode = COLOR_DEPTH_1;
+			break;
+		case PR_DEPTH_2BIT:
+			ucColorMode = COLOR_DEPTH_2;
+			break;
+		case PR_DEPTH_4BIT:
+			ucColorMode = COLOR_DEPTH_4;
+			break;
+		case PR_DEPTH_8BIT:
+			ucColorMode = COLOR_DEPTH_8;
+			break;
+		default:
+			break;
+	}
+
+	// Setting of device color
+    // When appointment of the device color and type ability does not agree,
+	// the black and white
+	switch (ulOpe & PR_DEVICE_MASK)
+	{
+		case PR_DEVICE_MONO:	// MONO
+			ucColorMode |= PAGE_COLOR_K;
+			break;
+		case PR_DEVICE_CMY:	// CMY
+			// It corresponds with Gray conversion mode
+			if (devinfo->nplane >= 4)
+			{
+					/*m_ulVectorGray = SET_GRAY_IMAG(GRAY_CMY)
+					| SET_GRAY_GRAP(GRAY_CMY)
+					| SET_GRAY_TEXT(GRAY_CMY)
+					| SET_GRAY_LINE(GRAY_CMY);*/
+					ucColorMode |= PAGE_COLOR_CMY;
+			}
+			else
+			{
+					ucColorMode |= PAGE_COLOR_K;
+			}
+			break;
+	    /* CMM : For RK and RK2 Need to get confirmation from customer regarding INPUTS */
+		case PR_DEVICE_RK:	// It is dark red two colors
+			if (devinfo->nplane >= 2)
+			{
+					ucColorMode |= PAGE_COLOR_RK;
+			}
+			else
+			{
+				ucColorMode |= PAGE_COLOR_K;
+			}
+			break;
+		case PR_DEVICE_RK2:	// It is dark red two colors
+			if (devinfo->nplane >= 2)
+			{
+				ucColorMode |= PAGE_COLOR_RK2;
+			}
+			else
+			{
+				ucColorMode |= PAGE_COLOR_K;
+			}
+			break;
+		case PR_DEVICE_CMYK:	// CMYK
+			if (devinfo->nplane >= 4)
+			{
+				ucColorMode |= PAGE_COLOR_CMYK;
+			}
+			else
+			{
+				ucColorMode |= PAGE_COLOR_K;
+			}
+			break;
+		case PR_DEVICE_RGB:	// RGB
+		default:
+				
+			//error(prh->m_objError.m_ulErrCode = PR_ERR_SYNTAX);
+			return PR_ERROR;
+		}
+    
+}
+
+int getModeID()
+{
+	int modeID;
+	di_resolutioninfo_t	*reso_set = devinfo->reso_set;
+
+    for( modeID = 0; modeID < devinfo->resonum; modeID++, reso_set++)
+    {
+        if( ( reso_set->x == g_pstCurrentJob->uXResolution ) &&
+            ( reso_set->y == g_pstCurrentJob->uYResolution ) &&
+            ( reso_set->bit == g_pstCurrentJob->uRIPDepth ) &&
+            ( reso_set->dit_mode == 0/*PHOTO_DRAWMODE*/ ) &&
+            ( reso_set->prt_mode == 2/*GPS_PRINT_MODE_NORMAL*/ ) &&
+            ( reso_set->paper == 1/*pageparam.paper_type*/ ) )
+        {
+            return modeID;
+        }
+            
+    }
+    
+	return 0;
+}
 
 /**
  * @brief  Array of supported custom color spaces.
@@ -191,17 +370,39 @@ static void AllBlackText(float cmykValue[])
  */
 static void TextColorMapFeaturesCMYK(float cmykValue[])
 {
-  HQASSERT((cmykValue != NULL), "CMM: TextColorMapFeaturesCMYK invalid CMYK");
+    HQASSERT((cmykValue != NULL), "CMM: TextColorMapFeaturesCMYK invalid CMYK");
 
-  if (g_pstCurrentJob->bBlackSubstitute)
+    unsigned char ucRGB[4];
+
+    ucRGB[1]=(unsigned char)(cmykValue[0]*255);
+    ucRGB[2]=(unsigned char)(cmykValue[1]*255);
+    ucRGB[3]=(unsigned char)(cmykValue[2]*255);
+
+    if( ucColorMode )
+    {
+        ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB | CR_ATTR_TEXT;
+    }
+    
+    setRGB( (void*)ColorData, ulFlag, nGrayMode, ppucSrcGam, nObjMode,
+			 	ucColorMode, (unsigned char*) ucRGB, kCMYKChannelCount);
+
+    cmykValue[3]=(float)(ucRGB[0]);///255.0;
+    cmykValue[0]=(float)(ucRGB[1])/255.0;
+    cmykValue[1]=(float)(ucRGB[2])/255.0;
+    cmykValue[2]=(float)(ucRGB[3])/255.0;
+
+    /*ORIGINAL*/
+  /*if (g_pstCurrentJob->bBlackSubstitute)
     BlackSubstitute(cmykValue);
   if (g_pstCurrentJob->bPureBlackText)
     PureBlackText(cmykValue);
   if (g_pstCurrentJob->bAllTextBlack)
     AllBlackText(cmykValue);
 
-  /* The PMS now has a chance to change the values */
-  (void)PMS_CMYKtoCMYK(cmykValue);
+  /* The PMS now has a chance to change the values 
+  (void)PMS_CMYKtoCMYK(cmykValue); */
+
+  
 }
 
 /**
@@ -243,15 +444,41 @@ static void OtherColorMapFeaturesCMYK(float cmykValue[])
  */
 static void DefaultColorMapFeaturesRGB(float rgbInCMYKOutValue[])
 {
-  float rgbValue[3];
-  HQASSERT((rgbInCMYKOutValue != NULL), "CMM: DefaultColorMapFeaturesRGB invalid color array");
+    unsigned char ucRGB[4];
 
-  rgbValue[0] = rgbInCMYKOutValue[0];
-  rgbValue[1] = rgbInCMYKOutValue[1];
-  rgbValue[2] = rgbInCMYKOutValue[2];
+    HQASSERT((rgbInCMYKOutValue != NULL), "CMM: DefaultColorMapFeaturesRGB invalid color array");
 
-  /* The PMS now has a chance to change the values */
-  (void)PMS_RGBtoCMYK(rgbValue, rgbInCMYKOutValue);
+    ucRGB[1]=(unsigned char)(rgbInCMYKOutValue[0]*255);
+    ucRGB[2]=(unsigned char)(rgbInCMYKOutValue[1]*255);
+    ucRGB[3]=(unsigned char)(rgbInCMYKOutValue[2]*255);
+
+    if( ucColorMode )
+    {
+        ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB;
+    }
+    else
+    {
+        //ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB;
+    }
+    
+    setRGB( (void*)ColorData, ulFlag, nGrayMode, ppucSrcGam, nObjMode,
+			 	ucColorMode, (unsigned char*) ucRGB, kCMYKChannelCount);
+
+    rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
+    rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
+    rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
+    rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
+
+      /* ORIGINAL */
+      /*float rgbValue[3];
+
+      rgbValue[0] = rgbInCMYKOutValue[0];
+      rgbValue[1] = rgbInCMYKOutValue[1];
+      rgbValue[2] = rgbInCMYKOutValue[2];*/
+
+      /* The PMS now has a chance to change the values 
+      (void)PMS_RGBtoCMYK(rgbValue, rgbInCMYKOutValue);*/
+
 }
 
 /**
@@ -313,7 +540,46 @@ static void cmmMemFree(sw_memory_instance *instance, void* p)
   HQASSERT(instance->implementation->free != NULL, "No memory API free");
   instance->implementation->free(instance, p);
 }
+///////////////////////////////////////////////////////////////////////////////
+//Function      :CMMalloc
+//Description   :Malloc function
+//Arguments     :
+//              :unsigned long size:[IN]
+//              :void *inst:[IN]
+//Return value  :long:Handle to Memory, PR_ERROR->Error
+///////////////////////////////////////////////////////////////////////////////
+long
+CMMalloc(unsigned long size, void *inst)
+{
+sw_memory_instance *instance =(sw_memory_instance *)inst;
+	
+  HQASSERT(instance, "No memory API instance") ;
+  HQASSERT(instance->implementation != NULL, "No memory API implementatio");
+  HQASSERT(instance->implementation->info.version >= SW_MEMORY_API_VERSION_20071110,
+           "Memory API version insufficient");
+  HQASSERT(instance->implementation->free != NULL, "No memory API free");
+ return ((long)(instance->implementation->alloc(instance, size)));
 
+}
+///////////////////////////////////////////////////////////////////////////////
+//Function      :CMMfree
+//Description   : Free function
+//Arguments     :
+//              :void* addr:[IN]
+//              :void* inst:[IN]
+//Return value  :void
+///////////////////////////////////////////////////////////////////////////////
+void
+CMMfree(void* addr, void* inst)
+{
+sw_memory_instance *instance =(sw_memory_instance *)inst;
+  HQASSERT(instance, "No memory API instance") ;
+  HQASSERT(instance->implementation != NULL, "No memory API implementatio");
+  HQASSERT(instance->implementation->info.version >= SW_MEMORY_API_VERSION_20071110,
+           "Memory API version insufficient");
+  HQASSERT(instance->implementation->free != NULL, "No memory API free");
+  instance->implementation->free(instance, addr);
+}
 /**
  * @brief Construct an instance of the @c sw_cmm_api interface.
  *
@@ -354,6 +620,26 @@ static sw_cmm_result RIPCALL ccs_construct(sw_cmm_instance *instance)
   instance->maximum_output_channels = kCMYKChannelCount;
   instance->allow_retry = FALSE;
 
+/*	cmm = CMM_Init(cmmMemAlloc, cmmMemFree, NULL, 33554432);	*/
+	cmm = CMM_Init((long (*)())CMMalloc,(void (*)())CMMfree,(void *)(instance->mem), 12000);
+
+	gps_color_profile_info_GPS_t *profaddress = (gps_color_profile_info_GPS_t *)devinfo->profaddress;
+	while (devinfo->profnumber--)
+	{
+		printf("CMM_OpenProfile() for [%s]\n",profaddress->path); 
+		printf("[CMM]profaddress->key = [0x%x], profaddress->path = [%s]\n", profaddress->key, profaddress->path);
+
+		if (CMM_OK != CMM_OpenProfile(cmm, FILEBASE, profaddress->path, profaddress->key))
+		{
+			printf ("[CMM] CMM_OpenProfile() failed for [%s]\n",profaddress->path);
+		}
+
+		profaddress++;
+
+	}
+
+
+/* 	cmmMemAlloc(instance->mem, sizeof(CMM_PROFILE));*/
   return SW_CMM_SUCCESS ;
 }
 
@@ -614,6 +900,23 @@ static sw_cmm_result RIPCALL ccs_invoke_transform(sw_cmm_instance *instance,
 
   UNUSED_PARAM(sw_cmm_instance *, instance);
 
+  /* Call the Shared Memory function */
+  setColorProfile();
+  setColorMode();
+  int id = getModeID();
+  if( id < 0 )
+  {
+	 return -1;
+  }
+    
+  pBgucr      = (di_bgucrinfo_t *) devinfo->bgucr_info + id;
+  pWishgcr    = (di_gcrinfo_t *) devinfo->gcr_info + id;
+  pGcrhgr     = (di_gcrinfo_t *) devinfo->gcrhgr_info + id;
+  pDropinfo   = (di_dropinfo_t*) devinfo->drop_info;
+  ppucSrcGam  = devinfo->gamma_info + (id * GPS_CLR_PLANE);
+
+  ColorData   = getColorData( cmm, pDropinfo, 663, pBgucr, pWishgcr, pGcrhgr, cmmProfile );
+    
   /* Call array of CMYKColorMappingFunc values for each pixel */
   nPixelInIndex = 0;
   nPixelOutIndex = 0;

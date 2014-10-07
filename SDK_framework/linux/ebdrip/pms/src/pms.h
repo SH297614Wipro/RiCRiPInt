@@ -77,7 +77,7 @@
 /*! \brief Number of trays avilable. */
 #define PMS_MAX_TRAY 3
 
-#define DEFAULT_WORKING_MEMSIZE  10           /* may need to change later */
+#define DEFAULT_WORKING_MEMSIZE  30           /* may need to change later */
 
 #ifdef PMS_DEBUG
 

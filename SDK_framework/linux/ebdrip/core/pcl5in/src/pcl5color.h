@@ -14,12 +14,15 @@
 #include "pcl5context.h"
 #include "printenvironment.h"
 
-
 #define HACK 1     /* Only C99 likes [] as the struct hack, so [1] it must be */
 
 #define PCL_COLOR_IS_WHITE 1
 #define PCL_COLOR_IS_BLACK 2
 #define PCL_COLOR_IS_SHADE 3
+
+/* Updated for CMM */
+#define PCL_GRAY_REPRODUCTION 110 /* hex = 6e */
+#define PCL_COLOR_MAPPING 4
 
 /* PCL5 color space. */
 enum {

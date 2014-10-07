@@ -27,6 +27,7 @@
 #include "objects.h"
 
 #include "swpfinapi.h"
+#include "mh.h"
 
 
 /* Reasons for setting MPE from device */
@@ -81,6 +82,9 @@ typedef struct PCL5PrintState {
 
   /* Palette Store, Palette Stack, etc */
   ColorState color_state ;
+  
+  /* Added for CMM */
+  Color_State_CP sColor_State_CP ;
 
   /* HP-GL/2 Items
      Current Pen Position

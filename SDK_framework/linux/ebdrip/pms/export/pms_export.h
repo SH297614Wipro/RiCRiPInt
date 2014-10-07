@@ -50,6 +50,12 @@
 #ifndef PMS_OIL_MERGE_DISABLE
 #include "oil.h"
 #endif
+
+/*
+Max path length for HDD path.
+*/
+#define GPS_MAX_HDD_PATH_LEN	64
+
 /**
  * \brief List of function pointers to PMS callback functions.
  *
@@ -1052,6 +1058,15 @@ typedef struct PMS_TyFileSystem
 
 } PMS_TyFileSystem;
 
+typedef struct PMS_HddInfo
+{
+	char	stat;						/* status        */
+	char	path[GPS_MAX_HDD_PATH_LEN];			/* path          */
+	long	f_bsize;					/* block size    */
+	long	f_blocks;					/* total blocks  */
+	long	f_bfree;					/* free blocks   */
+	long	reserve;					/* reserve       */
+} PMS_HddInfo;
 
 /*! \brief Turn on and off PMS Log Message.
 */

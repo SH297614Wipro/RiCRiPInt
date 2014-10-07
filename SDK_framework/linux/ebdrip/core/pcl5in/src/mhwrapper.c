@@ -2,11 +2,22 @@
  * in group pcl5in
  * Contains wrapper implementations to update media attributes
  */
-
 #include "mhwrapper.h"
 #include "pcl5context.h"
+
+#define GPS_PRINT_MODE_NONE			(0)
+
 PCL5Context *pcl5_ctxt;
-Uint32 mediatype, pagesize, orientation, papersource, pagewidth, pagelength, custompagewidth, custompagelength;
+int mediatype;
+int pagesize;
+int orientation;
+int papersource;
+int pagewidth;
+int pagelength;
+int custompagewidth;
+int custompagelength;
+int binding;
+int duplex;
 
 static void CurrentContext()
 {
@@ -47,7 +58,7 @@ int GetMediaType()
     }
     else
     {
-        return 0; /*media type plain*/
+        return PMS_TYPE_PLAIN;
     }
 }
 
@@ -63,7 +74,7 @@ OMenum GetPaperSource()
     }
     else
     {
-        return 7; /*tray auto*/
+        return PMS_PCL5TRAY_AUTO;
     }        
 }
 
@@ -78,7 +89,7 @@ Uint32 GetPageSize()
     }
     else 
     {
-        return (26); /*A4 papersize*/
+        return PMS_PCL5_A4;
     }
 }
 
@@ -166,7 +177,7 @@ Uint32 GetBinding()
     }
     else 
     {
-         return 0; /* simplex*/
+         return SHORT_EDGE;
     }
 }
 
@@ -179,11 +190,7 @@ Uint32 GetDuplex()
     {
 	    return job_ctrl_info->duplex;
     }
-    else 
-    {
-        return 0; /*simplex binding*/
-    }
-}
+ }
 
 int32 GetOrientation()
 {
@@ -194,15 +201,11 @@ int32 GetOrientation()
     {
         return page_ctrl_info->orientation;
     }
-    else
-    {
-        return 0; /*default portrait*/
-    }
 }
 
 int32 GetQualityMode()
 {
-  return 0;
+    return GPS_PRINT_MODE_NONE;
 }
 
 int getMhPageSize()

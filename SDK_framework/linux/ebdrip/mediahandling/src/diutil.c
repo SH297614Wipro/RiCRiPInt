@@ -3,17 +3,74 @@
 #include "mhwrapper.h"
 #endif
 #include "pageprint.h"
+#include "gw_gps.h"
+#include "gpssim.h"
 #include "omstub.h"
+#include "diutil.h" 
+#include "gps/di_getinfo.h" 
+#include "gps/di_info.h"
+
+
+extern gps_trayinfo_t *gpsTrayInfo;
+extern gps_bininfo_t *gpsBinInfo;
+extern gwmsg_client_t *gps_client ;
+extern gps_sysinfo_t  sysinfo;
+int CMDTYPE_PAPERSRC = 1;
+int CMDTYPE_XLPAPERSRC = 2;
+int CMDTYPE_OUTBIN = 2;
+#define MIN(a,b)	((a) < (b) ? (a) : (b))
 
 #define	PR_PRINT_MODE_MASK			(0x0F)
 #define GPS_CHKDIR_RESOLUTION	(1<<3)
 #define NOT_CHANGE 0
 #define _enum_None 0
+#define NUMOF_TRAYBINTBL  2
+#define NUMOF_TRAYBINITEM 32
 
 di_devinfo_t diDevInfo;
 long CustomSizeWidth;
 long CustomSizeLength;
 gps_chkdirprm_t condition;
+
+
+void PrintSysStart_GPS()
+{
+        int bsw3, bsw5, bsw8, bsw4, bsw1;
+		unsigned int penwidth_extend;	
+
+        bsw3 = gpsGetBitSw(gps_client, BIT_SW_003);
+        printf("bsw3 = [%d]\n",bsw3);
+        penwidth_extend = (bsw3 & (1 << 3)) ? TRUE : FALSE;
+        printf("Inside PrintSysStart_GPS(), penwidth_extend = [%d]\n",penwidth_extend);
+
+        bsw5 = gpsGetBitSw(gps_client, BIT_SW_005);
+        printf("bsw5 = [%d]\n",bsw5);
+/*      BitSWConfig.is_mixedrot_old = (bsw5 & (1 << 6)) ? TRUE : FALSE;		*/
+
+        bsw8 = gpsGetBitSw(gps_client, BIT_SW_008);
+        printf("bsw8 = [%d]\n",bsw8);
+
+        bsw4 = gpsGetBitSw(gps_client, BIT_SW_004);
+        printf("bsw4 = [%d]\n",bsw4);
+/*      BitSWConfig.is_direction_SEF = (bsw4 & (1 << 6)) ? TRUE : FALSE;	*/
+
+        bsw1 = gpsGetBitSw(gps_client, BIT_SW_001);
+        printf("bsw1 = [%d]\n",bsw1);
+/*      BitSWConfig.is_timeout_invalid = (bsw1 & (1 << 6)) ? TRUE : FALSE;	*/
+
+}
+
+void di_getinfo_GPS_update(di_devinfo_GPS_t *devinfo, char *dither_gamma_file)
+{
+	int val;
+
+	printf("Entered di_getinfo_GPS_update()..\n");
+
+	val = di_getinfo_GPS(devinfo, dither_gamma_file);
+
+	printf("di_getinfo_GPS() returned [%d]\n",val);
+	printf("Exiting di_getinfo_GPS_update()..\n");
+}
 
 int PrintSysCheckQualityMode (int *om_media, OMenum *om_qmode)
 {
@@ -375,3 +432,112 @@ Boolean PrintSysInserterMatchPaperSize(void)
 	return FALSE;
 }
 #endif /*SUPPORT_INSERTER*/
+/*  mnInitTrayBinCmd(CmdType type, OMenum * traybintbl, int ntraybin)
+ *
+ *  Purpose: initialize static tray/bin table
+ */
+void mnInitTrayBinCmd(CmdType type, OMenum * traybintbl, int ntraybin)
+{
+	int index;
+	static OMenum         current_traybin_tbl[NUMOF_TRAYBINTBL][NUMOF_TRAYBINITEM];
+	static int         current_ntraybin[NUMOF_TRAYBINTBL];
+	/*ASSERT(traybintbl);*/
+	/* Because there must be no PAPERSRC_ALL in 'traybintbl' */
+	if (type == CMDTYPE_PAPERSRC || type == CMDTYPE_XLPAPERSRC) {
+		current_traybin_tbl[type / 2][0] = PAPERSRC_ALL;
+	}
+
+	current_ntraybin[type / 2] = MIN(ntraybin + 1, NUMOF_TRAYBINITEM);
+	/*current_ntraybin[type / 2] = min(ntraybin + 1, NUMOF_TRAYBINITEM);*/
+	for (index = 1; index < current_ntraybin[type / 2]; ++index) {
+		current_traybin_tbl[type / 2][index] = traybintbl[index - 1];
+	}
+}
+
+/*  PrintSysReinitTrayInfo(void)
+ *
+ *  Purpose: reset intray information if it has changed
+ */
+void PrintSysReinitTrayInfo()
+{
+	int SIZEOF_TRAYBINTBL = 10;
+	gps_trayinfo_t  *trayinfo, *trayinfoPtr;
+	OMenum         traytbl[SIZEOF_TRAYBINTBL];
+	int            i;
+	int				num;
+	long			*tray_cnt;
+	int				notify = 0;
+	static gwmsg_client_t gpsClient;
+	static gwmsg_client_t *gps_client = &gpsClient;
+	//static gps_sysinfo_t *sysinfo;
+	    if( 0 != gpsGetSysInfo(gps_client, &sysinfo) )    
+		return -1;
+	num = sysinfo.num_tray;
+/*#ifdef DI_ENV_VAR_ID_PCLTRAYALLPARAM*/
+	int            j;
+/*#endif*/
+	/*gps_trayinfo_t *gpsTrayInfo;*/  
+	trayinfo = (gps_trayinfo_t*) malloc(num * sizeof(gps_trayinfo_t));
+
+
+	if (gpsGetTrayInfo(&gps_client, num, trayinfo, &tray_cnt, notify)!= 0)
+	{
+		/*LOGMPRINTF1(0x212, "[%s]0212 di_get_trayinfo error\n", PDLNAME);*/
+		printf("gpsGetTrayInfo returned error...");
+		return;
+	}
+	/*LOGMPRINTF2(0x212, "[%s]0212 di_get_trayinfo %d\n", PDLNAME, trayinfo.tray_num);*/
+	for (i = 0; i < num; ++i) {
+		/*traytbl[i] = mnHdwPaperSourcetoOM(trayinfo.trayinfo[i].id);*/
+		traytbl[i] = trayinfo[i].id;
+/*#ifdef DI_ENV_VAR_ID_PCLTRAYALLPARAM*/
+		/*for (j = 0; j < DIMOF_TRAYPARAMMAP - 1; j++) {
+			if (traytbl[i] == PenvTrayParamMap[j].PaperSource) {
+				PenvTrayParamMap[j].install = 1;
+				break;
+			}
+		}*/
+		//trayinfoPtr++;
+/*#endif*/
+	}
+	mnInitTrayBinCmd(CMDTYPE_PAPERSRC, traytbl, num);
+}
+
+/*  PrintSysReinitBinInfo(void)
+ *
+ *  Purpose: reset outbin information if it has changed
+ */
+void PrintSysReinitBinInfo()
+{
+	int SIZEOF_TRAYBINTBL = 10;
+	int CMDTYPE_OUTBIN = 2;
+	gps_bininfo_t  *bininfo, *bininfoPtr;
+	OMenum         bintbl[SIZEOF_TRAYBINTBL];
+	int            i;
+	int				num;
+	long			*tray_cnt;
+	int				notify = 0;
+	
+	static gwmsg_client_t gpsClient;
+	static gwmsg_client_t *gps_client = &gpsClient;
+	//static gps_sysinfo_t *sysinfo;
+	    if( 0 != gpsGetSysInfo(gps_client, &sysinfo) )    
+		return -1;
+	num = sysinfo.num_bin;
+		/*gps_bininfo_t *gpsBinInfo;*/  
+	bininfo = (gps_bininfo_t*) malloc(num * sizeof(gps_bininfo_t));
+	if (gpsGetBinInfo(&gps_client, num, bininfo, &tray_cnt, notify)!= 0)
+	{
+		/*LOGMPRINTF1(0x113, "[%s]0113 di_get_bininfo error\n", PDLNAME);*/
+		printf("gpsGetBinInfo returned error...");
+		return;
+	}
+	/*LOGMPRINTF2(0x113, "[%s]0113 di_get_bininfo %d\n", PDLNAME, bininfo.bin_num);*/
+	for (i = 0; i < num; ++i) 
+	{
+		/*bintbl[i] = mnHdwOutBinOM(bininfo.bininfo[i].id);*/
+		bintbl[i] = bininfo[i].id;
+		//bininfoPtr++;
+	}
+	mnInitTrayBinCmd(CMDTYPE_OUTBIN, bintbl,num);
+}

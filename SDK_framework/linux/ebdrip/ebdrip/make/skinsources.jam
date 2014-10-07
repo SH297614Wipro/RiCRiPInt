@@ -25,8 +25,6 @@ AddToVar Local : SkinSources :
   oil$/src$/oil_ebddev.h
   oil$/src$/oil_psconfig.h
   oil$/src$/oil_psconfig.c
-  oil$/src$/diutil_func.c
-  oil$/src$/diutil_func.h
   oil$/src$/oil_entry.c
   oil$/src$/oil_interface_oil2pms.c
   oil$/src$/oil_interface_oil2pms.h
@@ -75,8 +73,18 @@ AddToVar Local : SkinSources :
   oil$/src$/gwid_eventhandle.c
   oil$/src$/gwid_eventhandle.h
   oil$/src$/GPSWrapper.c
-;
+  oil$/src$/colormatching.h
+  ;
 
+AddToVar Local : SkinSources :
+  CMM$/src$/PRColor.cpp
+  CMM$/src$/cl_color_prv.h
+  CMM$/src$/cl_linear_index_prv.h
+  CMM$/src$/colormatching.h
+  CMM$/src$/config.h
+  CMM$/src$/types.h
+ ;
+ 
 AddToVar Local : SkinSources :
   oil$/src$/oil_ebd1bpp.h
   oil$/src$/oil_ebd1bpp.c
@@ -160,6 +168,9 @@ AddToVar Local : SkinSources :
   gpsexport$/gps$/ujobparam.h
   gpsexport$/gps$/ustatusparam.h
   gpsexport$/gps$/wishgcr.h
+  gpsexport$/gps$/cl_color.h
+  gpsexport$/gps$/di_getinfo.h
+  gpsexport$/gps$/di_info.h
 ;
 
 AddToVar Local : SkinSources :
@@ -252,6 +263,7 @@ AddToVar Local : SkinSources :
   mediahandling$/src/di_errorcode.h
   mediahandling$/src/pageprint.h
   mediahandling$/src$/diutil.c
+  mediahandling$/src$/diutil.h
   mediahandling$/src$/omstub.c
   mediahandling$/src$/omstub.h
   mediahandling$/src$/paperricoh.c
@@ -259,6 +271,7 @@ AddToVar Local : SkinSources :
   mediahandling$/src$/ricohpaper.h
   mediahandling$/src$/ricohqman.c
   mediahandling$/src$/mh.h
+  mediahandling$/src$/di_info.c
 ;
 
 if $(Variant_ebd_ufst) = eufst5o || $(Variant_ebd_ufst) = eufst5y || exportsrc in $(JAM_ARGUMENTS)

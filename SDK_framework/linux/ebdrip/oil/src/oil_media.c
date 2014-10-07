@@ -132,10 +132,16 @@ void GetTrayInformation(char *pBuf)
         ClipWidth = pstPMSPaper->dWidth - ClipLeft - (pstPMSPaper->nRightUnprintable * 0.000072);
         ClipHeight = pstPMSPaper->dHeight - ClipTop - (pstPMSPaper->nBottomUnprintable * 0.000072);
 
-        sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
+/*        sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
                            ClipLeft,
                            ClipTop,
                            ClipLeft + PADDED_ALIGNEMENT(ClipWidth, g_pstCurrentJob->uRIPDepth, g_pstCurrentJob->uXResolution),
+                           ClipTop + ClipHeight);*/
+
+sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
+                           ClipLeft,
+                           ClipTop,
+                           ClipLeft + ClipWidth,
                            ClipTop + ClipHeight);
       }
       else
@@ -212,7 +218,7 @@ void GetTrayInformation(char *pBuf)
     strcat(pBuf, "    0 null\n");
   }
   if (bNeedAttrib1) {
-    strcat(pBuf, "    1 null\n");
+    strcat(pBuf, "    0 null\n");
   }
   /* add the priority if required */
   if(InputTrayPriority[0] != 0)
@@ -310,6 +316,7 @@ void GetOutputInformation(char *pBuf)
     strcat(pBuf, "     >> \n");
   }
   /* check to verify OutputAttribute 0 has been included, if not set to null to overwrite RIP default */
+  bNeedAttrib0 = TRUE;
   if (bNeedAttrib0) {
     strcat(pBuf, "    0 null\n");
   }

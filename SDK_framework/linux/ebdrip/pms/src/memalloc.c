@@ -5,16 +5,16 @@ BLK FL = NULL;
 BLK AL = NULL; 
 static long memcount=0;
 static long maxmem = 0;
-long sz=ALLOCSZ;
 char *ripAddr = NULL;
 extern caddr_t memaddr;
+extern long szFreeBytes;
 int minit()
 {
     FL = (BLK) memaddr;
     if(FL!=NULL)
     {
         FL->next =  NULL;
-        FL->msize = ALLOCSZ - sizeof(struct memblk);
+        FL->msize = szFreeBytes - sizeof(struct memblk);
     }
     else
     {

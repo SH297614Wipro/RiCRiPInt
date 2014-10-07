@@ -4,7 +4,6 @@
 #include <string.h>
 #include "gps/gps_client.h"
 #include "gps/gwipc.h"
-#include "bfd.h"
 #include "gw_gps.h"
 #include "gps_func.h"
 #include "modelinfo.h"

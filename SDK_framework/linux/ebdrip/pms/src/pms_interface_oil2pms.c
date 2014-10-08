@@ -667,6 +667,7 @@ int PMS_CheckinBand(PMS_TyBandPacket *ThisBand)
 
 int GPSFramePrintInforetval;
 int GPSFramePrintretval;
+int GPSFrameCloseretval;
 unsigned long FP_flag;
 
 
@@ -709,7 +710,17 @@ unsigned long FP_flag;
 	{
 		printf("GPS_FramePrint : Failed\n");
 	}
-		printf("After GPS_FramePrint() call, gps_frameid = [%d]\n",gps_frameid);
+	printf("After GPS_FramePrint() call, gps_frameid = [%d]\n",gps_frameid);
+
+    GPSFrameCloseretval = GPS_FrameClose(gps_client, gps_frameid);
+    if(!GPSFrameCloseretval)
+    {
+        printf("GPS_FrameClose : Success\n");
+    }
+    else
+    {
+        printf("GPS_FrameClose : Failed\n");
+    }
 
 
 

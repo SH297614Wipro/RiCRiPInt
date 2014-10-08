@@ -2118,7 +2118,11 @@ Bool pcl5op_star_o_W(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numeric va
   	return FALSE;
   }
 
+  return TRUE;
+#if 0
+  /* Commented this line to prevent an extra page getting printed at the start of each job */
   return(file_skip(pcl5_ctxt->flptr, numbytes, NULL) > 0);
+#endif
 }
 
 /* Monochrome print mode */

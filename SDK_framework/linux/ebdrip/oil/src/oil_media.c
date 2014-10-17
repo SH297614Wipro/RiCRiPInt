@@ -52,7 +52,7 @@ void GetTrayInformation(char *pBuf)
   int i;
 #endif
   int bNeedAttrib0, bNeedAttrib1;
-  char szLine[OIL_TMPSTR_SIZE];
+  char szLine[OIL_TMPSTR_SIZE]={0};
 #ifdef PMS_OIL_MERGE_DISABLE
   PMS_TyTrayInfo *pstPMSTrays = NULL;
 #endif
@@ -109,6 +109,7 @@ void GetTrayInformation(char *pBuf)
 /* pcl values will be converted to ps values in the pcl sensepagedevice routine */
     sprintf(szLine, "    %d << \n", ThisMediaSource->ePSMediaSource);
     strcat(pBuf, szLine);
+    memset(szLine, 0, OIL_TMPSTR_SIZE);
 
 #ifdef PMS_OIL_MERGE_DISABLE
     if(pstPMSTrays[i].ePaperSize != PMS_SIZE_DONT_KNOW)
@@ -122,6 +123,7 @@ void GetTrayInformation(char *pBuf)
       sprintf(szLine, "      /PageSize [%4.3f %4.3f] \n",
                           pstPMSPaper->dWidth , pstPMSPaper->dHeight);
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
 
       if(g_ConfigurableFeatures.ePrintableMode == OIL_RIPRemovesUnprintableArea)
       {
@@ -131,18 +133,20 @@ void GetTrayInformation(char *pBuf)
         ClipTop = pstPMSPaper->nTopUnprintable * 0.000072;
         ClipWidth = pstPMSPaper->dWidth - ClipLeft - (pstPMSPaper->nRightUnprintable * 0.000072);
         ClipHeight = pstPMSPaper->dHeight - ClipTop - (pstPMSPaper->nBottomUnprintable * 0.000072);
-
-/*        sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
+#if 0
+        sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
                            ClipLeft,
                            ClipTop,
                            ClipLeft + PADDED_ALIGNEMENT(ClipWidth, g_pstCurrentJob->uRIPDepth, g_pstCurrentJob->uXResolution),
-                           ClipTop + ClipHeight);*/
-
-sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
+                           ClipTop + ClipHeight);
+#endif
+#if 1
+        sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
                            ClipLeft,
                            ClipTop,
                            ClipLeft + ClipWidth,
                            ClipTop + ClipHeight);
+#endif
       }
       else
       {
@@ -153,6 +157,7 @@ sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
                            pstPMSPaper->dHeight);
       }
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 
 #ifdef PMS_OIL_MERGE_DISABLE
@@ -161,6 +166,7 @@ sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
       sprintf(szLine, "      /LeadingEdge %d \n",
                           GetMediaLeadingEdge(pstPMSTrays[i].ePaperSize));
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 
     if(pstPMSTrays[i].eMediaType != PMS_TYPE_DONT_KNOW)
@@ -168,6 +174,7 @@ sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
       sprintf(szLine, "      /MediaType (%s)   \n",
                           GetMediaTypeString(pstPMSTrays[i].eMediaType));
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 
     if(pstPMSTrays[i].eMediaColor != PMS_COLOR_DONT_KNOW)
@@ -175,12 +182,14 @@ sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
       sprintf(szLine, "      /MediaColor (%s)   \n",
                           GetMediaColorString(pstPMSTrays[i].eMediaColor));
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 
     if(pstPMSTrays[i].uMediaWeight > 0)
     {
       sprintf(szLine, "      /MediaWeight %d   \n", pstPMSTrays[i].uMediaWeight);
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 #else
     if(g_pstTrayInfo[i].ePaperSize != PMS_SIZE_DONT_KNOW)
@@ -188,6 +197,7 @@ sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
       sprintf(szLine, "      /LeadingEdge %d \n",
                           GetMediaLeadingEdge(g_pstTrayInfo[i].ePaperSize));
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 
     if(g_pstTrayInfo[i].eMediaType != PMS_TYPE_DONT_KNOW)
@@ -195,6 +205,7 @@ sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
       sprintf(szLine, "      /MediaType (%s)   \n",
                           GetMediaTypeString(g_pstTrayInfo[i].eMediaType));
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 
     if(g_pstTrayInfo[i].eMediaColor != PMS_COLOR_DONT_KNOW)
@@ -202,12 +213,14 @@ sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
       sprintf(szLine, "      /MediaColor (%s)   \n",
                           GetMediaColorString(g_pstTrayInfo[i].eMediaColor));
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 
     if(g_pstTrayInfo[i].uMediaWeight > 0)
     {
       sprintf(szLine, "      /MediaWeight %d   \n", g_pstTrayInfo[i].uMediaWeight);
       strcat(pBuf, szLine);
+      memset(szLine, 0, OIL_TMPSTR_SIZE);
     }
 #endif
     strcat(pBuf, "     >> \n");

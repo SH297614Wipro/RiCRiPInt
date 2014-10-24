@@ -133,14 +133,14 @@ void GetTrayInformation(char *pBuf)
         ClipTop = pstPMSPaper->nTopUnprintable * 0.000072;
         ClipWidth = pstPMSPaper->dWidth - ClipLeft - (pstPMSPaper->nRightUnprintable * 0.000072);
         ClipHeight = pstPMSPaper->dHeight - ClipTop - (pstPMSPaper->nBottomUnprintable * 0.000072);
-#if 0
+#if 1
         sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
                            ClipLeft,
                            ClipTop,
                            ClipLeft + PADDED_ALIGNEMENT(ClipWidth, g_pstCurrentJob->uRIPDepth, g_pstCurrentJob->uXResolution),
                            ClipTop + ClipHeight);
 #endif
-#if 1
+#if 0
         sprintf(szLine, "      /RasterBBox [%4.3f %4.3f %4.3f %4.3f] \n",
                            ClipLeft,
                            ClipTop,

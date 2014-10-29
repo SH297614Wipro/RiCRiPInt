@@ -368,7 +368,7 @@ int PMS_main()
   int i, j;
   long gpsval;
   int photo_limit;
-  long prof_num = 0;	/* ƒvƒƒtƒ@ƒCƒ‹” */
+  long prof_num = 0;	/* ï¾†è‡´ï¾†é™³å“‰ç¨šï¾†å�©ï¾†è¾°ï¾†å�œï¿½ï¾‚çµ¶ï¿½ */
   long hr_id[] = {	   DI_ENV_VAR_ID_HEADRANKK,
 			   DI_ENV_VAR_ID_HEADRANKC,
 			   DI_ENV_VAR_ID_HEADRANKM,
@@ -444,7 +444,10 @@ int PMS_main()
 
 	memset( devinfo, NULL, sizeof(devinfo));
 	printf("devinfo->nplane = [%d]\n", devinfo->nplane);
+	/* ã‚¨ãƒ³ãƒˆãƒªã�Œè¦‹ã�¤ã�‹ã‚‰ã�ªã�‹ã�£ã�Ÿå ´å�ˆã�¯ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿s */
+	devinfo->toner_limit = TRUE; //todo Bala
 	di_getinfo_GPS_update(devinfo, dither_gamma_file);
+
 
 
 //  if( (retval = GPS_GetModelInfo(0, 1, "color_prm_val", "COLOR", 32)) != SERCH_OK ) 

@@ -7,6 +7,7 @@
 #include "config.h"
 //#include "PageRenderer.h"
 #include "cl_color_prv.h"
+#include "cl_color.h"
 #include "types.h"
 /*#ifdef PR3_SUPPORT_GIPA1
 #include "GIPAOrder.h"
@@ -15,6 +16,13 @@
 /* CMM */
 //#include "cl_cmm_prv.h"
 #include "colormatching.h"
+long m_lIsCmm = 0;
+#define DEBUGCMM
+#define DEBUG_SETCOLOR
+
+//todo
+#define GAMMA_THROUGH
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,23 +59,24 @@ extern long CMM_DoConversion4_rgb_1(long, void *, void *, unsigned
 /* CMM Code to set the parameters*/
 void* getColorData( unsigned long pCmm, 
                     di_dropinfo_t* pDropInfo, 
-                    int limit, 
+                    di_tlimitinfo_t  *limit,
                     di_bgucrinfo_t* bgi_ptr,
                     di_gcrinfo_t* wishgcr, 
                     di_gcrinfo_t* gcrhgr_ptr, 
                     unsigned long cmmProfile )
 {
       static CPRColor oColorData;
-      oColorData.m_sPqLimit.text = limit;
-      oColorData.m_sPqLimit.line = limit;
-      oColorData.m_sPqLimit.phot = limit;
-      oColorData.m_sPqLimit.fill = limit;
+      oColorData.m_sPqLimit.text = limit->text;
+      oColorData.m_sPqLimit.line = limit->line;
+      oColorData.m_sPqLimit.phot = limit->phot;
+      oColorData.m_sPqLimit.fill = limit->fill;
 
       /* Setting the CMM pointer */
       oColorData.m_lIsCmm = 0;
       if( pCmm )
       {
 	        oColorData.m_lIsCmm = pCmm;
+	        m_lIsCmm = pCmm;
 	  }
 
 	  /* Setting the Wishgcr and Hgr data */
@@ -181,13 +190,195 @@ void setRGB( void* pCPRColor, unsigned long ulFlag,
 	                          transfunc, ppucGamma, nObjMode, ucSpoolColor);
 }
 
+int
+SetcolorGG(unsigned long ulVectorGray,unsigned long ulGrayJudgeMode, unsigned char ucColorMode,
+	int	toner_limit, unsigned char ucDither,di_tlimitinfo_t usLimit,
+	unsigned long ulFlag,void* pCPRColor,
+	unsigned char* pucPtr,
+	unsigned char* pucoutPtr,
+	int nObjMode,
+	int nObjectType,
+	unsigned char **ppucSrcGam,
+	di_tlimitinfo_t  *tlimit)
+{
+	uchar *pucFGPointer=0, *pucBGPointer=0;
+	int nSetSecond = FALSE;
+	clr_tlimit_t pLimit;
+	uchar **ppucGamma=0;
+	CPRColor* cur_color = (CPRColor*) pCPRColor;
+	unsigned char ucDitherMode;
+	int nOrigObjMode = nObjMode;
+	bool bFlag = false;
+
+	/*
+	 * OBJ_IMAG_{COLOR, MONO}‚Í
+	 * GRAYƒ‚�[ƒh‚Ì”»’èˆÈŠO‚Å‚ÍOBJ_IMAG‚É’u‚«Š·‚¦‚é�B
+	 */
+	if ((nOrigObjMode & OBJ_MASK_1ST) == OBJ_IMAG_COLOR ||
+		(nOrigObjMode & OBJ_MASK_1ST) == OBJ_IMAG_MONO)
+	{
+		nObjMode = OBJ_IMAG;
+	}
+
+	/* ƒIƒuƒWƒFƒNƒgŽí—Þ–ˆ‚ÌƒfƒBƒUŽí—Þ‚ðŽæ“¾ */
+	switch (nObjMode & PR_OBJ_MASK)
+	{
+		case PR_OBJ_IMAG:
+			ucDitherMode = DIT_IMAG_MODE (ucDither);
+			break;
+		case PR_OBJ_GRAP:
+			ucDitherMode = DIT_GRAP_MODE (ucDither);
+			break;
+		case PR_OBJ_TEXT:
+			ucDitherMode = DIT_TEXT_MODE (ucDither);
+			break;
+		case PR_OBJ_LINE:
+			ucDitherMode = DIT_LINE_MODE (ucDither);
+			break;
+		default:;
+			return PR_ERROR;
+	}
+	pLimit.text = tlimit->text;
+	pLimit.line = tlimit->line;
+	pLimit.phot = tlimit->phot;
+	pLimit.fill = tlimit->fill;
+
+	//todo
+	pucFGPointer = pucPtr;
+	pucBGPointer = 0;
+//todo
+//	/*
+//	 * ƒJƒ‰�[ƒuƒ‰ƒV‚ðŽg—p‚µ‚½•`‰æ‚©‚Ç‚¤‚©‚Ì”»’è‚µ�A
+//	 * ƒuƒ‰ƒV‚ªŽg—p‚µ‚Ä‚¢‚éƒvƒŒ�[ƒ“‚ðŽæ“¾‚·‚é�B
+//	 */
+//	bool bUseColBrush = false;
+//	int nBrushUsedPlane = 0;
+//
+//	if (((Used_plane & COLOR_CMYK_K) == 0) ||
+//		((Used_plane & COLOR_CMYK_C) == 0) ||
+//		((Used_plane & COLOR_CMYK_M) == 0) ||
+//		((Used_plane & COLOR_CMYK_Y) == 0))
+//	{
+//		bUseColBrush = cur_color->IsUseColorBrush(prh, nObjectType,
+//										pobjPrintElement, nBrushUsedPlane);
+//	}
+
+	do
+	{
+		//Check the number of color plane calculation - todo
+		ppucGamma = ppucGamma;
+		if (cur_color->m_nIsPqtc)
+		{
+//			// todo
+//			if (ucDitherMode == DIT_PHOT)
+//			{
+//				cur_color->m_sPqLimit = cur_color->m_sPqLimitPhot;
+//				cur_color->m_pucPqTbl = cur_color->m_pucPqTblPhot;
+//				cur_color->m_pucRPqTbl = cur_color->m_pucRPqTblPhot;
+//			}
+//			else if (ucDitherMode == DIT_GRAP)
+//			{
+//				cur_color->m_sPqLimit = cur_color->m_sPqLimitGrap;
+//				cur_color->m_pucPqTbl = cur_color->m_pucPqTblGrap;
+//				cur_color->m_pucRPqTbl = cur_color->m_pucRPqTblGrap;
+//			}
+//			else
+//			{;
+//				assert (ucDitherMode == DIT_TEXT);
+//				cur_color->m_sPqLimit = cur_color->m_sPqLimitText;
+//				cur_color->m_pucPqTbl = cur_color->m_pucPqTblText;
+//				cur_color->m_pucRPqTbl = cur_color->m_pucRPqTblText;
+//			}
+		}
+
+		cur_color->SetColorGinfColorMask(ulVectorGray,ulGrayJudgeMode, ucColorMode,toner_limit,ulFlag,
+					nObjMode, pucFGPointer, pucBGPointer, ppucGamma,
+					nOrigObjMode, &pLimit);
+#ifdef DEBUG_SETCOLOR
+		printf ("KCMY=(%d,%d,%d,%d) ", pucFGPointer[0], pucFGPointer[1],
+			pucFGPointer[2], pucFGPointer[3]);
+#endif
+		/* ƒOƒ‰ƒf�[ƒVƒ‡ƒ“‚Ì Used_plane ‚ð�Ý’è‚·‚é       */
+		/* ƒOƒ‰ƒf�[ƒVƒ‡ƒ“Žw’è(ƒOƒ‰ƒf�[ƒVƒ‡ƒ“ƒtƒ‰ƒOON ‚©‚Â ‘æ2FG/BG‚Å‚Í‚È‚¢) */
+		if ((ulFlag & COLOR_GRADATION) &&
+			(nSetSecond == FALSE))
+		{
+			//todo related to BG/FG mode
+//			if (prh->m_objColor.SetcolorGinfColorGradation(prh,
+//				ginf, &pLimit, nObjMode) == PR_ERROR)
+//			{
+//				return PR_ERROR;
+//			}
+		}
+//todo
+//		if (bUseColBrush && (nSetSecond == FALSE))
+//		{
+//			Used_plane |= nBrushUsedPlane;
+//		}
+//		else
+//		{
+//			Used_plane |= *(int *) pucFGPointer;
+//		}
+		bFlag = false;
+		if ((ulFlag & COLOR_2NDFGBG) && (nSetSecond
+				== FALSE))
+		{
+			/*
+			 * ‘æ2 FG/BG ‚ª‚ ‚é‚Ì‚Å‚»‚ê‚Ì�F•ÏŠ·‚ð�s‚¤�B
+			 */
+			pucFGPointer = pucPtr;
+			//pucBGPointer =  0;
+			nSetSecond = TRUE;
+			bFlag = true;
+			/* ‘æ2 FG/BG ‚É‘®�«Žw’è‚ª‚ ‚é‚©ƒ`ƒFƒbƒN  */
+			if ((nOrigObjMode & OBJ_MASK_2ND) !=
+				OBJ_DEF_2ND)
+			{
+				switch (nOrigObjMode &
+					OBJ_MASK_2ND)
+				{
+					case OBJ_IMAG_2ND:
+						nObjMode = OBJ_IMAG;
+						break;
+					case OBJ_GRAP_2ND:
+						nObjMode = OBJ_GRAP;
+						break;
+					case OBJ_TEXT_2ND:
+						nObjMode = OBJ_TEXT;
+						break;
+					case OBJ_LINE_2ND:
+						nObjMode = OBJ_LINE;
+						break;
+					case OBJ_IMAG_COLOR_2ND:
+						nObjMode = OBJ_IMAG;
+						/* gray mode‚Ìˆ×‚É�Ý’è‚µ‚Ä‚¨‚­ */
+						nOrigObjMode =
+							OBJ_IMAG_COLOR;
+						break;
+					case OBJ_IMAG_MONO_2ND:
+						nObjMode = OBJ_IMAG;
+						/* gray mode‚Ìˆ×‚É�Ý’è‚µ‚Ä‚¨‚­ */
+						nOrigObjMode =
+							OBJ_IMAG_MONO;
+						break;
+					default:;
+						assert (0);
+						break;
+				}
+			}
+
+		}
+	} while (bFlag);
+	return PR_OK;
+}
+
 #ifdef __cplusplus
 }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-//Function      :SetTonerLimitInColor 
-//Description   : 
+//Function      :SetTonerLimitInColor
+//Description   :
 //Arguments     :
 //              :int nObjectKind:[IN]
 //              :clr_tlimit_t * pLimit:[IN]
@@ -252,7 +443,7 @@ CPRColor::SetTonerLimitInColor (int nObjectKind,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//Function      :MakeLut 
+//Function      :MakeLut
 //Description   :Make Look Up Table
 //Arguments     :
 //              :float nBGSP:[IN]
@@ -1660,6 +1851,7 @@ CPRColor::ApplyBgucr (unsigned char ucRGB[], unsigned
 	ApplyRgbRatioRgb(this, &ucRGB[0], &ucRGB[1], &ucRGB[2], 1,
 			nObjMode, ulSrcNot);
 #endif
+
 	 /* CMM if (m_lIsCmm) */
     if( m_lIsCmm )
 	{
@@ -1976,7 +2168,6 @@ CPRColor::ApplyBgucrKeepgray (unsigned char ucRGB[],
 #endif // X86
 			}
 
-
 			if( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 				&& (ucRGB[0] == ucRGB[1]) && (ucRGB[1] == ucRGB[2]) )
 			{
@@ -2218,7 +2409,7 @@ CPRColor::ApplyBgucrKeepblack (unsigned char ucRGB[],
 #endif // X86
 			}
 
-			/* CMM���keepblack���� */
+			/* CMMŒã‚Ìkeepblack”»’è */
 			if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 				&& (ucRGB[0] == 0) && (ucRGB[1] == 0) && (ucRGB[2] == 0) )
 			{
@@ -2438,7 +2629,7 @@ CPRColor::ApplyBgucrCompbk (unsigned char ucRGB[], unsigned char ucKCMY[],
 #endif /* SUPPORT_COMPOSITEBLACK */
 
 /************************************************************************
- *	�K���}����֐�							*
+ *	ƒKƒ“ƒ}‘€�ìŠÖ�”							*
  ************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :DoGamma
@@ -2559,7 +2750,7 @@ CPRColor::DoGamma(unsigned char ucKCMY[],
 }
 
 /************************************************************************
- *	�K���}����֐�(RK2)							*
+ *	ƒKƒ“ƒ}‘€�ìŠÖ�”(RK2)							*
  ************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :DoGammaRK2
@@ -2821,7 +3012,7 @@ CPRColor::DoGammaS (int nObjectKind,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :GammaSNoTonerLimit 
-//Description   : USER��+SYSTEM��
+//Description   : USERƒÁ+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char **ppucGamma:[IN]
 //              :int nSize:[IN]
@@ -2880,23 +3071,23 @@ CPRColor::GammaSNoTonerLimit (unsigned char **ppucGamma,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//	ApplyBgucrsGammas		����(CMM+CMY+BG/UCR+USER��+PQTC+SYSTEM��)
-//	ApplySrcnotBgucrsGammas		����(CMM+CMY+NOT+BG/UCR+USER��+PQTC+SYSTEM��)
-//	ApplyBgucrsHgrGammas		����(CMM+CMY+BG/UCR(HGR)+USER��+PQTC+SYSTEM��)
-//	ApplySrcnotBgucrsHgrGammas		����(CMM+CMY+NOT+BG/UCR(HGR)+USER��+PQTC+SYSTEM��)
-//	ApplyBgucrKeepgraysGammas	����(CMM+CMY+BG/UCR+Gray+USER��+PQTC+SYSTEM��)
-//	ApplySrcnotBgucrKeepgraysGammas	����(CMM+CMY+NOT+BG/UCR+Gray+USER��+PQTC+SYSTEM��)
-//	ApplyBgucrHgrKeepgraysGammas	����(CMM+CMY+BG/UCR(HGR)+Gray+USER��+PQTC+SYSTEM��)
-//	ApplySrcnotBgucrHgrKeepgraysGammas	����(CMM+CMY+NOT+BG/UCR(HGR)+Gray+USER��+PQTC+SYSTEM��)
-//	ApplyRgb2CmyGammas		����(CMM+CMY+USER��+PQTC+SYSTEM��)
-//	ApplySrcnotRgb2CmyGammas        ����(CMM+CMY+NOT+USER��+PQTC+SYSTEM��)
-//	ApplyBgucrMaybeKeepgraysGammas	����(CMM+CMY+BG/UCR+MaybeGray+USER��+PQTC+SYSTEM��)
-//	ApplyBgucrAboutKeepgraysGammas	����(CMM+CMY+BG/UCR+AboutGray+USER��+PQTC+SYSTEM��)
-//	ApplyBgucrImageKsGammas	        ����(CMM+CMY+BG/UCR+PureBlack+USER��+PQTC+SYSTEM��)
-//	ApplySrcnotBgucrImageKsGammas	����(CMM+CMY+NOT+BG/UCR+PureBlack+USER��+PQTC+SYSTEM��)
+//	ApplyBgucrsGammas		•¡�”(CMM+CMY+BG/UCR+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplySrcnotBgucrsGammas		•¡�”(CMM+CMY+NOT+BG/UCR+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplyBgucrsHgrGammas		•¡�”(CMM+CMY+BG/UCR(HGR)+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplySrcnotBgucrsHgrGammas		•¡�”(CMM+CMY+NOT+BG/UCR(HGR)+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplyBgucrKeepgraysGammas	•¡�”(CMM+CMY+BG/UCR+Gray+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplySrcnotBgucrKeepgraysGammas	•¡�”(CMM+CMY+NOT+BG/UCR+Gray+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplyBgucrHgrKeepgraysGammas	•¡�”(CMM+CMY+BG/UCR(HGR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplySrcnotBgucrHgrKeepgraysGammas	•¡�”(CMM+CMY+NOT+BG/UCR(HGR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplyRgb2CmyGammas		•¡�”(CMM+CMY+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplySrcnotRgb2CmyGammas        •¡�”(CMM+CMY+NOT+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplyBgucrMaybeKeepgraysGammas	•¡�”(CMM+CMY+BG/UCR+MaybeGray+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplyBgucrAboutKeepgraysGammas	•¡�”(CMM+CMY+BG/UCR+AboutGray+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplyBgucrImageKsGammas	        •¡�”(CMM+CMY+BG/UCR+PureBlack+USERƒÁ+PQTC+SYSTEMƒÁ)
+//	ApplySrcnotBgucrImageKsGammas	•¡�”(CMM+CMY+NOT+BG/UCR+PureBlack+USERƒÁ+PQTC+SYSTEMƒÁ)
 ///////////////////////////////////////////////////////////////////////////////
 
-// CMM+CMY+BG/UCR(WiShGCR)+USER��+PQTC+SYSTEM��
+// CMM+CMY+BG/UCR(WiShGCR)+USERƒÁ+PQTC+SYSTEMƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrsGammas 
 //Description   :Apply the Black Gradation under color Removal process
@@ -3018,7 +3209,7 @@ CPRColor::ApplyBgucrsGammas (unsigned char *pucK,
 	}
 }
 
-// CMM+CMY+BG/UCR(WiShGCR)(HGR)+USER��+PQTC+SYSTEM��
+// CMM+CMY+BG/UCR(WiShGCR)(HGR)+USERƒÁ+PQTC+SYSTEMƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrsHgrGammas 
 //Description   :Apply the Black Gradation under color Removal process
@@ -3150,7 +3341,7 @@ CPRColor::ApplyBgucrsHgrGammas (unsigned char *pucK,
 	}
 }
 
-// CMM+CMY+BG/UCR(WiShGCR)+USER��+PQTC+SYSTEM��
+// CMM+CMY+BG/UCR(WiShGCR)+USERƒÁ+PQTC+SYSTEMƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrsGammasURF
 //Description   :Apply the Black Gradation under color Removal process
@@ -3231,7 +3422,7 @@ CPRColor::ApplyBgucrsGammasURF(unsigned char *pucK,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotBgucrsGammas 
-//Description   :CMM+CMY+NOT+BG/UCR(WiShGCR)+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+NOT+BG/UCR(WiShGCR)+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -3355,7 +3546,7 @@ CPRColor::ApplySrcnotBgucrsGammas (unsigned char *pucK,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotBgucrsHgrGammas 
-//Description   :CMM+CMY+NOT+BG/UCR(WiShGCR)(HGR)+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+NOT+BG/UCR(WiShGCR)(HGR)+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -3479,7 +3670,7 @@ CPRColor::ApplySrcnotBgucrsHgrGammas (unsigned char *pucK,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrKeepgraysGammas 
-//Description   :CMM+CMY+BG/UCR(WiShGCR)+Gray+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+BG/UCR(WiShGCR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -3625,7 +3816,7 @@ CPRColor::ApplyBgucrKeepgraysGammas (unsigned char *pucK,
 					}
 					}
 
-					/* CMM���keepgray���� */
+					/* CMMŒã‚Ìkeepgray”»’è */
 					if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 						&& (*pucY == *pucM) && (*pucY == *pucC) )
 					{
@@ -3702,7 +3893,7 @@ CPRColor::ApplyBgucrKeepgraysGammas (unsigned char *pucK,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrHgrKeepgraysGammas 
-//Description   :CMM+CMY+BG/UCR(WiShGCR)(HGR)+Gray+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+BG/UCR(WiShGCR)(HGR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -3848,7 +4039,7 @@ CPRColor::ApplyBgucrHgrKeepgraysGammas (unsigned char *pucK,
 					}
 					}
 
-					/* CMM���keepgray���� */
+					/* CMMŒã‚Ìkeepgray”»’è */
 					if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 						&& (*pucY == *pucM) && (*pucY == *pucC) )
 					{
@@ -3923,10 +4114,10 @@ CPRColor::ApplyBgucrHgrKeepgraysGammas (unsigned char *pucK,
 	}
 }
 
-// CMM+CMY+NOT+BG/UCR+Gray+USER��+PQTC+SYSTEM��
+// CMM+CMY+NOT+BG/UCR+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotBgucrKeepgraysGammas 
-//Description   :CMM+CMY+NOT+BG/UCR+Gray+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+NOT+BG/UCR+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -4079,7 +4270,7 @@ CPRColor::ApplySrcnotBgucrKeepgraysGammas (unsigned
 						}
 					}
 
-					/* CMM���keepgray���� */
+					/* CMMŒã‚Ìkeepgray”»’è */
 					if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 						&& (*pucY == *pucM) && (*pucY == *pucC) )
 					{
@@ -4158,10 +4349,10 @@ CPRColor::ApplySrcnotBgucrKeepgraysGammas (unsigned
 	}
 }
 
-// CMM+CMY+NOT+BG/UCR(HGR)+Gray+USER��+PQTC+SYSTEM��
+// CMM+CMY+NOT+BG/UCR(HGR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotBgucrHgrKeepgraysGammas 
-//Description   :CMM+CMY+NOT+BG/UCR(HGR)+Gray+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+NOT+BG/UCR(HGR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -4314,7 +4505,7 @@ CPRColor::ApplySrcnotBgucrHgrKeepgraysGammas (unsigned
 					}
 					}
 
-					/* CMM���keepgray���� */
+					/* CMMŒã‚Ìkeepgray”»’è */
 					if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 						&& (*pucY == *pucM) && (*pucY == *pucC) )
 					{
@@ -4510,7 +4701,7 @@ CPRColor::ApplyBgucrAboutKeepgray (unsigned char ucRGB[],
 #endif // X86
 			}
 
-			/* CMM���about keepgray���� */
+			/* CMMŒã‚Ìabout keepgray”»’è */
 			if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 				 && (CR_GRAYABS (ucRGB[0] - ucRGB[1]) <=
 						CR_GRAY_ABOUTRANGE) &&
@@ -4544,7 +4735,7 @@ CPRColor::ApplyBgucrAboutKeepgray (unsigned char ucRGB[],
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrMaybeKeepgraysGammas 
-//Description   :CMM+CMY+BG/UCR(WiShGCR)+Gray+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+BG/UCR(WiShGCR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -4763,7 +4954,7 @@ CPRColor::ApplyBgucrMaybeKeepgraysGammas (unsigned char *pucK,
 	}
 }
 
-// CMM+CMY+BG/UCR+Gray+USER��+PQTC+SYSTEM��
+// CMM+CMY+BG/UCR+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrAboutKeepgraysGammas 
 //Description   :Apply the Black Gradation under color Removal process
@@ -5050,7 +5241,7 @@ CPRColor::ApplyBgucrAboutKeepgraysGammas (unsigned
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrImageKsGammas 
-//Description   :CMM+CMY+BG/UCR(WiShGCR)+PureBlack+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+BG/UCR(WiShGCR)+PureBlack+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -5200,7 +5391,7 @@ CPRColor::ApplyBgucrImageKsGammas (unsigned char *pucK,
 					}
 					}
 
-					/* CMM���keepblack���� */
+					/* CMMŒã‚Ìkeepblack”»’è */
 					if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 						&& (*pucY == 0) && (*pucM == 0) && (*pucC == 0) )
 					{
@@ -5285,7 +5476,7 @@ CPRColor::ApplyBgucrImageKsGammas (unsigned char *pucK,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotBgucrImageKsGammas 
-//Description   :CMM+CMY+NOT+BG/UCR(WiShGCR)+PureBlack+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+NOT+BG/UCR(WiShGCR)+PureBlack+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -5438,7 +5629,7 @@ CPRColor::ApplySrcnotBgucrImageKsGammas (unsigned char
 					}
 					}
 
-					/* CMM���keepblack���� */
+					/* CMMŒã‚Ìkeepblack”»’è */
 					if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 						&& (*pucY == 0) && (*pucM == 0) && (*pucC == 0) )
 					{
@@ -5524,7 +5715,7 @@ CPRColor::ApplySrcnotBgucrImageKsGammas (unsigned char
 }
 
 #ifdef SUPPORT_COMPOSITEBLACK
-// CMM+CMY+COMPBK+PQTC+SYSTEM��
+// CMM+CMY+COMPBK+PQTC+SYSTEMƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyBgucrCompbksGammas
 //Description   :Apply the Black Gradation under color Removal process
@@ -5840,7 +6031,7 @@ CPRColor::ApplyBgucrCompbksGammas (unsigned char *pucK,
 	}
 }
 
-// CMM+CMY+NOT+COMPBK+PQTC+��
+// CMM+CMY+NOT+COMPBK+PQTC+ƒÁ
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotBgucrCompbksGammas
 //Description   :Apply the Black Gradation under color Removal process
@@ -6150,7 +6341,7 @@ CPRColor::ApplySrcnotBgucrCompbksGammas (unsigned char *pucK,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyRgb2CmyGammas 
-//Description   :CMM+CMY+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -6289,7 +6480,7 @@ CPRColor::ApplyRgb2CmyGammas (unsigned char *pucK,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotRgb2CmyGammas 
-//Description   :CMM+CMY+NOT+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+NOT+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -7148,7 +7339,7 @@ TransrgbBgucrPhotRK2 (CPRColor* pobjColor,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplyTwinColorRK2BgucrsGammas
-//Description   :CMM+CMY+BG/UCR(WiShGCR)+Gray+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+BG/UCR(WiShGCR)+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -7232,7 +7423,7 @@ CPRColor::ApplyTwinColorRK2BgucrsGammas (
 				}
 				}
 
-				/* CMM���keepgray���� */
+				/* CMMŒã‚Ìkeepgray”»’è */
 				if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 					&& (*pucY == *pucM) && (*pucY == *pucC) )
 				{
@@ -7835,7 +8026,7 @@ TransrgbnotBgucrPhotRK2 (CPRColor* pobjColor,
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :ApplySrcnotTwinColorRK2BgucrsGammas
-//Description   :CMM+CMY+NOT+BG/UCR+Gray+USER��+PQTC+SYSTEM��
+//Description   :CMM+CMY+NOT+BG/UCR+Gray+USERƒÁ+PQTC+SYSTEMƒÁ
 //Arguments     :
 //              :unsigned char *pucK:[I/O]
 //              :unsigned char *pucC:[I/O]
@@ -7920,7 +8111,7 @@ CPRColor::ApplySrcnotTwinColorRK2BgucrsGammas (
 				}
 				}
 
-				/* CMM���keepgray���� */
+				/* CMMŒã‚Ìkeepgray”»’è */
 				if ( (m_ucIsGrayJudge == CR_JUDGE_GRAY_AFTER_CMM_ON)
 					&& (*pucY == *pucM) && (*pucY == *pucC) )
 				{
@@ -10421,11 +10612,11 @@ SetcolorGinf (CPRPageRenderer* prh,
 	assert ((nObjMode & OBJ_MASK_2ND) <=
 		OBJ_IMAG_MONO_2ND);
 
-	nObjMode &= OBJ_MASK; CMM*//* ��1FG/BG �̃I�u�W�F�N�g���  */
+	nObjMode &= OBJ_MASK; CMM*//* ‘æ1FG/BG ‚ÌƒIƒuƒWƒFƒNƒgŽí—Þ  */
 
 	/*
-	 * OBJ_IMAG_{COLOR, MONO}��
-	 * GRAY���[�h�̔���ȊO�ł�OBJ_IMAG�ɒu��������B
+	 * OBJ_IMAG_{COLOR, MONO}‚Í
+	 * GRAYƒ‚�[ƒh‚Ì”»’èˆÈŠO‚Å‚ÍOBJ_IMAG‚É’u‚«Š·‚¦‚é�B
 	 */
 	/* CMMif ((nOrigObjMode & OBJ_MASK_1ST) == OBJ_IMAG_COLOR ||
 		(nOrigObjMode & OBJ_MASK_1ST) == OBJ_IMAG_MONO)
@@ -10433,7 +10624,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 		nObjMode = OBJ_IMAG;
 	}
 	CMM*/
-	/* �I�u�W�F�N�g��ޖ��̃f�B�U��ނ��擾 */
+	/* ƒIƒuƒWƒFƒNƒgŽí—Þ–ˆ‚ÌƒfƒBƒUŽí—Þ‚ðŽæ“¾ */
 	/* CMMswitch (nObjMode & OBJ_MASK)
 	{
 		case OBJ_IMAG:
@@ -10471,8 +10662,8 @@ SetcolorGinf (CPRPageRenderer* prh,
 #endif
 		{ CMM*/
 		/*
-		 * EOR �Ɉ͂܂ꂽ EOR �ȊO�̃I�u�W�F�N�g�Ȃ̂�
-		 * �}�X�N�Ƃ��Ă̐F (K=C=M=Y=0xff) ���ݒ肳�ꂽ
+		 * EOR ‚ÉˆÍ‚Ü‚ê‚½ EOR ˆÈŠO‚ÌƒIƒuƒWƒFƒNƒg‚È‚Ì‚Å
+		 * ƒ}ƒXƒN‚Æ‚µ‚Ä‚Ì�F (K=C=M=Y=0xff) ‚ª�Ý’è‚³‚ê‚½
 		 */
 /* CMM#ifdef OLD
 			Used_plane = 0xffffffff;
@@ -10545,8 +10736,8 @@ SetcolorGinf (CPRPageRenderer* prh,
 #endif CMM*/
 
 	/*
-	 * �J���[�u���V���g�p�����`�悩�ǂ����̔��肵�A
-	 * �u���V���g�p���Ă���v���[�����擾����B
+	 * ƒJƒ‰�[ƒuƒ‰ƒV‚ðŽg—p‚µ‚½•`‰æ‚©‚Ç‚¤‚©‚Ì”»’è‚µ�A
+	 * ƒuƒ‰ƒV‚ªŽg—p‚µ‚Ä‚¢‚éƒvƒŒ�[ƒ“‚ðŽæ“¾‚·‚é�B
 	 */
 	/*CMMbool bUseColBrush = false;
 	int nBrushUsedPlane = 0;
@@ -10623,9 +10814,9 @@ SetcolorGinf (CPRPageRenderer* prh,
 			}
 		}
 #endif CMM*//* PR_SUPPORT_FUSER_CTL */
-		
-		/* �O���f�[�V������ Used_plane ��ݒ肷��       */
-		/* �O���f�[�V�����w��(�O���f�[�V�����t���OON ���� ��2FG/BG�ł͂Ȃ�) */
+
+		/* ƒOƒ‰ƒf�[ƒVƒ‡ƒ“‚Ì Used_plane ‚ð�Ý’è‚·‚é       */
+		/* ƒOƒ‰ƒf�[ƒVƒ‡ƒ“Žw’è(ƒOƒ‰ƒf�[ƒVƒ‡ƒ“ƒtƒ‰ƒOON ‚©‚Â ‘æ2FG/BG‚Å‚Í‚È‚¢) */
 		/*CMMif ((ginf->m_ucFlag & COLOR_GRADATION) &&
 			(nSetSecond == FALSE))
 		{
@@ -10726,13 +10917,13 @@ SetcolorGinf (CPRPageRenderer* prh,
 				== FALSE))
 		{ CMM*/
 			/*
-			 * ��2 FG/BG ������̂ł���̐F�ϊ����s���B
+			 * ‘æ2 FG/BG ‚ª‚ ‚é‚Ì‚Å‚»‚ê‚Ì�F•ÏŠ·‚ð�s‚¤�B
 			 */
 			/* CMMpucFGPointer = ginf->m_objFg2.b;
 			pucBGPointer = ginf->m_objBg2.b;
 			nSetSecond = TRUE;
 			bFlag = true; CMM*/
-			/* ��2 FG/BG �ɑ����w�肪���邩�`�F�b�N  */
+			/* ‘æ2 FG/BG ‚É‘®�«Žw’è‚ª‚ ‚é‚©ƒ`ƒFƒbƒN  */
 			/* CMMif ((nOrigObjMode & OBJ_MASK_2ND) !=
 				OBJ_DEF_2ND)
 			{
@@ -10753,13 +10944,13 @@ SetcolorGinf (CPRPageRenderer* prh,
 						break;
 					case OBJ_IMAG_COLOR_2ND:
 						nObjMode = OBJ_IMAG; CMM*/
-						/* gray mode�ׂ̈ɐݒ肵�Ă��� */
+						/* gray mode‚Ìˆ×‚É�Ý’è‚µ‚Ä‚¨‚­ */
 						/* CMMnOrigObjMode =
 							OBJ_IMAG_COLOR;
 						break;
 					case OBJ_IMAG_MONO_2ND:
 						nObjMode = OBJ_IMAG; CMM*/
-						/* gray mode�ׂ̈ɐݒ肵�Ă��� */
+						/* gray mode‚Ìˆ×‚É�Ý’è‚µ‚Ä‚¨‚­ */
 						/* CMMnOrigObjMode =
 							OBJ_IMAG_MONO;
 						break;
@@ -10776,6 +10967,375 @@ SetcolorGinf (CPRPageRenderer* prh,
 #endif
 	return PR_OK;
 }*/
+
+
+///////////////////////////////////////////////////////////////////////////////
+//Function      :SetColorGinfColorMask
+//Description   :
+//Arguments     :
+//              :prh_t *prh:[IN]
+//              :int nObjMode:[IN]
+//              :uchar *pucFGPointer:[IN]
+//              :uchar *pucBGPointer:[IN]
+//              :uchar **ppucGamma:[IN]
+//              :ginf_t * ginf:[IN]
+//              :int nOrigObjMode:[IN]
+//              :clr_tlimit_t *pLimit):[IN]
+//Return value  : void
+///////////////////////////////////////////////////////////////////////////////
+void CPRColor::SetColorGinfColorMask(unsigned long ulVectorGray,unsigned long ulGrayJudgeMode,
+	unsigned char ucColorMode, int	toner_limit, unsigned long ulFlag,
+	int nObjMode, unsigned char *pucFGPointer, unsigned char *pucBGPointer,
+	unsigned char **ppucGamma, int nOrigObjMode, clr_tlimit_t *pLimit)
+
+ {
+	uchar ucFG[4];//, ucBG[4];
+	//todo clarification asked to the client
+#ifdef SUPPORT_CUTTING_RGBVALUE
+		unsigned long ulSrcNot = (ginf->m_ulGraphicColorFlag & COLOR_GRAP_SRCNOT) ?
+								GRAP_SRCNOT_ON : GRAP_SRCNOT_OFF;
+#endif
+
+	switch (ulFlag & COLOR_MASK)
+	{
+		case COLOR_GRAY:
+#ifndef SUPPORT_COMPOSITEBLACK
+	#ifdef DEBUG_SETCOLOR
+				printf ("GRAY=(%d)->", pucFGPointer[0]);
+	#endif
+		;
+		assert (pucFGPointer[1] == 0 && pucFGPointer[2] == 0 &&
+			pucFGPointer[3] == 0);;
+		//assert (pucBGPointer[1] == 0 && pucBGPointer[2] == 0 &&
+			//pucBGPointer[3] == 0);
+//todo clarification asked to the client
+#ifdef SUPPORT_CUTTING_RGBVALUE
+		ApplyRgbRatioGray(this, &pucFGPointer[0], 1,
+				nObjMode, ulSrcNot);
+//		if (ucFlag & COLOR_BGMODE)
+//		{
+//			ApplyRgbRatioGray(this, &pucBGPointer[0], 1,
+//					nObjMode, ulSrcNot);
+//		}
+#endif
+		//DoGammaK (pucFGPointer, pucFGPointer, ppucGamma); //bala todo
+
+//		if (ulFlag & COLOR_BGMODE)
+//		{
+//			DoGammaK (pucBGPointer, pucBGPointer, ppucGamma);
+//		}
+		break;
+#endif /* SUPPORT_COMPOSITEBLACK */
+	case COLOR_RGB:
+		// RGB -> CMYK/CMY/RK/K
+	#ifdef DEBUG_SETCOLOR
+				printf ("RGB=(%d,%d,%d)->", pucFGPointer[0],
+					pucFGPointer[1], pucFGPointer[2]);
+	#endif
+		SetcolorGinfIsColor(ulVectorGray,ulGrayJudgeMode,ucColorMode,toner_limit, ulFlag, nObjMode, pucFGPointer,
+								pucBGPointer, ppucGamma, nOrigObjMode, pLimit);
+				break;
+
+			case COLOR_CMYK:
+				*(int *) ucFG = *(int *) pucFGPointer;
+				//*(int *) ucBG = *(int *) pucBGPointer;
+
+				pucFGPointer[0] = ucFG[3];	// ucK
+				pucFGPointer[1] = ucFG[0];	// ucC
+				pucFGPointer[2] = ucFG[1];	// ucM
+				pucFGPointer[3] = ucFG[2];	// ucY
+//				pucBGPointer[0] = ucBG[3];	// ucK
+//				pucBGPointer[1] = ucBG[0];	// ucC
+//				pucBGPointer[2] = ucBG[1];	// ucM
+//				pucBGPointer[3] = ucBG[2];	// ucY
+
+				if (ucColorMode == PAGE_COLOR_RK2)
+				{
+					pucFGPointer[2] = pucFGPointer[3] =
+					pucBGPointer[2] = pucBGPointer[3] = 0;
+					DoGammaRK2(pucFGPointer, nObjMode,
+							toner_limit, pLimit, ppucGamma);
+//					if (ulFlag & COLOR_BGMODE)
+//					{
+//						DoGammaRK2(pucBGPointer, nObjMode,
+//								toner_limit,
+//								pLimit, ppucGamma);
+//					}
+
+				}
+				else if (ucColorMode)
+				{
+					DoGamma(pucFGPointer, nObjMode,toner_limit,
+						pLimit, ppucGamma);
+//					if (ulFlag & COLOR_BGMODE)
+//						DoGamma(pucBGPointer, nObjMode,toner_limit,
+//						pLimit, ppucGamma);
+				}
+				else
+				{
+					ApplyCmyk2Gray (pucFGPointer);	// KCMY -> GRAY
+					DoGammaK (pucFGPointer, pucFGPointer, ppucGamma);
+//					if (ulFlag & COLOR_BGMODE)
+//					{
+//						ApplyCmyk2Gray (pucBGPointer);	// KCMY -> GRAY
+//						DoGammaK (pucBGPointer, pucBGPointer, ppucGamma);
+//					}
+				}
+				break;
+
+			default:
+				assert (FALSE);
+		}
+ }
+
+void CPRColor::SetcolorGinfIsColor(unsigned long ulVectorGray,unsigned long ulGrayJudgeMode,
+	unsigned char ucColorMode, int toner_limit, unsigned long ulFlag,int nObjMode,unsigned char *pucFGPointer, unsigned char *pucBGPointer, unsigned char **ppucGamma,
+	int nOrigObjMode, clr_tlimit_t *pLimit)
+ {
+	union
+	{
+		ulong l;
+		uchar b[4];
+	} fg;
+//	union
+//	{
+//		ulong l;
+//		uchar b[4];
+//	} bg;
+//todo
+#ifdef SUPPORT_CUTTING_RGBVALUE
+	unsigned long ulSrcNot = (ginf->m_ulGraphicColorFlag & COLOR_GRAP_SRCNOT) ?
+							GRAP_SRCNOT_ON : GRAP_SRCNOT_OFF;
+#endif
+	switch (ucColorMode)
+	{
+		case PAGE_COLOR_CMYK:
+		case PAGE_COLOR_CMY:	/* CMY ‚ÍƒOƒŒƒCˆó�ü•ûŽ®‚Å‘Î‰ž */
+		case PAGE_COLOR_RK2:
+		{
+			ulong ulGmod;
+
+			fg.l = *(ulong *) pucFGPointer;
+			//bg.l = 0;//*(ulong *) pucBGPointer;
+
+			/* ƒIƒuƒWƒFƒNƒg–ˆ‚ÉŽw’è‚³‚ê‚½ƒOƒŒƒCˆó�ü•ûŽ®‚ð’²‚×‚é */
+			ulGmod = ulVectorGray;
+			SetIsGrayJudge (ulGrayJudgeMode, nObjMode);
+			switch (nObjMode)
+			{
+				case OBJ_IMAG:
+					ulGmod = GRAY_IMAG_MODE (ulGmod);
+					/*
+					 * StretchBlt(COLOR)‚Í�í‚ÉGRAY_CMYK
+					 * StretchBlt(MONO)‚ÌG2KˆÈŠO‚àGRAY_CMYK
+					 * ‚È‚Ì‚Å‘®�«Žw’è‚Å‚à“¯—l‚Ì“®‚«‚É‚·‚é�B
+					 */
+					switch (nOrigObjMode &
+						OBJ_MASK_1ST)
+					{
+						case OBJ_IMAG_COLOR:
+						/* ABOUTK‚ÌƒCƒ��[ƒW‚ÍG2K‚Æ“¯‚¶
+						   MAYBEK‚Ísetcolor‚É‚Í•K—v‚È‚¢ */
+							if ((ulGmod != GRAY_CMY)
+								&& (ulGmod != GRAY_HGRCMYK)
+								&& (ulGmod != GRAY_PIXELK)
+								&& (ulGmod != GRAY_IMAGEK))
+							{
+								if(ulGmod == GRAY_HGRG2K)
+								{
+									ulGmod = GRAY_HGRCMYK;
+								}
+								else
+								{
+									ulGmod = GRAY_CMYK;
+								}
+							}
+							break;
+						case OBJ_IMAG_MONO:
+							if ((ulGmod != GRAY_G2K)
+								&& (ulGmod != GRAY_HGRG2K)
+								&& (ulGmod != GRAY_HGRCMYK)
+								&& (ulGmod != GRAY_CMY)
+								&& (ulGmod != GRAY_PIXELK)
+#ifdef SUPPORT_COMPOSITEBLACK
+								&& (ulGmod != GRAY_COMPBK)
+#endif
+								&& (ulGmod != GRAY_MAYBEK)
+								&& (ulGmod != GRAY_ABOUTK)
+								&& (ulGmod != GRAY_IMAGEK))
+							{
+								ulGmod = GRAY_CMYK;
+							}
+							else if(ulGmod == GRAY_IMAGEK)
+							{//ƒ‚ƒmƒCƒ��[ƒW‚ÌIMAGEK‚ÍG2K
+								ulGmod = GRAY_G2K;
+							}
+							break;
+						default:
+							/* Stretchblt, Bitblt‚È‚ç‚±‚¿‚ç */
+							break;
+					}
+					break;
+				case OBJ_GRAP:
+					ulGmod = GRAY_GRAP_MODE (ulGmod);
+					break;
+				case OBJ_TEXT:
+					ulGmod = GRAY_TEXT_MODE (ulGmod);
+					break;
+				case OBJ_LINE:
+					ulGmod = GRAY_LINE_MODE (ulGmod);
+					break;
+			}
+			//m_psCmmColor = &(prh->m_objCmm);
+			//m_psCmmColor->m_ulCurId = Cmmprofiles(nObjMode);
+
+
+			if ((ulFlag & COLOR_MASK) == COLOR_GRAY)
+			{
+#ifdef SUPPORT_CUTTING_RGBVALUE
+				ApplyRgbRatioGray(this,
+					&pucFGPointer[0], 1, nObjMode, ulSrcNot);
+#endif
+				DoGammaK(pucFGPointer, pucFGPointer, ppucGamma);
+//				if (ulFlag & COLOR_BGMODE)
+//				{
+//#ifdef SUPPORT_CUTTING_RGBVALUE
+//					ApplyRgbRatioGray(this,
+//						&pucBGPointer[0], 1,
+//						nObjMode, ulSrcNot);
+//#endif
+//					DoGammaK(pucBGPointer, pucBGPointer, ppucGamma);
+//				}
+				break;
+			}
+			else if ((ulFlag & COLOR_MASK) == COLOR_RGB)
+			{
+			/* Žw’è‚³‚ê‚½ƒOƒŒƒCˆó�ü•ûŽ®‚Å RGB->CMYK •ÏŠ·‚·‚é */
+			switch (ulGmod)
+			{
+				case GRAY_G2K:
+				case GRAY_PIXELK:
+				case GRAY_MAYBEK:
+#ifdef SUPPORT_CUTTING_RGBVALUE
+					ApplyBgucrKeepgray (fg.b, pucFGPointer, nObjMode, ulSrcNot);
+					//ApplyBgucrKeepgray (bg.b, pucBGPointer, nObjMode, ulSrcNot);
+#else
+					ApplyBgucrKeepgray (fg.b, pucFGPointer);
+					//ApplyBgucrKeepgray (bg.b, pucBGPointer);
+#endif
+					break;
+				case GRAY_HGRG2K:
+					ApplyBgucrHgrKeepgray (fg.b, pucFGPointer);
+					//ApplyBgucrHgrKeepgray (bg.b, pucBGPointer);
+					break;
+				case GRAY_CMYK:
+#ifdef SUPPORT_CUTTING_RGBVALUE
+					ApplyBgucr (fg.b, pucFGPointer, nObjMode, ulSrcNot);
+					//ApplyBgucr (bg.b, pucBGPointer, nObjMode, ulSrcNot);
+#else
+					ApplyBgucr (fg.b, pucFGPointer);
+					//ApplyBgucr (bg.b, pucBGPointer);
+#endif
+					break;
+				case GRAY_HGRCMYK:
+					ApplyBgucrHgr (fg.b, pucFGPointer);
+					//ApplyBgucrHgr (bg.b, pucBGPointer);
+					break;
+				case GRAY_CMY:
+					ApplyRgb2Cmy (fg.b, pucFGPointer);
+					//ApplyRgb2Cmy (bg.b, pucBGPointer);
+					break;
+				case GRAY_K2K:
+				case GRAY_IMAGEK:
+					ApplyBgucrKeepblack (fg.b, pucFGPointer);
+					//ApplyBgucrKeepblack (bg.b, pucBGPointer);
+					break;
+				case GRAY_ABOUTK:
+					ApplyBgucrAboutKeepgray (fg.b,
+						pucFGPointer);
+					//ApplyBgucrAboutKeepgray (bg.b,
+						//pucBGPointer);
+					break;
+			}
+		}
+
+			if (ucColorMode == PAGE_COLOR_RK2)
+			{
+				pucFGPointer[2] = pucFGPointer[3] = 0;
+				//pucBGPointer[2] = pucBGPointer[3] = 0;
+				DoGammaRK2(pucFGPointer, nObjMode, toner_limit,
+					pLimit, ppucGamma);
+				//if (ulFlag & COLOR_BGMODE)
+					//DoGammaRK2(pucBGPointer, nObjMode, toner_limit, pLimit, ppucGamma);
+			}
+			else
+			{
+				DoGamma(pucFGPointer, nObjMode, toner_limit,
+					pLimit, ppucGamma);
+				//if (ulFlag & COLOR_BGMODE)
+					//DoGamma(pucBGPointer, nObjMode, toner_limit, pLimit, ppucGamma);
+			}
+			break;
+
+		}
+		case PAGE_COLOR_RK:
+		{
+			fg.l = *(ulong *) pucFGPointer;
+			//bg.l = *(ulong *) pucBGPointer;
+
+			ApplyTwinColorGammas (this, &fg.b[0], &fg.b[1],
+				&fg.b[2], pucFGPointer, pucFGPointer + 1, 1, ppucGamma);
+			//ApplyTwinColorGammas (this, &bg.b[0], &bg.b[1],
+				//&bg.b[2], pucBGPointer, pucBGPointer + 1, 1, ppucGamma);
+			pucFGPointer[2] = pucFGPointer[3] = 0; //pucBGPointer[2] = pucBGPointer[3] = 0;
+
+			break;
+		}
+		case PAGE_COLOR_K:
+#ifdef SUPPORT_CUTTING_RGBVALUE
+			// RGB -> GRAY
+			ApplyRgb2Gray (this, pucFGPointer, nObjMode, ulSrcNot);
+#else
+			ApplyRgb2Gray (pucFGPointer);	// RGB -> GRAY
+#endif
+			DoGammaK (pucFGPointer, pucFGPointer, ppucGamma);
+//			if (ulFlag & COLOR_BGMODE)
+//			{
+//#ifdef SUPPORT_CUTTING_RGBVALUE
+//				// RGB -> GRAY
+//				ApplyRgb2Gray (this, pucBGPointer, nObjMode, ulSrcNot);
+//#else
+//				ApplyRgb2Gray (pucBGPointer);	// RGB -> GRAY
+//#endif
+//				DoGammaK (pucBGPointer, pucBGPointer, ppucGamma);
+//			}
+			break;
+		default:;
+			assert (0);
+	}
+
+ }
+
+void CPRColor::SetIsGrayJudge (unsigned long ulGrayJudgeMode, int nObjMode)
+{
+	switch (nObjMode & PR_OBJ_MASK)
+	{
+		case PR_OBJ_IMAG:
+			m_ucIsGrayJudge = GRAY_IMAG_MODE (ulGrayJudgeMode);
+			break;
+		case PR_OBJ_GRAP:
+			m_ucIsGrayJudge = GRAY_GRAP_MODE (ulGrayJudgeMode);
+			break;
+		case PR_OBJ_TEXT:
+			m_ucIsGrayJudge = GRAY_TEXT_MODE (ulGrayJudgeMode);
+			break;
+		default:
+			break;
+	}
+}
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //Function      :SetColorGinfColorMask
@@ -10945,7 +11505,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 	switch (prh->m_objRender.m_ucIsColor)
 	{
 		case PAGE_COLOR_CMYK:
-		case PAGE_COLOR_CMY:	CMM*//* CMY �̓O���C��������őΉ� */
+		case PAGE_COLOR_CMY:	CMM*//* CMY ‚ÍƒOƒŒƒCˆó�ü•ûŽ®‚Å‘Î‰ž */
 		/* CMMcase PAGE_COLOR_RK2:
 		{
 			ulong ulGmod;
@@ -10953,7 +11513,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 			fg.l = *(ulong *) pucFGPointer;
 			bg.l = *(ulong *) pucBGPointer; CMM*/
 
-			/* �I�u�W�F�N�g���Ɏw�肳�ꂽ�O���C��������𒲂ׂ� */
+			/* ƒIƒuƒWƒFƒNƒg–ˆ‚ÉŽw’è‚³‚ê‚½ƒOƒŒƒCˆó�ü•ûŽ®‚ð’²‚×‚é */
 			/* CMMulGmod = prh->m_objPageCtrl.GetVectorGray();
 			SetIsGrayJudge (prh, nObjMode);
 			switch (nObjMode)
@@ -10961,16 +11521,16 @@ SetcolorGinf (CPRPageRenderer* prh,
 				case OBJ_IMAG:
 					ulGmod = GRAY_IMAG_MODE (ulGmod); CMM*/
 					/*
-					 * StretchBlt(COLOR)�͏��GRAY_CMYK
-					 * StretchBlt(MONO)��G2K�ȊO��GRAY_CMYK
-					 * �Ȃ̂ő����w��ł����l�̓����ɂ���B
+					 * StretchBlt(COLOR)‚Í�í‚ÉGRAY_CMYK
+					 * StretchBlt(MONO)‚ÌG2KˆÈŠO‚àGRAY_CMYK
+					 * ‚È‚Ì‚Å‘®�«Žw’è‚Å‚à“¯—l‚Ì“®‚«‚É‚·‚é�B
 					 */
 					/* CMM switch (nOrigObjMode &
 						OBJ_MASK_1ST)
 					{
 						case OBJ_IMAG_COLOR: CMM*/
-						/* ABOUTK�̃C���[�W��G2K�Ɠ���
-						   MAYBEK��setcolor�ɂ͕K�v�Ȃ� */
+						/* ABOUTK‚ÌƒCƒ��[ƒW‚ÍG2K‚Æ“¯‚¶
+						   MAYBEK‚Ísetcolor‚É‚Í•K—v‚È‚¢ */
 							/* CMMif ((ulGmod != GRAY_CMY)
 								&& (ulGmod != GRAY_HGRCMYK)
 								&& (ulGmod != GRAY_PIXELK)
@@ -11002,12 +11562,12 @@ SetcolorGinf (CPRPageRenderer* prh,
 								ulGmod = GRAY_CMYK;
 							}
 							else if(ulGmod == GRAY_IMAGEK)
-							{//���m�C���[�W��IMAGEK��G2K
+							{//ƒ‚ƒmƒCƒ��[ƒW‚ÌIMAGEK‚ÍG2K
 								ulGmod = GRAY_G2K;
 							}
 							break;
 						default: CMM*/
-							/* Stretchblt, Bitblt�Ȃ炱���� */
+							/* Stretchblt, Bitblt‚È‚ç‚±‚¿‚ç */
 							/* CMMbreak;
 					}
 					break;
@@ -11105,7 +11665,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 			else if ((ginf->m_ucFlag & COLOR_MASK) == COLOR_RGB)
 			{
 #endif CMM*//* SUPPORT_COMPOSITEBLACK */
-			/* �w�肳�ꂽ�O���C��������� RGB->CMYK �ϊ����� */
+			/* Žw’è‚³‚ê‚½ƒOƒŒƒCˆó�ü•ûŽ®‚Å RGB->CMYK •ÏŠ·‚·‚é */
 			/* CMMswitch (ulGmod)
 			{
 				case GRAY_G2K:
@@ -11299,7 +11859,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 		return PR_ERROR;
 	}
 	
-	//RGB�łȂ����CMM��OFF
+	//RGB‚Å‚È‚¯‚ê‚ÎCMM‚ÍOFF
 	if((ginf->m_objGra.m_sGradationInfo.ucGradationFlag
 				& COLOR_MASK) != COLOR_RGB)
 	{
@@ -11357,7 +11917,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 			assert (0);
 			break;
 	}CMM*/
-	/* �o�͐F��ԁA���͐F��Ԃ̕���(�O���f�[�V�����ł͌Œ�) */
+	/* �o—Í�F‹óŠÔ�A“ü—Í�F‹óŠÔ‚Ì•À‚Ñ(ƒOƒ‰ƒf�[ƒVƒ‡ƒ“‚Å‚ÍŒÅ’è) */
 	/* CMMginf->m_ulColorFlag |= CR_OUTPUT_ORDER_REVERSE
 		| CR_INPUT_ORDER_NORMAL;
 	
@@ -11432,7 +11992,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 	
 	//set color processing flag
 	
-	//���[�U�[���t���O
+	//ƒ†�[ƒU�[ƒÁƒtƒ‰ƒO
 	if (ucUseUGamma == TRUE)
 	{
 		ginf->m_ulColorFlag |= CR_UGAMMA_ON;
@@ -11442,19 +12002,19 @@ SetcolorGinf (CPRPageRenderer* prh,
 		ginf->m_ulColorFlag |= CR_UGAMMA_OFF;
 	}
 	
-	//���ʋK���t���O
+	//‘�—Ê‹K�§ƒtƒ‰ƒO
 	if (prh->m_objJobCtrl.GetTonerLimit())
 		ginf->m_ulColorFlag |= CR_TONERLIMIT_ON;
 	else
 		ginf->m_ulColorFlag |= CR_TONERLIMIT_OFF;
 	
-	//�V�X�e�����t���O
+	//ƒVƒXƒeƒ€ƒÁƒtƒ‰ƒO
 	if (prh->m_objRender.m_objGamma.m_ucGammaThrough)
 		ginf->m_ulColorFlag |= CR_GAMMA_OFF;
 	else
 		ginf->m_ulColorFlag |= CR_GAMMA_ON;
 	
-	//���ʋK���l & Diter Mode & Gray Mode
+	//‘�—Ê‹K�§’l & Diter Mode & Gray Mode
 	ulGmod = prh->m_objPageCtrl.GetVectorGray();
 	switch (nObjMode)
 	{
@@ -11501,7 +12061,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 		break;
 	}
 	
-	//�O���C���[�h
+	//ƒOƒŒƒCƒ‚�[ƒh
 	switch (ulGmod)
 	{
 	case GRAY_G2K:
@@ -11538,7 +12098,7 @@ SetcolorGinf (CPRPageRenderer* prh,
 		break;
 	} CMM*/
 	/*
-	 * CMM,Profile �̐ݒ�
+	 * CMM,Profile ‚Ì�Ý’è
 	 */
 	/* CMMif (prh->m_objCmm.m_lIsCmm && 
 		((prh->m_objRender.m_ucIsColor == PAGE_COLOR_CMY) ||
@@ -13930,11 +14490,11 @@ int CPRColor::GetGrayMode(unsigned long ulColorFlag)
 				switch (pobjPrintElement->GetPEFlag())
 				{ CMM*/
 					/*
-					 * Rectangle, Polyline, Polybezier��
-					 * Fill�i�h��j�̏ꍇ�̓J���[�u���V�g�p
-					 * Fill�i�h��j��Draw�i����j�̓����w��̏ꍇ��Draw�͑�2FG/BG��
-					 * �g�p���邽�߁A�����ł�false�ɂ��Ȃ�
-					 * Clip�̏ꍇ�͂��̊֐����Ă΂�邱�Ƃ͂��肦�Ȃ�����false�Ƃ���
+					 * Rectangle, Polyline, Polybezier‚Ì
+					 * Fill�i“h‚è�j‚Ì�ê�‡‚ÍƒJƒ‰�[ƒuƒ‰ƒVŽg—p
+					 * Fill�i“h‚è�j‚ÆDraw�i�ü‰æ�j‚Ì“¯ŽžŽw’è‚Ì�ê�‡‚ÌDraw‚Í‘æ2FG/BG‚ð
+					 * Žg—p‚·‚é‚½‚ß�A‚±‚±‚Å‚Ífalse‚É‚µ‚È‚¢
+					 * Clip‚Ì�ê�‡‚Í‚±‚ÌŠÖ�”‚ªŒÄ‚Î‚ê‚é‚±‚Æ‚Í‚ ‚è‚¦‚È‚¢‚½‚ßfalse‚Æ‚·‚é
 					 */
 					/* CMMcase PRINTELEMENT_RECTANGLE:
 						switch (((CPRRectangle *)pobjPrintElement)->m_ulOpe & PR_DRAW_MASK)

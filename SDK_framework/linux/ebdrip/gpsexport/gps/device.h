@@ -1,6 +1,6 @@
 /**
  * @file device.h
- * @brief DI�̌��J�t�@�C��
+ * @brief DI‚ÌŒöŠJƒtƒ@ƒCƒ‹
  *
  * @author kumagai
  * @date 2005-09-13
@@ -9,15 +9,15 @@
  * Copyright (c) 2001-2007 by RICOH CO., LTD.
  */
 
-/** \mainpage DI Library �����݌v�d�l��
+/** \mainpage DI Library “à•”�ÝŒvŽd—l�‘
  *
- * �{�d�l���́ADI�iDevice Infomation) Library �̓����d�l���L�q�������̂ł��B
+ * –{Žd—l�‘‚Í�ADI�iDevice Infomation) Library ‚Ì“à•”Žd—l‚ð‹L�q‚µ‚½‚à‚Ì‚Å‚·�B
  *
- * DI�́A�v�����^�[�A�v���i�ȉ��A�v���j�����삷�邽�߂ɕK�v�ȏ��̒񋟂�
- * �s�����C�u�����ł��B
- * �A�v���ł́A�v�����^�[�̂n�r��@��Ɉˑ�������񂪕K�v�ł����A���̂悤
- * �ȕϓ��p�����[�^��DI����擾���邱�Ƃɂ��A�p�[�X���A�����_�����O����
- * ���������������̔ėp�������߂܂��B
+ * DI‚Í�AƒvƒŠƒ“ƒ^�[ƒAƒvƒŠ�iˆÈ‰ºƒAƒvƒŠ�j‚ª“®�ì‚·‚é‚½‚ß‚É•K—v‚È�î•ñ‚Ì’ñ‹Ÿ‚ð
+ * �s‚¤ƒ‰ƒCƒuƒ‰ƒŠ‚Å‚·�B
+ * ƒAƒvƒŠ‚Å‚Í�AƒvƒŠƒ“ƒ^�[‚Ì‚n‚r‚â‹@Ží‚ÉˆË‘¶‚µ‚½�î•ñ‚ª•K—v‚Å‚·‚ª�A‚»‚Ì‚æ‚¤
+ * ‚È•Ï“®ƒpƒ‰ƒ��[ƒ^‚ðDI‚©‚çŽæ“¾‚·‚é‚±‚Æ‚É‚æ‚è�Aƒp�[ƒX•”�AƒŒƒ“ƒ_ƒŠƒ“ƒO•”‚Æ
+ * ‚¢‚Á‚½�ˆ—�•”•ª‚Ì”Ä—p�«‚ð�‚‚ß‚Ü‚·�B
  *
  * \date 2005/09
  * \author M.Kumagai
@@ -29,50 +29,50 @@
 #define DI_MAX_TRAY_NUM	8
 
 /*
- * di_select_idevice�֐���I/O��`
+ * di_select_ideviceŠÖ�”‚ÌI/O’è‹`
  */
 #define DI_HOST_IO         0
 #define DI_MEMORY_IO       1
 #define DI_FILE_IO         2
 
 /*
- * �V�X�e�����痈��C�x���g�l
+ * ƒVƒXƒeƒ€‚©‚ç—ˆ‚éƒCƒxƒ“ƒg’l
  */
-#define	DI_REQ_PROCESS	0x01	/* �ʏ폈�� */
-#define	DI_REQ_CANCEL	0x02	/* �p�l������̃W���u���Z�b�g */
-#define	DI_REQ_EXIT		0x04	/* �I���v�� */
-#define	DI_REQ_PAUSE    0x08	/* ���荞�݂ɂ��ꎞ��~�v�� */
-#define	DI_REQ_RESUME   0x10	/* �����ĊJ�v�� */
-#define	DI_REQ_PROGENTRY	0x20	/* �v���O�����o�^�v���iMSIS�nPDL��p�j */
-#define	DI_REQ_PROGDELETE	0x40	/* �v���O�����폜�v���iMSIS�nPDL��p�j */
-#define	DI_REQ_TERM		0x80	/* �v�����^�A�v���I���v���iMSIS�nPDL��p�j */
-#define	DI_REQ_INTRAY		0x100	/* �����g���C���m�F�v���iMSIS�nPDL��p */
+#define	DI_REQ_PROCESS	0x01	/* ’Ê�í�ˆ—� */
+#define	DI_REQ_CANCEL	0x02	/* ƒpƒlƒ‹‚©‚ç‚ÌƒWƒ‡ƒuƒŠƒZƒbƒg */
+#define	DI_REQ_EXIT		0x04	/* �I—¹—v‹� */
+#define	DI_REQ_PAUSE    0x08	/* Š„‚è�ž‚Ý‚É‚æ‚éˆêŽž’âŽ~—v‹� */
+#define	DI_REQ_RESUME   0x10	/* �ˆ—��ÄŠJ—v‹� */
+#define	DI_REQ_PROGENTRY	0x20	/* ƒvƒ�ƒOƒ‰ƒ€“o˜^—v‹��iMSISŒnPDL�ê—p�j */
+#define	DI_REQ_PROGDELETE	0x40	/* ƒvƒ�ƒOƒ‰ƒ€�í�œ—v‹��iMSISŒnPDL�ê—p�j */
+#define	DI_REQ_TERM		0x80	/* ƒvƒŠƒ“ƒ^ƒAƒvƒŠ�I—¹—v‹��iMSISŒnPDL�ê—p�j */
+#define	DI_REQ_INTRAY		0x100	/* ‹‹Ž†ƒgƒŒƒC�î•ñŠm”F—v‹��iMSISŒnPDL�ê—p */
 
 /*
- * �V�X�e���ւ̒ʒm���b�Z�[�W
+ * ƒVƒXƒeƒ€‚Ö‚Ì’Ê’mƒ�ƒbƒZ�[ƒW
  */
-#define DI_NOTIFYMSG_JOBEND		0x01	/* �W���u�̏I�� */
-#define DI_NOTIFYMSG_STATE		0x02	/* ��Ԃ̒ʒm */
-#define DI_NOTIFYMSG_STRING		0x03	/* ������ɂ���Ԃ̒ʒm */
-#define DI_NOTIFYMSG_ERRFORCE		0x11	/* �G���[�̋����ʒm */
-#define DI_NOTIFYMSG_START		0x12	/* �����I�ȋN���ʒm */
-#define DI_NOTIFYMSG_FINISH_FONTCOUNT	0x13	/* �t�H���g�J�E���g�̏I���ʒm */
-#define DI_NOTIFYMSG_PAUSE		0x14	/* �ꎞ��~�v���ɑ΂��鉞���i�����A�������͈ꎞ��~�ł��Ȃ��j�ʒm */
-#define DI_NOTIFYMSG_RESUME		0x15	/* �����ĊJ�ʒm */
-#define DI_NOTIFYMSG_ERR		0x16    /* �G���[�̒ʒm */
-#define DI_NOTIFYMSG_WARNNING		0x17	/* ���[�j���O���x���̃G���[�̒ʒm */
-#define DI_NOTIFYMSG_CLEAR_WARNNING	0x18	/* ���[�j���O���x���̃G���[�̃N���A�̒ʒm */
-#define DI_NOTIFYMSG_ALERT		0x19	/* �I�y���[�^�R�[�����x���̃G���[�̒ʒm */
-#define DI_NOTIFYMSG_CLEAR_ALERT	0x1A	/* �I�y���[�^�R�[�����x���̃G���[�̃N���A�̒ʒm */
+#define DI_NOTIFYMSG_JOBEND		0x01	/* ƒWƒ‡ƒu‚Ì�I—¹ */
+#define DI_NOTIFYMSG_STATE		0x02	/* �ó‘Ô‚Ì’Ê’m */
+#define DI_NOTIFYMSG_STRING		0x03	/* •¶Žš—ñ‚É‚æ‚é�ó‘Ô‚Ì’Ê’m */
+#define DI_NOTIFYMSG_ERRFORCE		0x11	/* ƒGƒ‰�[‚Ì‹­�§’Ê’m */
+#define DI_NOTIFYMSG_START		0x12	/* –¾Ž¦“I‚È‹N“®’Ê’m */
+#define DI_NOTIFYMSG_FINISH_FONTCOUNT	0x13	/* ƒtƒHƒ“ƒgƒJƒEƒ“ƒg‚Ì�I—¹’Ê’m */
+#define DI_NOTIFYMSG_PAUSE		0x14	/* ˆêŽž’âŽ~—v‹�‚É‘Î‚·‚é‰ž“š�iŠ®—¹�A‚à‚µ‚­‚ÍˆêŽž’âŽ~‚Å‚«‚È‚¢�j’Ê’m */
+#define DI_NOTIFYMSG_RESUME		0x15	/* �ˆ—��ÄŠJ’Ê’m */
+#define DI_NOTIFYMSG_ERR		0x16    /* ƒGƒ‰�[‚Ì’Ê’m */
+#define DI_NOTIFYMSG_WARNNING		0x17	/* ƒ��[ƒjƒ“ƒOƒŒƒxƒ‹‚ÌƒGƒ‰�[‚Ì’Ê’m */
+#define DI_NOTIFYMSG_CLEAR_WARNNING	0x18	/* ƒ��[ƒjƒ“ƒOƒŒƒxƒ‹‚ÌƒGƒ‰�[‚ÌƒNƒŠƒA‚Ì’Ê’m */
+#define DI_NOTIFYMSG_ALERT		0x19	/* ƒIƒyƒŒ�[ƒ^ƒR�[ƒ‹ƒŒƒxƒ‹‚ÌƒGƒ‰�[‚Ì’Ê’m */
+#define DI_NOTIFYMSG_CLEAR_ALERT	0x1A	/* ƒIƒyƒŒ�[ƒ^ƒR�[ƒ‹ƒŒƒxƒ‹‚ÌƒGƒ‰�[‚ÌƒNƒŠƒA‚Ì’Ê’m */
 
 /*
- *�ꎟ��~�v���ɑ΂��鉞���̈���
+ *ˆêŽŸ’âŽ~—v‹�‚É‘Î‚·‚é‰ž“š‚Ìˆø�”
  */
-#define DI_INTERP_PAUSE_OK	0	/* �ꎞ��~������ */
-#define DI_INTERP_PAUSE_NG	-1	/* �ꎞ��~�ł��Ȃ� */
+#define DI_INTERP_PAUSE_OK	0	/* ˆêŽž’âŽ~‚µ‚½Žž */
+#define DI_INTERP_PAUSE_NG	-1	/* ˆêŽž’âŽ~‚Å‚«‚È‚¢ */
 
 /*
- * �C���^�v���^�̏��
+ * ƒCƒ“ƒ^ƒvƒŠƒ^‚Ì�ó‘Ô
  */
 #define DI_INTERP_STATE_IDLE       0   /* idle */
 #define DI_INTERP_STATE_PROCESSING 1   /* processing */
@@ -80,50 +80,50 @@
 #define DI_INTERP_STATE_FLUSHING   3   /* flushing data */
 
 /*
- * �R�[���o�b�N�֐��̎w��
+ * ƒR�[ƒ‹ƒoƒbƒNŠÖ�”‚ÌŽw’è
  */
-/* di_singetc �ǂݍ��ݎ��s�̎��ɃR�[������֐� */
+/* di_singetc “Ç‚Ý�ž‚ÝŽ¸”s‚ÌŽž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_READERR_SINGETC		0x01
-/* di_singet �ǂݍ��ݎ��s�̎��ɃR�[������֐� */
+/* di_singet “Ç‚Ý�ž‚ÝŽ¸”s‚ÌŽž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_READERR_SINGET		0x02
-/* di_singetc �T�C�Y�w��s�����ɃR�[������֐� */
+/* di_singetc ƒTƒCƒYŽw’è•s�³Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_SIZEERR_SINGET		0x03
-/* �V�X�e������f�[�^�����̊J�n�v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒf�[ƒ^�ˆ—�‚ÌŠJŽn—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_PROCDATA		0x11
-/* �V�X�e������C���^�v���^�I���v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒCƒ“ƒ^ƒvƒŠƒ^�I—¹—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_EXIT			0x12
-/* �V�X�e������f�[�^�����̒��~�v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒf�[ƒ^�ˆ—�‚Ì’†Ž~—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_CANCEL			0x13
-/* �V�X�e������I�����C���v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒIƒ“ƒ‰ƒCƒ“—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_ONLINE			0x14
-/* �V�X�e������I�t���C���v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒIƒtƒ‰ƒCƒ“—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_OFFLINE			0x15
-/* �V�X�e������e�X�g�v�����g�v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒeƒXƒgƒvƒŠƒ“ƒg—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_TESTPRINT		0x16
-/* �V�X�e�����狋���g���C�̕ύX�ʒm���������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚ç‹‹Ž†ƒgƒŒƒC‚Ì•Ï�X’Ê’m‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_TRAYINFO		0x17
-/* �V�X�e������r���r���̕ύX�ʒm���������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚ç”rŽ†ƒrƒ“‚Ì•Ï�X’Ê’m‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_BININFO			0x18
-/* �V�X�e�����狭���r���v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚ç‹­�§”rŽ†—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_EXITPAPER		0x19
-/* �V�X�e������t�H���g���̃J�E���g�v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒtƒHƒ“ƒg�”‚ÌƒJƒEƒ“ƒg—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_FONTCOUNT		0x1A
-/* �V�X�e������v�����^�X�e�[�^�X���̕ύX�ʒm���������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒvƒŠƒ“ƒ^ƒXƒe�[ƒ^ƒX�î•ñ‚Ì•Ï�X’Ê’m‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_PRTSTATUS		0x1B
-/* �V�X�e������K���}�Čv�Z���������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒKƒ“ƒ}�ÄŒvŽZ‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_GAM				0x1C
-/* �V�X�e������f�[�^�����̈ꎞ��~�v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒf�[ƒ^�ˆ—�‚ÌˆêŽž’âŽ~—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_PAUSE				0x1D
-/* �V�X�e������f�[�^�����̏����ĊJ�v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒf�[ƒ^�ˆ—�‚Ì�ˆ—��ÄŠJ—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_RESUME				0x1E
-/* �V�X�e�����烁�j���[�A�C�e���̓o�^�v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒ�ƒjƒ…�[ƒAƒCƒeƒ€‚Ì“o˜^—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_MENU_INIT			0x20
-/* �V�X�e�����烁�j���[��ʂ̏I���v�����������ɃR�[������֐� */
+/* ƒVƒXƒeƒ€‚©‚çƒ�ƒjƒ…�[‰æ–Ê‚Ì�I—¹—v‹�‚ª‚«‚½Žž‚ÉƒR�[ƒ‹‚·‚éŠÖ�” */
 #define DI_CALLBACK_REQ_MENU_EXIT			0x21
 #define DI_CALLBACK_REQ_TRAY			0x26
 
 /*
- * �𑜓x
+ * ‰ð‘œ“x
  */
 #define DI_RESO_200x200x1	(1 << 0)
 #define DI_RESO_300x300x1	(1 << 1)
@@ -137,7 +137,7 @@
 #define DI_RESO_600x1200x1	(1 << 9)
 
 /*
- * di_getinfo( )�̃G���[�̎��
+ * di_getinfo( )‚ÌƒGƒ‰�[‚ÌŽí—Þ
  */
 #define DI_GI_ERR_CONDITION  	(1 << 0)
 #define DI_GI_ERR_DITHER     	(1 << 1)
@@ -173,7 +173,7 @@
 #define DI_SRI_TLIMIT	3
 
 /*
- * di_get_appinfo( )�̕Ԃ�l
+ * di_get_appinfo( )‚Ì•Ô‚è’l
  */
 #define DI_PINI_OK                  0
 #define DI_PINI_KEY_NOT_FOUND      -1
@@ -184,12 +184,12 @@
 #define DI_PINI_ERROR              -6
 
 /*
- * di_get_appinfo( )�̒l���i�[����z��̍ő咷
+ * di_get_appinfo( )‚Ì’l‚ðŠi”[‚·‚é”z—ñ‚Ì�Å‘å’·
  */
 #define DI_MAX_VALUE_LEN 32
 
 /*
- * di_get/set_envalue( )�̕Ԃ�l
+ * di_get/set_envalue( )‚Ì•Ô‚è’l
  */
 #define DI_ENV_ASSIGN          1
 #define DI_ENV_DEFAULT         0
@@ -200,19 +200,19 @@
 #define DI_ENV_ILLEGAL_VALUE  -5
 #define DI_ENV_TABLE_BUSY     -6
 /*
- * di_get_envdata( )�̕Ԃ�l
- * �������di_get_envdata( )�Ŏg�p���Ă���
+ * di_get_envdata( )‚Ì•Ô‚è’l
+ * ‚·‚®�ã‚àdi_get_envdata( )‚ÅŽg—p‚µ‚Ä‚¢‚é
  */
 #define DI_ENV_TOOLONG_VALUE  -4
 
 /*
- * di_soutput�Ŏw�肷�鏑�����ݕ��@
+ * di_soutput‚ÅŽw’è‚·‚é�‘‚«�ž‚Ý•û–@
  */
 #define DI_HOST_BLOCK		0x00
 #define DI_HOST_NONBLOCK	0x01
 
 /*
- * �f�B�X�N�̎��
+ * ƒfƒBƒXƒN‚ÌŽí—Þ
  */
 #define DI_HDD_DOWNLOAD 0
 #define DI_HDD_SPOOL    1
@@ -225,12 +225,12 @@
 #define DI_SD_PICTBRIDGE	8
 
 /*
- * �X�g���[�W�̎��
+ * ƒXƒgƒŒ�[ƒW‚ÌŽí—Þ
  */
 #define DI_STORAGE_NVRAM 0 /* NVRAM */
 
 /*
- * �@�\���
+ * ‹@”\�î•ñ
  */
 #define DI_SYS_FUNC_DUPLEX             (1 << 0)        /* duplex */
 #define DI_SYS_FUNC_STAPLE             (1 << 1)        /* staple */
@@ -256,10 +256,10 @@
 #define DI_SYS_FUNC_BLUETOOTH          (1 << 21)       /* Bluetooth */
 #define DI_SYS_FUNC_GWMAC              (1 << 22)       /* GWMAC */
 #define DI_SYS_FUNC_GIGAETHER          (1 << 23)       /* Gigabit Ethernet */
-#define DI_SYS_FUNC_FOLD               (1 << 24)       /* Z�܂� */
+#define DI_SYS_FUNC_FOLD               (1 << 24)       /* Z�Ü‚è */
 
 /*
- * �p���`���
+ * ƒpƒ“ƒ`�î•ñ
  */
 #define DI_SYS_PUNCH_HOLE_JP2          (1 << 0)        /* 2 JP */
 #define DI_SYS_PUNCH_HOLE_US2          (1 << 1)        /* 2 US */ 
@@ -268,7 +268,7 @@
 #define DI_SYS_PUNCH_HOLE_NEU4         (1 << 4)        /* 4 Northern EU */
 
 /*
- * �`���l���ԍ�
+ * ƒ`ƒƒƒlƒ‹”Ô�†
  */
 #define DI_CHANNEL_LPD                 1               /* LPD */
 #define DI_CHANNEL_FTP                 2               /* FTP */
@@ -310,8 +310,8 @@
 #define DI_NOTIFY_CHANGE_OFF    0       /* not notify if changed */
 #define DI_NOTIFY_CHANGE_ON     1       /* notify if changed */
 
-#define DI_DISKSTAT_UNKNOWN		0		/* �s��icheck���j */
-#define DI_DISKSTAT_NONE		1		/* �f�B�X�N���� */
+#define DI_DISKSTAT_UNKNOWN		0		/* •s’è�icheck’†�j */
+#define DI_DISKSTAT_NONE		1		/* ƒfƒBƒXƒN–³‚µ */
 #define DI_DISKSTAT_READY		2		/* Ready */
 
 #define DI_DEVICETYPE_FILE 0x01
@@ -324,59 +324,59 @@
 #define   DI_SET_ACT              6
 #define   DI_RESET_ACT            7
 
-#define DI_LANG_JAPANESE		0		/* ���{�� */
-#define DI_LANG_ENGLISH			1		/* �p�� */
-#define DI_LANG_FRENCH			2		/* �t�����X�� */
-#define DI_LANG_GERMAN			3		/* �h�C�c�� */
-#define DI_LANG_ITALIAN			4		/* �C�^���A�� */
-#define DI_LANG_SPANISH			5		/* �X�y�C���� */
-#define DI_LANG_DUTCH			6		/* �I�����_�� */
-#define DI_LANG_SWEDISH			7		/* �X�E�F�[�f���� */
-#define DI_LANG_NORWEGIAN		8		/* �m���E�F�[�� */
-#define DI_LANG_DANISH			9		/* �f���}�[�N�� */
-#define DI_LANG_FINNISH			10		/* �t�B�������h�� */
-#define DI_LANG_PORTUGUESE		11		/* �|���g�K���� */
-#define DI_LANG_CZECH			12		/* �`�F�R�� */
-#define DI_LANG_POLISH			13		/* �|�[�����h�� */
-#define DI_LANG_HUNGARIAN		14		/* �n���K���[�� */
-#define DI_LANG_CHINESE			15		/* ������ */
-#define DI_LANG_TAIWANESE		16		/* ��p�� */
-#define DI_LANG_RUSSIAN			17		/* ���V�A�� */
-#define DI_LANG_HEBREW			18		/* �w�u���C�� */
-#define DI_LANG_ARABIC			19		/* �A���r�A�� */
+#define DI_LANG_JAPANESE		0		/* “ú–{Œê */
+#define DI_LANG_ENGLISH			1		/* ‰pŒê */
+#define DI_LANG_FRENCH			2		/* ƒtƒ‰ƒ“ƒXŒê */
+#define DI_LANG_GERMAN			3		/* ƒhƒCƒcŒê */
+#define DI_LANG_ITALIAN			4		/* ƒCƒ^ƒŠƒAŒê */
+#define DI_LANG_SPANISH			5		/* ƒXƒyƒCƒ“Œê */
+#define DI_LANG_DUTCH			6		/* ƒIƒ‰ƒ“ƒ_Œê */
+#define DI_LANG_SWEDISH			7		/* ƒXƒEƒF�[ƒfƒ“Œê */
+#define DI_LANG_NORWEGIAN		8		/* ƒmƒ‹ƒEƒF�[Œê */
+#define DI_LANG_DANISH			9		/* ƒfƒ“ƒ}�[ƒNŒê */
+#define DI_LANG_FINNISH			10		/* ƒtƒBƒ“ƒ‰ƒ“ƒhŒê */
+#define DI_LANG_PORTUGUESE		11		/* ƒ|ƒ‹ƒgƒKƒ‹Œê */
+#define DI_LANG_CZECH			12		/* ƒ`ƒFƒRŒê */
+#define DI_LANG_POLISH			13		/* ƒ|�[ƒ‰ƒ“ƒhŒê */
+#define DI_LANG_HUNGARIAN		14		/* ƒnƒ“ƒKƒŠ�[Œê */
+#define DI_LANG_CHINESE			15		/* ’†�‘Œê */
+#define DI_LANG_TAIWANESE		16		/* ‘ä˜pŒê */
+#define DI_LANG_RUSSIAN			17		/* ƒ�ƒVƒAŒê */
+#define DI_LANG_HEBREW			18		/* ƒwƒuƒ‰ƒCŒê */
+#define DI_LANG_ARABIC			19		/* ƒAƒ‰ƒrƒAŒê */
 
 
-#define DI_MENU_TYPE_TRAY     5    /* �g���C�ݒ胁�j���[ */
-#define DI_MENU_TYPE_EMUSET   8    /* �G�~�����[�V��������������j���[ */
-#define DI_MENU_TYPE_PRN_NUM  9    /* �G�~�����[�V��������������j���[ */
-#define DI_MENU_TYPE_PCL     15    /* PCL��������j���[ */
+#define DI_MENU_TYPE_TRAY     5    /* ƒgƒŒƒC�Ý’èƒ�ƒjƒ…�[ */
+#define DI_MENU_TYPE_EMUSET   8    /* ƒGƒ~ƒ…ƒŒ�[ƒVƒ‡ƒ“ˆó�ü�ðŒ�ƒ�ƒjƒ…�[ */
+#define DI_MENU_TYPE_PRN_NUM  9    /* ƒGƒ~ƒ…ƒŒ�[ƒVƒ‡ƒ“ˆó�ü•”�”ƒ�ƒjƒ…�[ */
+#define DI_MENU_TYPE_PCL     15    /* PCLˆó�ü�ðŒ�ƒjƒ…�[ */
 
-#define   DI_ITEM_TYPE_START        0  /* ���[�g�\���̃A�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_MENU         1  /* ���j���[�^��ʗp�A�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_EXECUTING    3  /* ���s�^��ʗp�A�C�e���^�C�v���ʎq  */
-#define   DI_ITEM_TYPE_SELECT       2  /* �I�����^��ʗp�A�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_INTEGER      5  /* �����l�^��ʗp�A�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_FLOAT        6  /* �����l�^��ʗp�A�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_PRN_NUM      8  /* ���������ʗp�A�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_PTIME       14  /* �p���ϔ{���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_ANY         15  /* �C�ӃA�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_FLOAT_EXT   16  /* �����l���g�������^�A�C�e���^�C�v���ʎq */
-#define   DI_ITEM_TYPE_PTIME_FLT   20  /* �����^�p���ϔ{���^�C�v���ʎq */
+#define   DI_ITEM_TYPE_START        0  /* ƒ‹�[ƒg�\‘¢‘ÌƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_MENU         1  /* ƒ�ƒjƒ…�[Œ^‰æ–Ê—pƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_EXECUTING    3  /* ŽÀ�sŒ^‰æ–Ê—pƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq  */
+#define   DI_ITEM_TYPE_SELECT       2  /* ‘I‘ðŽˆŒ^‰æ–Ê—pƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_INTEGER      5  /* �®�”’lŒ^‰æ–Ê—pƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_FLOAT        6  /* �¬�”’lŒ^‰æ–Ê—pƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_PRN_NUM      8  /* ˆó�ü•”�”‰æ–Ê—pƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_PTIME       14  /* —pŽ†•Ï”{—¦ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_ANY         15  /* ”CˆÓƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_FLOAT_EXT   16  /* �¬�”’lŒ…Šg’£“Á‰»Œ^ƒAƒCƒeƒ€ƒ^ƒCƒvŽ¯•ÊŽq */
+#define   DI_ITEM_TYPE_PTIME_FLT   20  /* �¬�”Œ^—pŽ†•Ï”{—¦ƒ^ƒCƒvŽ¯•ÊŽq */
 
 
-#define DI_INTERP_TESTPRINT_SUMMARY			-1	/* �C���^�v���^�T�}���[(�������)��� */
-#define DI_INTERP_TESTPRINT_FONTSET				1	/* �t�H���g�Z�b�g��� */
-#define DI_INTERP_TESTPRINT_FONTALL				2	/* �S������� */
-#define DI_INTERP_TESTPRINT_PROGRAM				3	/* �v���O�����ꗗ��� */
-#define DI_INTERP_TESTPRINT_FORMLIST			4	/* �o�^�t�H�[���ꗗ��� */
+#define DI_INTERP_TESTPRINT_SUMMARY			-1	/* ƒCƒ“ƒ^ƒvƒŠƒ^ƒTƒ}ƒŠ�[(ˆó�ü�ðŒ�)ˆó�ü */
+#define DI_INTERP_TESTPRINT_FONTSET				1	/* ƒtƒHƒ“ƒgƒZƒbƒgˆó�ü */
+#define DI_INTERP_TESTPRINT_FONTALL				2	/* ‘S•¶Žšˆó�ü */
+#define DI_INTERP_TESTPRINT_PROGRAM				3	/* ƒvƒ�ƒOƒ‰ƒ€ˆê——ˆó�ü */
+#define DI_INTERP_TESTPRINT_FORMLIST			4	/* “o˜^ƒtƒH�[ƒ€ˆê——ˆó�ü */
 #define DI_INTERP_TESTPRINT_PSINFO				5	/* PostScript info list */
-#define DI_INTERP_TESTPRINT_COLORSAMPLE			6	/* �J���[�T���v����� */
-#define DI_INTERP_TESTPRINT_COLORMATCHING		7	/* �F����␳ */
-#define DI_INTERP_TESTPRINT_COLORTEST			8	/* �J���[�e�X�g */
-#define DI_INTERP_TESTPRINT_GAMMA_USER1			9	/* �K���␳�P */
-#define DI_INTERP_TESTPRINT_GAMMA_USER2			10	/* �K���␳�Q */
-#define DI_INTERP_TESTPRINT_COLORSHIFT_SET		11	/* �蒅���x�␳�ݒ�p */
-#define DI_INTERP_TESTPRINT_COLORSHIFT_CHECK	12	/* �蒅���x�␳�m�F�p */
+#define DI_INTERP_TESTPRINT_COLORSAMPLE			6	/* ƒJƒ‰�[ƒTƒ“ƒvƒ‹ˆó�ü */
+#define DI_INTERP_TESTPRINT_COLORMATCHING		7	/* �F‚¸‚ê•â�³ */
+#define DI_INTERP_TESTPRINT_COLORTEST			8	/* ƒJƒ‰�[ƒeƒXƒg */
+#define DI_INTERP_TESTPRINT_GAMMA_USER1			9	/* ŠK’²•â�³‚P */
+#define DI_INTERP_TESTPRINT_GAMMA_USER2			10	/* ŠK’²•â�³‚Q */
+#define DI_INTERP_TESTPRINT_COLORSHIFT_SET		11	/* ’è’…‘¬“x•â�³�Ý’è—p */
+#define DI_INTERP_TESTPRINT_COLORSHIFT_CHECK	12	/* ’è’…‘¬“x•â�³Šm”F—p */
 #define DI_INTERP_TESTPRINT_PDFINFO				13	/* PDF info list */
 #define DI_INTERP_TESTPRINT_MICR				20	/* MICR testsheet */
 
@@ -454,117 +454,117 @@ enum {
 	DI_SYS_MODEL_MICR_IPDS,			/* IPDS MICR model */
 };
 
-/* memory �m�ۊ֐��̌^ */
+/* memory Šm•ÛŠÖ�”‚ÌŒ^ */
 typedef char* (*DI_CALLBACK_MEMALLOC)( unsigned long );
-/* memory ����֐��̌^ */
+/* memory ‰ð•úŠÖ�”‚ÌŒ^ */
 typedef void (*DI_CALLBACK_MEMFREE)( char * );
-/* �R�[���o�b�N�֐��̌^ */
+/* ƒR�[ƒ‹ƒoƒbƒNŠÖ�”‚ÌŒ^ */
 typedef void (*DI_CALLBACK_FUNC)( void );
 
-/* �f�B�U���\���� */
+/* ƒfƒBƒU�î•ñ�\‘¢‘Ì */
 typedef struct di_ditinfo {
-	unsigned char	*dit_ptr;		/* �f�B�U�̐擪�A�h���X */
-	unsigned char	x_size;			/* �� */
-	unsigned char	y_size;			/* ���� */
-	unsigned char	dit_order;		/* �f�B�U�̃I�[�_�l�g�pON/OFF */
-									/* [0: �g�p���Ȃ�, 0x40: �g�p����] */
-	unsigned short	rearrange;		/* ���A�����W�}�g���b�N�X�p�^�[�� ID */
-									/* gps_pagemode_t �Q�� */
+	unsigned char	*dit_ptr;		/* ƒfƒBƒU‚Ì�æ“ªƒAƒhƒŒƒX */
+	unsigned char	x_size;			/* •� */
+	unsigned char	y_size;			/* �‚‚³ */
+	unsigned char	dit_order;		/* ƒfƒBƒU‚ÌƒI�[ƒ_’lŽg—pON/OFF */
+									/* [0: Žg—p‚µ‚È‚¢, 0x40: Žg—p‚·‚é] */
+	unsigned short	rearrange;		/* ƒŠƒAƒŒƒ“ƒWƒ}ƒgƒŠƒbƒNƒXƒpƒ^�[ƒ“ ID */
+									/* gps_pagemode_t ŽQ�Æ */
 	unsigned char	e_flag_max;		/* engine flag for color level: 255 */
 	unsigned char	e_flag_mid;		/* engine flag for color level: 1 to 254 */
 } dit_info_t, di_ditinfo_t;
 
-/* �𑜓x�\���� */
+/* ‰ð‘œ“x�\‘¢‘Ì */
 typedef struct di_resoinfo {
-	unsigned int	x;	/* �呖�������𑜓x */
-	unsigned int	y;	/* �����������𑜓x */
+	unsigned int	x;	/* Žå‘–�¸•ûŒü‰ð‘œ“x */
+	unsigned int	y;	/* •›‘–�¸•ûŒü‰ð‘œ“x */
 } reso_info_t, di_resoinfo_t;
 
-/* �𑜓x�\����(�r�b�g�Ƃ̑g����) */
+/* ‰ð‘œ“x�\‘¢‘Ì(ƒrƒbƒg‚Æ‚Ì‘g�‡‚¹) */
 typedef struct di_resolutioninfo {
-	unsigned int	x;		/* �呖�������𑜓x */
-	unsigned int	y;		/* �����������𑜓x */
-	unsigned char	bit;		/* �r�b�g�� */
-	unsigned char   paper;		/* ���� */
-	unsigned char	dit_mode;	/* �f�B�U���[�h */
-	unsigned char   prt_mode;	/* �v�����^�h���C�o�ł̃��[�h */
+	unsigned int	x;		/* Žå‘–�¸•ûŒü‰ð‘œ“x */
+	unsigned int	y;		/* •›‘–�¸•ûŒü‰ð‘œ“x */
+	unsigned char	bit;		/* ƒrƒbƒg�” */
+	unsigned char   paper;		/* Ž†Ží */
+	unsigned char	dit_mode;	/* ƒfƒBƒUƒ‚�[ƒh */
+	unsigned char   prt_mode;	/* ƒvƒŠƒ“ƒ^ƒhƒ‰ƒCƒo‚Å‚Ìƒ‚�[ƒh */
 } resolution_info_t, di_resolutioninfo_t;
 
-/* ���ʋK���l���\���� */
+/* ‘�—Ê‹K�§’l�î•ñ�\‘¢‘Ì */
 typedef struct di_tlimitinfo {
-	di_resolutioninfo_t	reso;	/* �𑜓x�Ball 0�Ȃ�𑜓x�̎w��Ȃ� */
-	int					text;	/* �����I�u�W�F�N�g�̑��ʋK���l */
-	int					line;	/* ����I�u�W�F�N�g�̑��ʋK���l */
-	int					phot;	/* �ʐ^�I�u�W�F�N�g�̑��ʋK���l */
-	int					fill;	/* �h��Ԃ��I�u�W�F�N�g�̑��ʋK���l */
+	di_resolutioninfo_t	reso;	/* ‰ð‘œ“x�Ball 0‚È‚ç‰ð‘œ“x‚ÌŽw’è‚È‚µ */
+	int					text;	/* •¶ŽšƒIƒuƒWƒFƒNƒg‚Ì‘�—Ê‹K�§’l */
+	int					line;	/* �ü‰æƒIƒuƒWƒFƒNƒg‚Ì‘�—Ê‹K�§’l */
+	int					phot;	/* ŽÊ�^ƒIƒuƒWƒFƒNƒg‚Ì‘�—Ê‹K�§’l */
+	int					fill;	/* “h‚è‚Â‚Ô‚µƒIƒuƒWƒFƒNƒg‚Ì‘�—Ê‹K�§’l */
 } tlimit_info_t, di_tlimitinfo_t;
 
-/* �g���C��� */
+/* ƒgƒŒƒC�î•ñ */
 typedef struct di_onetrayinfo {
 	unsigned short	id;				/* tray ID */
-	unsigned char	p_size;			/* �p���T�C�Y(di_paperdef.h�Q��) */
-#define DI_PAPER_AUTO          (0x00)          /* ����w��Ȃ� */
-#define DI_PAPER_NORMAL        (0x01)          /* ���ʎ� */
-#define DI_PAPER_RECYCLE       (0x02)          /* �Đ��� */
-#define DI_PAPER_SPECIAL       (0x03)          /* ���ꎆ */
-#define DI_PAPER_TRACING       (0x04)          /* �g���[�V���O�� */
+	unsigned char	p_size;			/* —pŽ†ƒTƒCƒY(di_paperdef.hŽQ�Æ) */
+#define DI_PAPER_AUTO          (0x00)          /* Ž†ŽíŽw’è‚È‚µ */
+#define DI_PAPER_NORMAL        (0x01)          /* •�’ÊŽ† */
+#define DI_PAPER_RECYCLE       (0x02)          /* �Ä�¶Ž† */
+#define DI_PAPER_SPECIAL       (0x03)          /* “ÁŽêŽ† */
+#define DI_PAPER_TRACING       (0x04)          /* ƒgƒŒ�[ƒVƒ“ƒOŽ† */
 #define DI_PAPER_OHP           (0x05)          /* OHP */
-#define DI_PAPER_LABEL         (0x06)          /* ���x���� */
-#define DI_PAPER_BOND          (0x07)          /* �{���h�� */
-#define DI_PAPER_CARDSTOCK     (0x08)          /* �J�[�h�X�g�b�N */
-#define DI_PAPER_CARDBOARD     (0x09)          /* ���� */
-#define DI_PAPER_PREPRINT      (0x0A)          /* ����ςݎ� */
-#define DI_PAPER_LETTER_HEAD   (0x0B)          /* ���^�[�w�b�h�� */
-#define DI_PAPER_LTHEAD        (0x0B)          /* �p�~�\�� */
-#define DI_PAPER_PUNCH         (0x0C)          /* �p���`�ςݎ� */
-#define DI_PAPER_PREPUNCH      (0x0C)          /* �p�~�\�� */
-#define DI_PAPER_TAB           (0x0D)          /* �^�u�� */
-#define DI_PAPER_COLOR         (0x0E)          /* �F�� */
-#define DI_PAPER_NORMAL2ND     (0x0F)          /* ���ʎ�(����) */
-#define DI_PAPER_CARDBOARD2ND  (0x10)          /* ����(����) */
-#define DI_PAPER_THIN          (0x11)          /* ���� */
-#define DI_PAPER_GLOSSY        (0x12)          /* ���� */
-#define DI_PAPER_USED          (0x13)          /* �����i�g�p�ς݁j */
-#define DI_PAPER_POSTCARD      (0x14)          /* �n�K�L */
-#define DI_PAPER_POSTCARD2ND   (0x15)          /* �n�K�L(����) */
-#define DI_PAPER_CARDBOARD2    (0x16)          /* �����Q */
-#define DI_PAPER_FILM          (0x17)          /* �t�B�������i�}�ʃR�s�[�p�j */
-#define DI_PAPER_INKPOST       (0x18)          /* �C���N�W�F�b�g�p�͂��� */
-#define DI_PAPER_HG_NORMAL     (0x19)          /* HG���ʎ� */
-#define DI_PAPER_ENVELOPE      (0x1A)          /* ���� */
-#define DI_PAPER_CARDBOARD3    (0x1B)          /* �����R */
-#define DI_PAPER_SPECIAL2      (0x1C)          /* ���ꎆ�Q */
-#define DI_PAPER_SPECIAL3      (0x1D)          /* ���ꎆ�R */
-#define DI_PAPER_MIDDLETHICK   (0x1E)          /* ������ */
-#define DI_PAPER_COATED        (0x1F)          /* �R�[�g�� */
-#define DI_PAPER_CARDBOARD2REV (0x20)          /* �����Q(����) */
-#define DI_PAPER_CARDBOARD3REV (0x21)          /* �����R(����) */
-#define DI_PAPER_NORMAL2       (0x22)          /* ���ʎ��Q */
-#define DI_PAPER_THICKGLOSSY   (0x23)          /* ������� */
-#define DI_PAPER_SPECIAL4      (0x24)          /* ���ꎆ�S */
-#define DI_PAPER_SPECIAL5      (0x25)          /* ���ꎆ�T */
-#define DI_PAPER_SPECIAL6      (0x26)          /* ���ꎆ�U */
-#define DI_PAPER_USER_DEF1     (0x30)          /* ���[�U�w��P */
-#define DI_PAPER_USER_DEF2     (0x31)          /* ���[�U�w��Q */
-#define DI_PAPER_USER_DEF3     (0x32)          /* ���[�U�w��R */
-#define DI_PAPER_USER_DEF4     (0x33)          /* ���[�U�w��S */
-#define DI_PAPER_USER_DEF5     (0x34)          /* ���[�U�w��T */
-#define DI_PAPER_USER_DEF6     (0x35)          /* ���[�U�w��U */
-#define DI_PAPER_USER_DEF7     (0x36)          /* ���[�U�w��V */
-#define DI_PAPER_USER_DEF8     (0x37)          /* ���[�U�w��W */
-#define DI_PAPER_USER_DEF0     (0x38)          /* ���[�U�w��O�i���o�^�J�X�^������j */
-#define DI_PAPER_COLOR1        (0x40)          /* �F���P           */
-#define DI_PAPER_COLOR2        (0x41)          /* �F���Q           */
-#define DI_PAPER_COLOR_WHITE   (0x50)          /* �g�p�s��(�W��) */
-#define DI_PAPER_COLOR_YELLOW  (0x51)          /* �� */
-#define DI_PAPER_COLOR_GREEN   (0x52)          /* �� */
-#define DI_PAPER_COLOR_BLUE    (0x53)          /* �� */
-#define DI_PAPER_COLOR_PURPLE  (0x54)          /* �� */
-#define DI_PAPER_COLOR_IVORY   (0x55)          /* �A�C�{���[ */
-#define DI_PAPER_COLOR_ORANGE  (0x56)          /* �� */
-#define DI_PAPER_COLOR_PINK    (0x57)          /* �� */
-#define DI_PAPER_COLOR_RED     (0x58)          /* �� */
-#define DI_PAPER_COLOR_GRAY    (0x59)          /* �D */
+#define DI_PAPER_LABEL         (0x06)          /* ƒ‰ƒxƒ‹Ž† */
+#define DI_PAPER_BOND          (0x07)          /* ƒ{ƒ“ƒhŽ† */
+#define DI_PAPER_CARDSTOCK     (0x08)          /* ƒJ�[ƒhƒXƒgƒbƒN */
+#define DI_PAPER_CARDBOARD     (0x09)          /* ŒúŽ† */
+#define DI_PAPER_PREPRINT      (0x0A)          /* ˆó�ü�Ï‚ÝŽ† */
+#define DI_PAPER_LETTER_HEAD   (0x0B)          /* ƒŒƒ^�[ƒwƒbƒhŽ† */
+#define DI_PAPER_LTHEAD        (0x0B)          /* ”pŽ~—\’è */
+#define DI_PAPER_PUNCH         (0x0C)          /* ƒpƒ“ƒ`�Ï‚ÝŽ† */
+#define DI_PAPER_PREPUNCH      (0x0C)          /* ”pŽ~—\’è */
+#define DI_PAPER_TAB           (0x0D)          /* ƒ^ƒuŽ† */
+#define DI_PAPER_COLOR         (0x0E)          /* �FŽ† */
+#define DI_PAPER_NORMAL2ND     (0x0F)          /* •�’ÊŽ†(— –Ê) */
+#define DI_PAPER_CARDBOARD2ND  (0x10)          /* ŒúŽ†(— –Ê) */
+#define DI_PAPER_THIN          (0x11)          /* ”–Ž† */
+#define DI_PAPER_GLOSSY        (0x12)          /* Œõ‘òŽ† */
+#define DI_PAPER_USED          (0x13)          /* — Ž†�iŽg—p�Ï‚Ý�j */
+#define DI_PAPER_POSTCARD      (0x14)          /* ƒnƒKƒL */
+#define DI_PAPER_POSTCARD2ND   (0x15)          /* ƒnƒKƒL(— –Ê) */
+#define DI_PAPER_CARDBOARD2    (0x16)          /* ŒúŽ†‚Q */
+#define DI_PAPER_FILM          (0x17)          /* ƒtƒBƒ‹ƒ€Ž†�i�}–ÊƒRƒs�[—p�j */
+#define DI_PAPER_INKPOST       (0x18)          /* ƒCƒ“ƒNƒWƒFƒbƒg—p‚Í‚ª‚« */
+#define DI_PAPER_HG_NORMAL     (0x19)          /* HG•�’ÊŽ† */
+#define DI_PAPER_ENVELOPE      (0x1A)          /* ••“› */
+#define DI_PAPER_CARDBOARD3    (0x1B)          /* ŒúŽ†‚R */
+#define DI_PAPER_SPECIAL2      (0x1C)          /* “ÁŽêŽ†‚Q */
+#define DI_PAPER_SPECIAL3      (0x1D)          /* “ÁŽêŽ†‚R */
+#define DI_PAPER_MIDDLETHICK   (0x1E)          /* ’†ŒúŒû */
+#define DI_PAPER_COATED        (0x1F)          /* ƒR�[ƒgŽ† */
+#define DI_PAPER_CARDBOARD2REV (0x20)          /* ŒúŽ†‚Q(— –Ê) */
+#define DI_PAPER_CARDBOARD3REV (0x21)          /* ŒúŽ†‚R(— –Ê) */
+#define DI_PAPER_NORMAL2       (0x22)          /* •�’ÊŽ†‚Q */
+#define DI_PAPER_THICKGLOSSY   (0x23)          /* ŒúŽèŒõ‘òŽ† */
+#define DI_PAPER_SPECIAL4      (0x24)          /* “ÁŽêŽ†‚S */
+#define DI_PAPER_SPECIAL5      (0x25)          /* “ÁŽêŽ†‚T */
+#define DI_PAPER_SPECIAL6      (0x26)          /* “ÁŽêŽ†‚U */
+#define DI_PAPER_USER_DEF1     (0x30)          /* ƒ†�[ƒUŽw’è‚P */
+#define DI_PAPER_USER_DEF2     (0x31)          /* ƒ†�[ƒUŽw’è‚Q */
+#define DI_PAPER_USER_DEF3     (0x32)          /* ƒ†�[ƒUŽw’è‚R */
+#define DI_PAPER_USER_DEF4     (0x33)          /* ƒ†�[ƒUŽw’è‚S */
+#define DI_PAPER_USER_DEF5     (0x34)          /* ƒ†�[ƒUŽw’è‚T */
+#define DI_PAPER_USER_DEF6     (0x35)          /* ƒ†�[ƒUŽw’è‚U */
+#define DI_PAPER_USER_DEF7     (0x36)          /* ƒ†�[ƒUŽw’è‚V */
+#define DI_PAPER_USER_DEF8     (0x37)          /* ƒ†�[ƒUŽw’è‚W */
+#define DI_PAPER_USER_DEF0     (0x38)          /* ƒ†�[ƒUŽw’è‚O�i–¢“o˜^ƒJƒXƒ^ƒ€Ž†Ží�j */
+#define DI_PAPER_COLOR1        (0x40)          /* �FŽ†‚P           */
+#define DI_PAPER_COLOR2        (0x41)          /* �FŽ†‚Q           */
+#define DI_PAPER_COLOR_WHITE   (0x50)          /* Žg—p•s‰Â(•W�€) */
+#define DI_PAPER_COLOR_YELLOW  (0x51)          /* ‰© */
+#define DI_PAPER_COLOR_GREEN   (0x52)          /* —Î */
+#define DI_PAPER_COLOR_BLUE    (0x53)          /* �Â */
+#define DI_PAPER_COLOR_PURPLE  (0x54)          /* Ž‡ */
+#define DI_PAPER_COLOR_IVORY   (0x55)          /* ƒAƒCƒ{ƒŠ�[ */
+#define DI_PAPER_COLOR_ORANGE  (0x56)          /* žò */
+#define DI_PAPER_COLOR_PINK    (0x57)          /* “� */
+#define DI_PAPER_COLOR_RED     (0x58)          /* �Ô */
+#define DI_PAPER_COLOR_GRAY    (0x59)          /* ŠD */
 #define DI_PAPER_GLOSSY_COATED		(0x60)	/* glossy coated */
 #define DI_PAPER_THICK_GLOSSY_COATED	(0x61)	/* thick glossy coated */
 #define DI_PAPER_MAT_COATED		(0x62)	/* matt coated */
@@ -577,101 +577,101 @@ typedef struct di_onetrayinfo {
 #define DI_PAPER_INKJETPLAIN	(0x69)
 #define DI_PAPER_MATFILM		(0x6C)
 #define DI_PAPER_CADCOATED		(0x6D)
-#define DI_PAPER_NONE          (0x80)          /* �g���C�ɐݒ肳��Ă��鎆��(����PDL���g���C�w�莞�̂ݎg�p��) */
-#define DI_PAPER_USER_DEF9			(0x81)	/* ���[�U�w��X(IMSS) */
-#define DI_PAPER_USER_DEF10			(0x82)	/* ���[�U�w��P�O(IMSS) */
-#define DI_PAPER_USER_DEF11			(0x83)	/* ���[�U�w��P�P(IMSS) */
-#define DI_PAPER_USER_DEF12			(0x84)	/* ���[�U�w��P�Q(IMSS) */
-#define DI_PAPER_USER_DEF13			(0x85)	/* ���[�U�w��P�R(IMSS) */
-#define DI_PAPER_USER_DEF14			(0x86)	/* ���[�U�w��P�S(IMSS) */
-#define DI_PAPER_USER_DEF15			(0x87)	/* ���[�U�w��P�T(IMSS) */
-#define DI_PAPER_USER_DEF16			(0x88)	/* ���[�U�w��P�U(IMSS) */
-#define DI_PAPER_USER_DEF17			(0x89)	/* ���[�U�w��P�V(IMSS) */
-#define DI_PAPER_USER_DEF18			(0x8A)	/* ���[�U�w��P�W(IMSS) */
-#define DI_PAPER_USER_DEF19			(0x8B)	/* ���[�U�w��P�X(IMSS) */
-#define DI_PAPER_USER_DEF20			(0x8C)	/* ���[�U�w��Q�O(IMSS) */
-#define DI_PAPER_USER_DEF21			(0x8D)	/* ���[�U�w��Q�P(IMSS) */
-#define DI_PAPER_USER_DEF22			(0x8E)	/* ���[�U�w��Q�Q(IMSS) */
-#define DI_PAPER_USER_DEF23			(0x8F)	/* ���[�U�w��Q�R(IMSS) */
-#define DI_PAPER_USER_DEF24			(0x90)	/* ���[�U�w��Q�S(IMSS) */
-#define DI_PAPER_USER_DEF25			(0x91)	/* ���[�U�w��Q�T(IMSS) */
-#define DI_PAPER_USER_DEF26			(0x92)	/* ���[�U�w��Q�U(IMSS) */
-#define DI_PAPER_USER_DEF27			(0x93)	/* ���[�U�w��Q�V(IMSS) */
-#define DI_PAPER_USER_DEF28			(0x94)	/* ���[�U�w��Q�W(IMSS) */
-#define DI_PAPER_USER_DEF29			(0x95)	/* ���[�U�w��Q�X(IMSS) */
-#define DI_PAPER_USER_DEF30			(0x96)	/* ���[�U�w��R�O(IMSS) */
-#define DI_PAPER_USER_DEF31			(0x97)	/* ���[�U�w��R�P(IMSS) */
-#define DI_PAPER_USER_DEF32			(0x98)	/* ���[�U�w��R�Q(IMSS) */
-#define DI_PAPER_USER_DEF33			(0x99)	/* ���[�U�w��R�R(IMSS) */
-#define DI_PAPER_USER_DEF34			(0x9A)	/* ���[�U�w��R�S(IMSS) */
-#define DI_PAPER_USER_DEF35			(0x9B)	/* ���[�U�w��R�T(IMSS) */
-#define DI_PAPER_USER_DEF36			(0x9C)	/* ���[�U�w��R�U(IMSS) */
-#define DI_PAPER_USER_DEF37			(0x9D)	/* ���[�U�w��R�V(IMSS) */
-#define DI_PAPER_USER_DEF38			(0x9E)	/* ���[�U�w��R�W(IMSS) */
-#define DI_PAPER_USER_DEF39			(0x9F)	/* ���[�U�w��R�X(IMSS) */
-#define DI_PAPER_USER_DEF40			(0xA0)	/* ���[�U�w��S�O(IMSS) */
-#define DI_PAPER_USER_DEF41			(0xA1)	/* ���[�U�w��S�P(IMSS) */
-#define DI_PAPER_USER_DEF42			(0xA2)	/* ���[�U�w��S�Q(IMSS) */
-#define DI_PAPER_USER_DEF43			(0xA3)	/* ���[�U�w��S�R(IMSS) */
-#define DI_PAPER_USER_DEF44			(0xA4)	/* ���[�U�w��S�S(IMSS) */
-#define DI_PAPER_USER_DEF45			(0xA5)	/* ���[�U�w��S�T(IMSS) */
-#define DI_PAPER_USER_DEF46			(0xA6)	/* ���[�U�w��S�U(IMSS) */
-#define DI_PAPER_USER_DEF47			(0xA7)	/* ���[�U�w��S�V(IMSS) */
-#define DI_PAPER_USER_DEF48			(0xA8)	/* ���[�U�w��S�W(IMSS) */
-#define DI_PAPER_USER_DEF49			(0xA9)	/* ���[�U�w��S�X(IMSS) */
-#define DI_PAPER_USER_DEF50			(0xAA)	/* ���[�U�w��T�O(IMSS) */
-#define DI_PAPER_USER_DEF51			(0xAB)	/* ���[�U�w��T�P(IMSS) */
-#define DI_PAPER_USER_DEF52			(0xAC)	/* ���[�U�w��T�Q(IMSS) */
-#define DI_PAPER_USER_DEF53			(0xAD)	/* ���[�U�w��T�R(IMSS) */
-#define DI_PAPER_USER_DEF54			(0xAE)	/* ���[�U�w��T�S(IMSS) */
-#define DI_PAPER_USER_DEF55			(0xAF)	/* ���[�U�w��T�T(IMSS) */
-#define DI_PAPER_USER_DEF56			(0xB0)	/* ���[�U�w��T�U(IMSS) */
-#define DI_PAPER_USER_DEF57			(0xB1)	/* ���[�U�w��T�V(IMSS) */
-#define DI_PAPER_USER_DEF58			(0xB2)	/* ���[�U�w��T�W(IMSS) */
-#define DI_PAPER_USER_DEF59			(0xB3)	/* ���[�U�w��T�X(IMSS) */
-#define DI_PAPER_USER_DEF60			(0xB4)	/* ���[�U�w��U�O(IMSS) */
-#define DI_PAPER_USER_DEF61			(0xB5)	/* ���[�U�w��U�P(IMSS) */
-#define DI_PAPER_USER_DEF62			(0xB6)	/* ���[�U�w��U�Q(IMSS) */
-#define DI_PAPER_USER_DEF63			(0xB7)	/* ���[�U�w��U�R(IMSS) */
-#define DI_PAPER_USER_DEF64			(0xB8)	/* ���[�U�w��U�S(IMSS) */
-#define DI_PAPER_USER_DEF65			(0xB9)	/* ���[�U�w��U�T(IMSS) */
-#define DI_PAPER_USER_DEF66			(0xBA)	/* ���[�U�w��U�U(IMSS) */
-#define DI_PAPER_USER_DEF67			(0xBB)	/* ���[�U�w��U�V(IMSS) */
-#define DI_PAPER_USER_DEF68			(0xBC)	/* ���[�U�w��U�W(IMSS) */
-#define DI_PAPER_USER_DEF69			(0xBD)	/* ���[�U�w��U�X(IMSS) */
-#define DI_PAPER_USER_DEF70			(0xBE)	/* ���[�U�w��V�O(IMSS) */
-#define DI_PAPER_USER_DEF71			(0xBF)	/* ���[�U�w��V�P(IMSS) */
-#define DI_PAPER_USER_DEF72			(0xC0)	/* ���[�U�w��V�Q(IMSS) */
-#define DI_PAPER_USER_DEF73			(0xC1)	/* ���[�U�w��V�R(IMSS) */
-#define DI_PAPER_USER_DEF74			(0xC2)	/* ���[�U�w��V�S(IMSS) */
-#define DI_PAPER_USER_DEF75			(0xC3)	/* ���[�U�w��V�T(IMSS) */
-#define DI_PAPER_USER_DEF76			(0xC4)	/* ���[�U�w��V�U(IMSS) */
-#define DI_PAPER_USER_DEF77			(0xC5)	/* ���[�U�w��V�V(IMSS) */
-#define DI_PAPER_USER_DEF78			(0xC6)	/* ���[�U�w��V�W(IMSS) */
-#define DI_PAPER_USER_DEF79			(0xC7)	/* ���[�U�w��V�X(IMSS) */
-#define DI_PAPER_USER_DEF80			(0xC8)	/* ���[�U�w��W�O(IMSS) */
-#define DI_PAPER_USER_DEF81			(0xC9)	/* ���[�U�w��W�P(IMSS) */
-#define DI_PAPER_USER_DEF82			(0xCA)	/* ���[�U�w��W�Q(IMSS) */
-#define DI_PAPER_USER_DEF83			(0xCB)	/* ���[�U�w��W�R(IMSS) */
-#define DI_PAPER_USER_DEF84			(0xCC)	/* ���[�U�w��W�S(IMSS) */
-#define DI_PAPER_USER_DEF85			(0xCD)	/* ���[�U�w��W�T(IMSS) */
-#define DI_PAPER_USER_DEF86			(0xCE)	/* ���[�U�w��W�U(IMSS) */
-#define DI_PAPER_USER_DEF87			(0xCF)	/* ���[�U�w��W�V(IMSS) */
-#define DI_PAPER_USER_DEF88			(0xD0)	/* ���[�U�w��W�W(IMSS) */
-#define DI_PAPER_USER_DEF89			(0xD1)	/* ���[�U�w��W�X(IMSS) */
-#define DI_PAPER_USER_DEF90			(0xD2)	/* ���[�U�w��X�O(IMSS) */
-#define DI_PAPER_USER_DEF91			(0xD3)	/* ���[�U�w��X�P(IMSS) */
-#define DI_PAPER_USER_DEF92			(0xD4)	/* ���[�U�w��X�Q(IMSS) */
-#define DI_PAPER_USER_DEF93			(0xD5)	/* ���[�U�w��X�R(IMSS) */
-#define DI_PAPER_USER_DEF94			(0xD6)	/* ���[�U�w��X�S(IMSS) */
-#define DI_PAPER_USER_DEF95			(0xD7)	/* ���[�U�w��X�T(IMSS) */
-#define DI_PAPER_USER_DEF96			(0xD8)	/* ���[�U�w��X�U(IMSS) */
-#define DI_PAPER_USER_DEF97			(0xD9)	/* ���[�U�w��X�V(IMSS) */
-#define DI_PAPER_USER_DEF98			(0xDA)	/* ���[�U�w��X�W(IMSS) */
-#define DI_PAPER_USER_DEF99			(0xDB)	/* ���[�U�w��X�X(IMSS) */
-#define DI_PAPER_USER_DEF100		(0xDC)	/* ���[�U�w��P�O�O(IMSS) */
+#define DI_PAPER_NONE          (0x80)          /* ƒgƒŒƒC‚É�Ý’è‚³‚ê‚Ä‚¢‚éŽ†Ží(“Á’èPDL‚©‚ÂƒgƒŒƒCŽw’èŽž‚Ì‚ÝŽg—p‰Â) */
+#define DI_PAPER_USER_DEF9			(0x81)	/* ƒ†�[ƒUŽw’è‚X(IMSS) */
+#define DI_PAPER_USER_DEF10			(0x82)	/* ƒ†�[ƒUŽw’è‚P‚O(IMSS) */
+#define DI_PAPER_USER_DEF11			(0x83)	/* ƒ†�[ƒUŽw’è‚P‚P(IMSS) */
+#define DI_PAPER_USER_DEF12			(0x84)	/* ƒ†�[ƒUŽw’è‚P‚Q(IMSS) */
+#define DI_PAPER_USER_DEF13			(0x85)	/* ƒ†�[ƒUŽw’è‚P‚R(IMSS) */
+#define DI_PAPER_USER_DEF14			(0x86)	/* ƒ†�[ƒUŽw’è‚P‚S(IMSS) */
+#define DI_PAPER_USER_DEF15			(0x87)	/* ƒ†�[ƒUŽw’è‚P‚T(IMSS) */
+#define DI_PAPER_USER_DEF16			(0x88)	/* ƒ†�[ƒUŽw’è‚P‚U(IMSS) */
+#define DI_PAPER_USER_DEF17			(0x89)	/* ƒ†�[ƒUŽw’è‚P‚V(IMSS) */
+#define DI_PAPER_USER_DEF18			(0x8A)	/* ƒ†�[ƒUŽw’è‚P‚W(IMSS) */
+#define DI_PAPER_USER_DEF19			(0x8B)	/* ƒ†�[ƒUŽw’è‚P‚X(IMSS) */
+#define DI_PAPER_USER_DEF20			(0x8C)	/* ƒ†�[ƒUŽw’è‚Q‚O(IMSS) */
+#define DI_PAPER_USER_DEF21			(0x8D)	/* ƒ†�[ƒUŽw’è‚Q‚P(IMSS) */
+#define DI_PAPER_USER_DEF22			(0x8E)	/* ƒ†�[ƒUŽw’è‚Q‚Q(IMSS) */
+#define DI_PAPER_USER_DEF23			(0x8F)	/* ƒ†�[ƒUŽw’è‚Q‚R(IMSS) */
+#define DI_PAPER_USER_DEF24			(0x90)	/* ƒ†�[ƒUŽw’è‚Q‚S(IMSS) */
+#define DI_PAPER_USER_DEF25			(0x91)	/* ƒ†�[ƒUŽw’è‚Q‚T(IMSS) */
+#define DI_PAPER_USER_DEF26			(0x92)	/* ƒ†�[ƒUŽw’è‚Q‚U(IMSS) */
+#define DI_PAPER_USER_DEF27			(0x93)	/* ƒ†�[ƒUŽw’è‚Q‚V(IMSS) */
+#define DI_PAPER_USER_DEF28			(0x94)	/* ƒ†�[ƒUŽw’è‚Q‚W(IMSS) */
+#define DI_PAPER_USER_DEF29			(0x95)	/* ƒ†�[ƒUŽw’è‚Q‚X(IMSS) */
+#define DI_PAPER_USER_DEF30			(0x96)	/* ƒ†�[ƒUŽw’è‚R‚O(IMSS) */
+#define DI_PAPER_USER_DEF31			(0x97)	/* ƒ†�[ƒUŽw’è‚R‚P(IMSS) */
+#define DI_PAPER_USER_DEF32			(0x98)	/* ƒ†�[ƒUŽw’è‚R‚Q(IMSS) */
+#define DI_PAPER_USER_DEF33			(0x99)	/* ƒ†�[ƒUŽw’è‚R‚R(IMSS) */
+#define DI_PAPER_USER_DEF34			(0x9A)	/* ƒ†�[ƒUŽw’è‚R‚S(IMSS) */
+#define DI_PAPER_USER_DEF35			(0x9B)	/* ƒ†�[ƒUŽw’è‚R‚T(IMSS) */
+#define DI_PAPER_USER_DEF36			(0x9C)	/* ƒ†�[ƒUŽw’è‚R‚U(IMSS) */
+#define DI_PAPER_USER_DEF37			(0x9D)	/* ƒ†�[ƒUŽw’è‚R‚V(IMSS) */
+#define DI_PAPER_USER_DEF38			(0x9E)	/* ƒ†�[ƒUŽw’è‚R‚W(IMSS) */
+#define DI_PAPER_USER_DEF39			(0x9F)	/* ƒ†�[ƒUŽw’è‚R‚X(IMSS) */
+#define DI_PAPER_USER_DEF40			(0xA0)	/* ƒ†�[ƒUŽw’è‚S‚O(IMSS) */
+#define DI_PAPER_USER_DEF41			(0xA1)	/* ƒ†�[ƒUŽw’è‚S‚P(IMSS) */
+#define DI_PAPER_USER_DEF42			(0xA2)	/* ƒ†�[ƒUŽw’è‚S‚Q(IMSS) */
+#define DI_PAPER_USER_DEF43			(0xA3)	/* ƒ†�[ƒUŽw’è‚S‚R(IMSS) */
+#define DI_PAPER_USER_DEF44			(0xA4)	/* ƒ†�[ƒUŽw’è‚S‚S(IMSS) */
+#define DI_PAPER_USER_DEF45			(0xA5)	/* ƒ†�[ƒUŽw’è‚S‚T(IMSS) */
+#define DI_PAPER_USER_DEF46			(0xA6)	/* ƒ†�[ƒUŽw’è‚S‚U(IMSS) */
+#define DI_PAPER_USER_DEF47			(0xA7)	/* ƒ†�[ƒUŽw’è‚S‚V(IMSS) */
+#define DI_PAPER_USER_DEF48			(0xA8)	/* ƒ†�[ƒUŽw’è‚S‚W(IMSS) */
+#define DI_PAPER_USER_DEF49			(0xA9)	/* ƒ†�[ƒUŽw’è‚S‚X(IMSS) */
+#define DI_PAPER_USER_DEF50			(0xAA)	/* ƒ†�[ƒUŽw’è‚T‚O(IMSS) */
+#define DI_PAPER_USER_DEF51			(0xAB)	/* ƒ†�[ƒUŽw’è‚T‚P(IMSS) */
+#define DI_PAPER_USER_DEF52			(0xAC)	/* ƒ†�[ƒUŽw’è‚T‚Q(IMSS) */
+#define DI_PAPER_USER_DEF53			(0xAD)	/* ƒ†�[ƒUŽw’è‚T‚R(IMSS) */
+#define DI_PAPER_USER_DEF54			(0xAE)	/* ƒ†�[ƒUŽw’è‚T‚S(IMSS) */
+#define DI_PAPER_USER_DEF55			(0xAF)	/* ƒ†�[ƒUŽw’è‚T‚T(IMSS) */
+#define DI_PAPER_USER_DEF56			(0xB0)	/* ƒ†�[ƒUŽw’è‚T‚U(IMSS) */
+#define DI_PAPER_USER_DEF57			(0xB1)	/* ƒ†�[ƒUŽw’è‚T‚V(IMSS) */
+#define DI_PAPER_USER_DEF58			(0xB2)	/* ƒ†�[ƒUŽw’è‚T‚W(IMSS) */
+#define DI_PAPER_USER_DEF59			(0xB3)	/* ƒ†�[ƒUŽw’è‚T‚X(IMSS) */
+#define DI_PAPER_USER_DEF60			(0xB4)	/* ƒ†�[ƒUŽw’è‚U‚O(IMSS) */
+#define DI_PAPER_USER_DEF61			(0xB5)	/* ƒ†�[ƒUŽw’è‚U‚P(IMSS) */
+#define DI_PAPER_USER_DEF62			(0xB6)	/* ƒ†�[ƒUŽw’è‚U‚Q(IMSS) */
+#define DI_PAPER_USER_DEF63			(0xB7)	/* ƒ†�[ƒUŽw’è‚U‚R(IMSS) */
+#define DI_PAPER_USER_DEF64			(0xB8)	/* ƒ†�[ƒUŽw’è‚U‚S(IMSS) */
+#define DI_PAPER_USER_DEF65			(0xB9)	/* ƒ†�[ƒUŽw’è‚U‚T(IMSS) */
+#define DI_PAPER_USER_DEF66			(0xBA)	/* ƒ†�[ƒUŽw’è‚U‚U(IMSS) */
+#define DI_PAPER_USER_DEF67			(0xBB)	/* ƒ†�[ƒUŽw’è‚U‚V(IMSS) */
+#define DI_PAPER_USER_DEF68			(0xBC)	/* ƒ†�[ƒUŽw’è‚U‚W(IMSS) */
+#define DI_PAPER_USER_DEF69			(0xBD)	/* ƒ†�[ƒUŽw’è‚U‚X(IMSS) */
+#define DI_PAPER_USER_DEF70			(0xBE)	/* ƒ†�[ƒUŽw’è‚V‚O(IMSS) */
+#define DI_PAPER_USER_DEF71			(0xBF)	/* ƒ†�[ƒUŽw’è‚V‚P(IMSS) */
+#define DI_PAPER_USER_DEF72			(0xC0)	/* ƒ†�[ƒUŽw’è‚V‚Q(IMSS) */
+#define DI_PAPER_USER_DEF73			(0xC1)	/* ƒ†�[ƒUŽw’è‚V‚R(IMSS) */
+#define DI_PAPER_USER_DEF74			(0xC2)	/* ƒ†�[ƒUŽw’è‚V‚S(IMSS) */
+#define DI_PAPER_USER_DEF75			(0xC3)	/* ƒ†�[ƒUŽw’è‚V‚T(IMSS) */
+#define DI_PAPER_USER_DEF76			(0xC4)	/* ƒ†�[ƒUŽw’è‚V‚U(IMSS) */
+#define DI_PAPER_USER_DEF77			(0xC5)	/* ƒ†�[ƒUŽw’è‚V‚V(IMSS) */
+#define DI_PAPER_USER_DEF78			(0xC6)	/* ƒ†�[ƒUŽw’è‚V‚W(IMSS) */
+#define DI_PAPER_USER_DEF79			(0xC7)	/* ƒ†�[ƒUŽw’è‚V‚X(IMSS) */
+#define DI_PAPER_USER_DEF80			(0xC8)	/* ƒ†�[ƒUŽw’è‚W‚O(IMSS) */
+#define DI_PAPER_USER_DEF81			(0xC9)	/* ƒ†�[ƒUŽw’è‚W‚P(IMSS) */
+#define DI_PAPER_USER_DEF82			(0xCA)	/* ƒ†�[ƒUŽw’è‚W‚Q(IMSS) */
+#define DI_PAPER_USER_DEF83			(0xCB)	/* ƒ†�[ƒUŽw’è‚W‚R(IMSS) */
+#define DI_PAPER_USER_DEF84			(0xCC)	/* ƒ†�[ƒUŽw’è‚W‚S(IMSS) */
+#define DI_PAPER_USER_DEF85			(0xCD)	/* ƒ†�[ƒUŽw’è‚W‚T(IMSS) */
+#define DI_PAPER_USER_DEF86			(0xCE)	/* ƒ†�[ƒUŽw’è‚W‚U(IMSS) */
+#define DI_PAPER_USER_DEF87			(0xCF)	/* ƒ†�[ƒUŽw’è‚W‚V(IMSS) */
+#define DI_PAPER_USER_DEF88			(0xD0)	/* ƒ†�[ƒUŽw’è‚W‚W(IMSS) */
+#define DI_PAPER_USER_DEF89			(0xD1)	/* ƒ†�[ƒUŽw’è‚W‚X(IMSS) */
+#define DI_PAPER_USER_DEF90			(0xD2)	/* ƒ†�[ƒUŽw’è‚X‚O(IMSS) */
+#define DI_PAPER_USER_DEF91			(0xD3)	/* ƒ†�[ƒUŽw’è‚X‚P(IMSS) */
+#define DI_PAPER_USER_DEF92			(0xD4)	/* ƒ†�[ƒUŽw’è‚X‚Q(IMSS) */
+#define DI_PAPER_USER_DEF93			(0xD5)	/* ƒ†�[ƒUŽw’è‚X‚R(IMSS) */
+#define DI_PAPER_USER_DEF94			(0xD6)	/* ƒ†�[ƒUŽw’è‚X‚S(IMSS) */
+#define DI_PAPER_USER_DEF95			(0xD7)	/* ƒ†�[ƒUŽw’è‚X‚T(IMSS) */
+#define DI_PAPER_USER_DEF96			(0xD8)	/* ƒ†�[ƒUŽw’è‚X‚U(IMSS) */
+#define DI_PAPER_USER_DEF97			(0xD9)	/* ƒ†�[ƒUŽw’è‚X‚V(IMSS) */
+#define DI_PAPER_USER_DEF98			(0xDA)	/* ƒ†�[ƒUŽw’è‚X‚W(IMSS) */
+#define DI_PAPER_USER_DEF99			(0xDB)	/* ƒ†�[ƒUŽw’è‚X‚X(IMSS) */
+#define DI_PAPER_USER_DEF100		(0xDC)	/* ƒ†�[ƒUŽw’è‚P‚O‚O(IMSS) */
 
-	unsigned char	p_kind;			/* �����`(�������define) */
+	unsigned char	p_kind;			/* Ž†Ží’è‹`(‚·‚®�ã‚Ìdefine) */
 #define DI_TRAY_MANUAL          (1 << 0)    /* (attr) manual */
 #define DI_TRAY_TANDEM          (1 << 1)    /* (attr) tandem */
 #define DI_TRAY_NODUPLEX        (1 << 2)    /* (attr) noduplex */
@@ -692,12 +692,12 @@ typedef struct di_onetrayinfo {
 #define DI_TRAY_PARTITION       (1 << 17)   /* (attr) partition */
 #define DI_TRAY_TANDEM_SEPARATE (1 << 18)   /* (attr) tandem(separate) */
 #define DI_TRAY_ROLL            (1 << 19)   /* (attr) roll tray */
-#define DI_TRAY_MSIZESENSE_VALID	(1 << 20)	/* (attr) �荷�������T�C�Y���m�L�� */
-#define DI_TRAY_SINGLE_PAPER    (1 << 21)   /* (attr) �ꖇ�g���C */
+#define DI_TRAY_MSIZESENSE_VALID	(1 << 20)	/* (attr) Žè�·‚µŽ©“®ƒTƒCƒYŒŸ’m—LŒø */
+#define DI_TRAY_SINGLE_PAPER    (1 << 21)   /* (attr) ˆê–‡ƒgƒŒƒC */
 #define DI_TRAY_CHAPTERSHEET8   (1 << 22)   /* (attr) chaptersheet8 */
 #define DI_TRAY_CHAPTERSHEET9   (1 << 23)   /* (attr) chaptersheet9 */
-#define DI_TRAY_SMALLSIZE_TYPE  (1 << 24)   /* (attr) ���T�C�Y�g���C�ݒ肪ON */
-	unsigned long	attr;			/* �g���C���(�������define) */
+#define DI_TRAY_SMALLSIZE_TYPE  (1 << 24)   /* (attr) �¬ƒTƒCƒYƒgƒŒƒC�Ý’è‚ªON */
+	unsigned long	attr;			/* ƒgƒŒƒCŽí—Þ(‚·‚®�ã‚Ìdefine) */
 #define DI_TRAY_PAPEREND       (1 << 0)
 #define DI_TRAY_BUSY           (1 << 1)
 #define DI_TRAY_SETFAIL        (1 << 2)
@@ -712,14 +712,14 @@ typedef struct di_onetrayinfo {
 #define DI_TRAY_TAN_PAPEREXIST (1 << 11)
 #define DI_TRAY_TAN_INVALID    (1 << 12)
 #define DI_TRAY_DOOR_OPEN      (1 << 13)
-	unsigned long	status;			/* �X�e�[�^�X(�������define) */
-	unsigned long	p_length;		/* �p������(0.1mm�P��) */
-	unsigned long	p_width;		/* �p����(0.1mm�P��) */
+	unsigned long	status;			/* ƒXƒe�[ƒ^ƒX(‚·‚®�ã‚Ìdefine) */
+	unsigned long	p_length;		/* —pŽ†�‚‚³(0.1mm’PˆÊ) */
+	unsigned long	p_width;		/* —pŽ†•�(0.1mm’PˆÊ) */
 } tray_info_t, di_onetrayinfo_t;
 
 typedef struct di_trayinfo {
-	long				tray_num;					/* �g���C�� */
-	di_onetrayinfo_t	trayinfo[DI_MAX_TRAY_NUM];	/* �e�g���C�̏�� */
+	long				tray_num;					/* ƒgƒŒƒC�” */
+	di_onetrayinfo_t	trayinfo[DI_MAX_TRAY_NUM];	/* ŠeƒgƒŒƒC‚Ì�î•ñ */
 } di_trayinfo_t;
 
 typedef struct di_optinfo {
@@ -735,17 +735,17 @@ typedef struct di_optinfo {
 #define DI_OPT_EXT_INSERTER            (1 << 22)       /* INSERTER */
 #define DI_OPT_EXT_TRAY7               (1 << 21)       /* Tray7 */
 #define DI_OPT_EXT_ROLL_FEEDER         (1 << 20)       /* Roll Unit */
-#define DI_OPT_EXT_INSERTER2           (1 << 19)       /* INSERTER2(2�i) */
+#define DI_OPT_EXT_INSERTER2           (1 << 19)       /* INSERTER2(2’i) */
 #define DI_OPT_EXT_LARGELCT            (1 << 18)       /* Large Size LCT */
 #define DI_OPT_EXT_ROLL_FEEDER2        (1 << 17)       /* Roll Unit2 */
-	unsigned long	tray;		/* �����n�I�v�V�����@��t���O */
+	unsigned long	tray;		/* ‹‹Ž†ŒnƒIƒvƒVƒ‡ƒ“‹@Šíƒtƒ‰ƒO */
 #define DI_OPT_EXT_1BIN                (1 << 31)       /* 1BIN */
 #define DI_OPT_EXT_EXTTRAY             (1 << 30)       /* ext. tray */
 #define DI_OPT_EXT_INSHIFT             (1 << 29)       /* INNER SHIFT */
 #define DI_OPT_EXT_SUPERIOR            (1 << 28)       /* SUPERIOR */
-	unsigned long	bin;		/* �r���n�I�v�V�����@��t���O */
+	unsigned long	bin;		/* ”rŽ†ŒnƒIƒvƒVƒ‡ƒ“‹@Šíƒtƒ‰ƒO */
 #define DI_OPT_EXT_DUPLEX              (1)
-	unsigned long	duplex;		/* ���ʃ��j�b�g�I�v�V�����@��t���O */
+	unsigned long	duplex;		/* —¼–Êƒ†ƒjƒbƒgƒIƒvƒVƒ‡ƒ“‹@Šíƒtƒ‰ƒO */
 #define DI_OPT_EXT_FIN_YUKON           (1)
 #define DI_OPT_EXT_FIN_LAWRENCE        (2)
 #define DI_OPT_EXT_FIN_SADDLE          (3)             /* TONEGAWA */
@@ -760,13 +760,13 @@ typedef struct di_optinfo {
 #define DI_OPT_EXT_FIN_TONEGAWA_C      (12)
 #define DI_OPT_EXT_FIN_PLOKMATIC       (13)    /* VICTORIA-B+PLOKMATIC */
 #define DI_OPT_EXT_FIN_KINUGAWA        (14)
-#define DI_OPT_EXT_FIN_HUDOSON         (15)    /* GAIA_P1�pFIN �{�̔r�����Ԃ��ăX�e�[�v���̂݉\ */
+#define DI_OPT_EXT_FIN_HUDOSON         (15)    /* GAIA_P1—pFIN –{‘Ì”rŽ†‚ð‚Â‚Ô‚µ‚ÄƒXƒe�[ƒvƒ‹‚Ì‚Ý‰Â”\ */
 #define DI_OPT_EXT_FIN_EUPHRATES_SDL   (16)
 #define DI_OPT_EXT_FIN_EUPHRATES_NON   (17)
 #define DI_OPT_EXT_FIN_TIGRIS          (18)
 #define DI_OPT_EXT_FIN_KANOGAWA        (19)
-#define DI_OPT_EXT_FIN_ATLANTIC_A      (20)    /* �W���o���@ */
-#define DI_OPT_EXT_FIN_ATLANTIC_B      (21)    /* �t�H���_�[�@�i�W���o���@�{�N���X���j�b�g�j */
+#define DI_OPT_EXT_FIN_ATLANTIC_A      (20)    /* ƒWƒƒƒoƒ‰‹@ */
+#define DI_OPT_EXT_FIN_ATLANTIC_B      (21)    /* ƒtƒHƒ‹ƒ_�[‹@�iƒWƒƒƒoƒ‰‹@�{ƒNƒ�ƒXƒ†ƒjƒbƒg�j */
 #define	DI_OPT_EXT_FIN_ELBE            (23)	/* ELBE */
 #define	DI_OPT_EXT_FIN_SAKAWAGAWA	(24)
 #define DI_OPT_EXT_FIN_COLUMBIA        (25)    /* COLUMBIA */
@@ -779,23 +779,23 @@ typedef struct di_optinfo {
 #define DI_OPT_EXT_FIN_VOLGA_SDL       (32)    /* VOLGA(saddle stitch) */
 #define DI_OPT_EXT_FIN_VOLGA_NON       (33)    /* VOLGA */
 #define DI_OPT_EXT_FIN_COLUMBIA_SDL    (34)    /* COLUMBIA(saddle stitch) */
-#define DI_OPT_EXT_FIN_UYUNI           (35)    /* UYUNI(�j�����Ԃ�) */
-	unsigned long	fin;		/* �t�B�j�b�V���n�I�v�V�����@��t���O */
+#define DI_OPT_EXT_FIN_UYUNI           (35)    /* UYUNI(�j–³‚µ’Ô‚¶) */
+	unsigned long	fin;		/* ƒtƒBƒjƒbƒVƒƒŒnƒIƒvƒVƒ‡ƒ“‹@Šíƒtƒ‰ƒO */
 #define DI_OPT_EXT_MB_9BIN             (1)             /* MB 9BIN */
 #define DI_OPT_EXT_MB_9BIN_P           (2)             /* MB_P 9BIN+proof */
 #define DI_OPT_EXT_MB_SAXBY            (3)             /* SAXBY */
 #define DI_OPT_EXT_MB_POTOMAC          (4)             /* POTOMAC */
 #define DI_OPT_EXT_MB_JACK             (5)             /* JACK */
 #define DI_OPT_EXT_MB_ONTARIO          (6)             /* ONTARIO */
-	unsigned long	mbox;		/* ���[���{�b�N�X�n�I�v�V�����@��t���O */
+	unsigned long	mbox;		/* ƒ��[ƒ‹ƒ{ƒbƒNƒXŒnƒIƒvƒVƒ‡ƒ“‹@Šíƒtƒ‰ƒO */
 #define DI_OPT_EXT_DEVELOPMENT_R       (1 << 31)       /* RED DEVELOPMENT */
 #define DI_OPT_EXT_ZFOLD_UNIT          (1 << 30)       /* ZFOLD UNIT */
-	unsigned long	misc;		/* ��L�ȊO�̃I�v�V�����@��t���O */
+	unsigned long	misc;		/* �ã‹LˆÈŠO‚ÌƒIƒvƒVƒ‡ƒ“‹@Šíƒtƒ‰ƒO */
 #define DI_OPT_EXT_CF_UNIT             (1 << 31)       /* CF UNIT */
 #define DI_OPT_EXT_ADF                 (1 << 30)       /* ADF */
-#define DI_OPT_EXT_GBC_PUNCH           (1 << 29)       /* GBC�p���`���j�b�g */
-#define DI_OPT_EXT_KARUN_SDL           (1 << 28)       /* ���Ԃ����j�b�g(KARUN) */
-	unsigned long	non_prt;	/* �v�����^�Ɋ֘A���Ȃ��I�v�V�����@��t���O */
+#define DI_OPT_EXT_GBC_PUNCH           (1 << 29)       /* GBCƒpƒ“ƒ`ƒ†ƒjƒbƒg */
+#define DI_OPT_EXT_KARUN_SDL           (1 << 28)       /* ’†’Ô‚¶ƒ†ƒjƒbƒg(KARUN) */
+	unsigned long	non_prt;	/* ƒvƒŠƒ“ƒ^‚ÉŠÖ˜A‚µ‚È‚¢ƒIƒvƒVƒ‡ƒ“‹@Šíƒtƒ‰ƒO */
 } di_optinfo_t;
 
 typedef struct di_ethertalk_info {
@@ -809,10 +809,10 @@ typedef struct di_ethertalk_info {
 #define	DI_ATINFO_FLAG_TYPE_NAME		(1 << 1)
 #define	DI_ATINFO_FLAG_ZONE_NAME		(1 << 2)
 #define	DI_ATINFO_FLAG_MACADDR			(1 << 3)
-	unsigned long		flag;								/* �t���O */
-	unsigned char		object_name[DI_MAX_ATINFO_OBJECT_NAME_LEN + 1];		/* NULL�^�[�~�l�[�g (R/W) */
-	unsigned char		type_name[DI_MAX_ATINFO_TYPE_NAME_LEN + 1];		/* NULL�^�[�~�l�[�g (ReadOnly)*/
-	unsigned char		zone_name[DI_MAX_ATINFO_ZONE_NAME_LEN + 1];		/* NULL�^�[�~�l�[�g (R/W)*/
+	unsigned long		flag;								/* ƒtƒ‰ƒO */
+	unsigned char		object_name[DI_MAX_ATINFO_OBJECT_NAME_LEN + 1];		/* NULLƒ^�[ƒ~ƒl�[ƒg (R/W) */
+	unsigned char		type_name[DI_MAX_ATINFO_TYPE_NAME_LEN + 1];		/* NULLƒ^�[ƒ~ƒl�[ƒg (ReadOnly)*/
+	unsigned char		zone_name[DI_MAX_ATINFO_ZONE_NAME_LEN + 1];		/* NULLƒ^�[ƒ~ƒl�[ƒg (R/W)*/
 	unsigned char		macaddr[DI_MAX_ATINFO_MACADDR_LEN];			/* (ReadOnly) */
 } di_ethertalk_info_t;
 
@@ -942,9 +942,9 @@ typedef struct di_status {
 
 #define	DI_ST_CODE_MAX		32
 
-	unsigned char		cur_interpreter;			/* ���쒆�̃C���^�v���^ID */
+	unsigned char		cur_interpreter;			/* “®�ì’†‚ÌƒCƒ“ƒ^ƒvƒŠƒ^ID */
 	int					state;						/* state */
-	int					st_code_num;				/* st_code[]�ŗL���Ȑ� */
+	int					st_code_num;				/* st_code[]‚Å—LŒø‚È�” */
 	unsigned long		st_code[DI_ST_CODE_MAX];	/* status code list */
 #define	DI_SYS_FUNC_DUPLEX			(1 << 0)		/* duplex */
 #define	DI_SYS_FUNC_STAPLE			(1 << 1)		/* staple */
@@ -965,27 +965,27 @@ typedef struct di_status {
 #define	DI_SYS_FUNC_IEEE802_11b		(1 << 18)	/* IEEE802.11b */
 #define	DI_SYS_FUNC_USB				(1 << 19)	/* USB */
 #define	DI_SYS_FUNC_BLUETOOTH		(1 << 21)	/* Bluetooth */
-	unsigned long		function_disable;	/* �@�\�g�p�s��(SC) */
+	unsigned long		function_disable;	/* ‹@”\Žg—p•s‰Â(SC) */
 #define	DI_STATE_OFFLINE			(1 << 0)		/* ST_OFFLINE */
 #define	DI_STATE_HEXDUMP			(1 << 1)		/* ST_HEXDUMP */
 #define	DI_STATE_WARMING_UP			(1 << 2)		/* ST_WARMING_UP */
 #define	DI_STATE_ENERGY_SAVE		(1 << 3)		/* ST_ENERGY_SAVE */
-#define	DI_STATE_PRINTING			(1 << 4)		/* ST_PROCESSIG (�����) */
-#define	DI_STATE_PROCESSING			(1 << 5)		/* ST_PROCESSING�i�f�[�^�������j */
+#define	DI_STATE_PRINTING			(1 << 4)		/* ST_PROCESSIG (ˆó�ü’†) */
+#define	DI_STATE_PROCESSING			(1 << 5)		/* ST_PROCESSING�iƒf�[ƒ^�ˆ—�’†�j */
 #define	DI_STATE_PREHEAT			(1 << 6)		/* ST_PREHEAT */
 #define	DI_STATE_WAITING			(1 << 7)		/* ST_WAITING */
 #define	DI_STATE_JOB_RESETTING		(1 << 8)		/* ST_JOB_RESETTING */
-#define	DI_STATE_INT_REQ			(1 << 9)		/* �����݃R�s�[�i�����~�j�v�� */
-#define	DI_STATE_INT_PAUSE			(1 << 10)	/* �����݃R�s�[�� */
+#define	DI_STATE_INT_REQ			(1 << 9)		/* Š„�ž‚ÝƒRƒs�[�iˆó�ü’âŽ~�j—v‹� */
+#define	DI_STATE_INT_PAUSE			(1 << 10)	/* Š„�ž‚ÝƒRƒs�[’† */
 #define	DI_STATE_CALIBRATING		(1 << 11)	/* calibrating */ 
 #define	DI_STATE_SUPPLYING_TONER	(1 << 12)	/* supplying toner */
 #define	DI_STATE_INIT_DEVELOPER		(1 << 13)	/* initial developer */
 #define	DI_STATE_COOLING_DOWN		(1 << 14)	/* cooling down */
-#define	DI_STATE_CARDSAVE			(1 << 31)	/* �J�[�h�Z�[�u */
-	unsigned long		state_detail;		/* ��Ԃ̏ڍׂ��r�b�g�ł���킷 */
-	/* st_code[]�̌x�������̃G���[�R�[�h�̐� */
+#define	DI_STATE_CARDSAVE			(1 << 31)	/* ƒJ�[ƒhƒZ�[ƒu */
+	unsigned long		state_detail;		/* �ó‘Ô‚Ì�Ú�×‚ðƒrƒbƒg‚Å‚ ‚ç‚í‚· */
+	/* st_code[]‚ÌŒx��ˆµ‚¢‚ÌƒGƒ‰�[ƒR�[ƒh‚Ì�” */
 	int			st_code_num_warning;
-	/* st_code[]�̃I�y���[�^�R�[�������̃G���[�R�[�h�̐� */
+	/* st_code[]‚ÌƒIƒyƒŒ�[ƒ^ƒR�[ƒ‹ˆµ‚¢‚ÌƒGƒ‰�[ƒR�[ƒh‚Ì�” */
 	int			st_code_num_error;
 } di_status_t;
 
@@ -1006,16 +1006,16 @@ typedef struct di_res_reqpaper{
 	unsigned short	type;		/* GWID_GpsPage_TrayRequest_Res */
 	unsigned short	length;
 	int				pid;
-	int				result;		/* ���� */
-#define	DI_TRAY_FOUND	(0)		/* �����ɍ����g���C���o������ */
-#define	DI_TRAY_ERRSKIP	(1)		/* �G���[�X�L�b�v���Ă������� */
-#define	DI_TRAY_CANCEL	(2)		/* �L�����Z�����w�����ꂽ */
-#define	DI_TRAY_FORCE	(3)		/* ����������w�����ꂽ */
-#define	DI_TRAY_ANOTHER	(4)		/* �p���T�C�Y���ގ������g���C���� */
-	int			tray_id;		/* �g���CID */
-	int			paper_code;		/* �p���T�C�Y�R�[�h */
-	int			paper_width;	/* �p����   (0.1mm�P��) */
-	int			paper_length;	/* �p������ (0.1mm�P��) */
+	int				result;		/* Œ‹‰Ê */
+#define	DI_TRAY_FOUND	(0)		/* �ðŒ�‚É�‡‚¤ƒgƒŒƒC‚ª�oŒ»‚µ‚½ */
+#define	DI_TRAY_ERRSKIP	(1)		/* ƒGƒ‰�[ƒXƒLƒbƒv‚µ‚Ä‚­‚¾‚³‚¢ */
+#define	DI_TRAY_CANCEL	(2)		/* ƒLƒƒƒ“ƒZƒ‹‚ªŽwŽ¦‚³‚ê‚½ */
+#define	DI_TRAY_FORCE	(3)		/* ‹­�§ˆó�ü‚ªŽwŽ¦‚³‚ê‚½ */
+#define	DI_TRAY_ANOTHER	(4)		/* —pŽ†ƒTƒCƒY‚ª—ÞŽ—‚µ‚½ƒgƒŒƒC‘¶�Ý */
+	int			tray_id;		/* ƒgƒŒƒCID */
+	int			paper_code;		/* —pŽ†ƒTƒCƒYƒR�[ƒh */
+	int			paper_width;	/* —pŽ†•�   (0.1mm’PˆÊ) */
+	int			paper_length;	/* —pŽ†�‚‚³ (0.1mm’PˆÊ) */
 } di_res_reqpaper_t;
 
 typedef struct di_envinfo {
@@ -1035,9 +1035,9 @@ typedef struct di_envinfo {
 } di_envinfo_t;
 
 typedef struct di_flashmem_info {
-#define DI_FLASHMEM_ATTR_RW (1 << 0) /* Read/Write�\ */
+#define DI_FLASHMEM_ATTR_RW (1 << 0) /* Read/Write‰Â”\ */
 	unsigned long attr;          /* attribute */
-#define DI_FLASHMEM_MEDIA_UNKNOWN 0 /* �s�� */
+#define DI_FLASHMEM_MEDIA_UNKNOWN 0 /* •s–¾ */
 #define DI_FLASHMEM_MEDIA_ROM     1 /* ROM DIMM / SD Card */
 	unsigned long media;         /* kind of media */
 #define DI_MAX_FM_PATH_LEN 64
@@ -1046,138 +1046,138 @@ typedef struct di_flashmem_info {
 
 
 typedef  struct {
-	unsigned short idPanel;   /* �A�C�e�����g�̃p�l���h�c */
-	unsigned short idDown;    /* ���K�w�̃p�l���h�c */
-	/* �g���b�v�p�֐��|�C���^ */
+	unsigned short idPanel;   /* ƒAƒCƒeƒ€Ž©�g‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idDown;    /* ‰ºŠK‘w‚Ìƒpƒlƒ‹‚h‚c */
+	/* ƒgƒ‰ƒbƒv—pŠÖ�”ƒ|ƒCƒ“ƒ^ */
 	void (*fchecker)(unsigned short, unsigned char, unsigned char);
 #define   FILENAME_LEN         14
-	unsigned char  filename[FILENAME_LEN];   /* �t�@�C���l�[�� */
-	unsigned char  panel_lock_stat; /* �p�l�����b�N��ԏ�� */       
-	unsigned char  ucReserved[3];   /* ���g�p */
-	unsigned char  reserve_cid[4];  /* �N���C�A���g�h�c�p�\��̈� */
-	unsigned char  ucItem;          /* �A�C�e���^�C�v  */
-	unsigned char  ucMenu;          /* ���j���[�^�C�v  */
+	unsigned char  filename[FILENAME_LEN];   /* ƒtƒ@ƒCƒ‹ƒl�[ƒ€ */
+	unsigned char  panel_lock_stat; /* ƒpƒlƒ‹ƒ�ƒbƒN�ó‘Ô�î•ñ */       
+	unsigned char  ucReserved[3];   /* –¢Žg—p */
+	unsigned char  reserve_cid[4];  /* ƒNƒ‰ƒCƒAƒ“ƒg‚h‚c—p—\–ñ—Ìˆæ */
+	unsigned char  ucItem;          /* ƒAƒCƒeƒ€ƒ^ƒCƒv  */
+	unsigned char  ucMenu;          /* ƒ�ƒjƒ…�[ƒ^ƒCƒv  */
 } di_menu_type_t;
 
 
 typedef  struct {
-	unsigned short idPanel;    /* �A�C�e�����g�̃p�l���h�c */
-	unsigned short idNext;     /* ���K�w�̎��̃p�l���h�c */
-	unsigned short idPrev;     /* ���K�w�̑O�̃p�l���h�c */
-	unsigned short idDown;     /* ���K�w�̃p�l���h�c */
-	unsigned short idBack;     /* �ďo���� ��ʊK�w�̃p�l���h�c */
-	unsigned short str1_id;    /* �^�C�g�����i�P�s�ځj�̕�����h�c */
-	unsigned short str1_mod;   /* �^�C�g�����i�P�s�ځj�̕�����C����� */
-	unsigned short str2_id;    /* ���ڕ��i�Q�s�ځj�̕�����h�c */
-    /* �g���b�v�p�֐��|�C���^ */
+	unsigned short idPanel;    /* ƒAƒCƒeƒ€Ž©�g‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idNext;     /* “¯ŠK‘w‚ÌŽŸ‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idPrev;     /* “¯ŠK‘w‚Ì‘O‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idDown;     /* ‰ºŠK‘w‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idBack;     /* ŒÄ�o‚µŒ³ �ãˆÊŠK‘w‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short str1_id;    /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ‚h‚c */
+	unsigned short str1_mod;   /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ�C�ü�î•ñ */
+	unsigned short str2_id;    /* �€–Ú•”�i‚Q�s–Ú�j‚Ì•¶Žš—ñ‚h‚c */
+    /* ƒgƒ‰ƒbƒv—pŠÖ�”ƒ|ƒCƒ“ƒ^ */
 	void (*fchecker)(unsigned short, unsigned char, unsigned char);
-	unsigned char  disp_flg;   /* �\���^���P�x�^��\���̃t���O */
-        unsigned char  ucReserved[5];   /* ���g�p */
-        unsigned char  reserve_cid[4];  /* �N���C�A���g�h�c�ۑ��p�\��̈� */
-        unsigned char  ucItem;          /* �A�C�e���^�C�v */
-        unsigned char  ucMenu;          /* ���j���[�^�C�v */
+	unsigned char  disp_flg;   /* •\Ž¦�^”¼‹P“x�^”ñ•\Ž¦‚Ìƒtƒ‰ƒO */
+        unsigned char  ucReserved[5];   /* –¢Žg—p */
+        unsigned char  reserve_cid[4];  /* ƒNƒ‰ƒCƒAƒ“ƒg‚h‚c•Û‘¶—p—\–ñ—Ìˆæ */
+        unsigned char  ucItem;          /* ƒAƒCƒeƒ€ƒ^ƒCƒv */
+        unsigned char  ucMenu;          /* ƒ�ƒjƒ…�[ƒ^ƒCƒv */
 } di_item_type_menu_t;
 
 typedef  struct {
-	unsigned short idPanel;  /* �A�C�e�����g�̃p�l���h�c */
-	unsigned short idNext;   /* ���K�w�̎��̃p�l���h�c */
-	unsigned short idPrev;   /* ���K�w�̑O�̃p�l���h�c */
-	unsigned short idDown;   /* ���K�w�̃p�l���h�c */
-	unsigned short idBack;   /* �ďo���� ��ʊK�w�̃p�l���h�c */
-	unsigned short str1_id;  /* �^�C�g�����i�P�s�ځj�̕�����h�c */
-	unsigned short str1_mod; /* �^�C�g�����i�P�s�ځj�̕�����C����� */
-	unsigned short str2_id;  /* ���ڕ��i�Q�s�ځj�̕�����h�c */
-	/* �g���b�v�p�֐��|�C���^ */
+	unsigned short idPanel;  /* ƒAƒCƒeƒ€Ž©�g‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idNext;   /* “¯ŠK‘w‚ÌŽŸ‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idPrev;   /* “¯ŠK‘w‚Ì‘O‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idDown;   /* ‰ºŠK‘w‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idBack;   /* ŒÄ�o‚µŒ³ �ãˆÊŠK‘w‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short str1_id;  /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ‚h‚c */
+	unsigned short str1_mod; /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ�C�ü�î•ñ */
+	unsigned short str2_id;  /* �€–Ú•”�i‚Q�s–Ú�j‚Ì•¶Žš—ñ‚h‚c */
+	/* ƒgƒ‰ƒbƒv—pŠÖ�”ƒ|ƒCƒ“ƒ^ */
 	void (*fchecker)(unsigned short, unsigned char, unsigned char);
-	unsigned char  up_num;   /* ���s��ɑJ�ڂ����ւ̊K�w�� */
-	unsigned char  disp_flg; /* �\���^���P�x�^��\���̃t���O */
-	unsigned char  fselect;  /* �I���^��I���̃t���O */
-	unsigned char  disp_fselect; /* �I���t���O�̕\���^��\���̃t���O */
-	unsigned char  ucReserved[2]; /* ���g�p */
-	unsigned char  reserve_cid[4]; /* �N���C�A���g�h�c�ۑ��p�\��̈� */
-	unsigned char  ucItem;         /* �A�C�e���^�C�v */
-	unsigned char  ucMenu;         /* ���j���[�^�C�v */
+	unsigned char  up_num;   /* ŽÀ�sŒã‚É‘JˆÚ‚·‚é�ã‚Ö‚ÌŠK‘w�” */
+	unsigned char  disp_flg; /* •\Ž¦�^”¼‹P“x�^”ñ•\Ž¦‚Ìƒtƒ‰ƒO */
+	unsigned char  fselect;  /* ‘I‘ð�^”ñ‘I‘ð‚Ìƒtƒ‰ƒO */
+	unsigned char  disp_fselect; /* ‘I‘ðƒtƒ‰ƒO‚Ì•\Ž¦�^”ñ•\Ž¦‚Ìƒtƒ‰ƒO */
+	unsigned char  ucReserved[2]; /* –¢Žg—p */
+	unsigned char  reserve_cid[4]; /* ƒNƒ‰ƒCƒAƒ“ƒg‚h‚c•Û‘¶—p—\–ñ—Ìˆæ */
+	unsigned char  ucItem;         /* ƒAƒCƒeƒ€ƒ^ƒCƒv */
+	unsigned char  ucMenu;         /* ƒ�ƒjƒ…�[ƒ^ƒCƒv */
 } di_item_type_select_t;
 
 typedef  struct {
-	unsigned short idPanel;  /* �A�C�e�����g�̃p�l���h�c */
-	unsigned short idBack;   /* �ďo���� ��ʊK�w�̃p�l���h�c */
-	unsigned short str1_id;  /* �^�C�g�����i�P�s�ځj�̕�����h�c */
-	unsigned short str1_mod; /* �^�C�g�����i�P�s�ځj�̕�����C����� */
-	short          sMax;     /* �ő�l */
-	short          sMin;     /* �ŏ��l */
-	unsigned short step;     /* �ω��� */
-	short          value;    /* �ݒ�l */
-	/* �g���b�v�p�֐��|�C���^ */
+	unsigned short idPanel;  /* ƒAƒCƒeƒ€Ž©�g‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short idBack;   /* ŒÄ�o‚µŒ³ �ãˆÊŠK‘w‚Ìƒpƒlƒ‹‚h‚c */
+	unsigned short str1_id;  /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ‚h‚c */
+	unsigned short str1_mod; /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ�C�ü�î•ñ */
+	short          sMax;     /* �Å‘å’l */
+	short          sMin;     /* �Å�¬’l */
+	unsigned short step;     /* •Ï‰»•� */
+	short          value;    /* �Ý’è’l */
+	/* ƒgƒ‰ƒbƒv—pŠÖ�”ƒ|ƒCƒ“ƒ^ */
 	void (*fchecker)(unsigned short, unsigned char, unsigned char);
-	unsigned short msr_id;         /* �P�ʕ�����h�c */
-	unsigned char  up_num;         /* ���s��ɑJ�ڂ����ւ̊K�w�� */
-	unsigned char  fig_num;        /* �\������ */
-	unsigned char  ucReserved[2];  /* ���g�p */
-	unsigned char  reserve_cid[4]; /* �N���C�A���g�h�c�ۑ��p�\��̈� */
-	unsigned char  ucItem;         /* �A�C�e���^�C�v */
-	unsigned char  ucMenu;         /* ���j���[�^�C�v */
+	unsigned short msr_id;         /* ’PˆÊ•¶Žš—ñ‚h‚c */
+	unsigned char  up_num;         /* ŽÀ�sŒã‚É‘JˆÚ‚·‚é�ã‚Ö‚ÌŠK‘w�” */
+	unsigned char  fig_num;        /* •\Ž¦Œ…�” */
+	unsigned char  ucReserved[2];  /* –¢Žg—p */
+	unsigned char  reserve_cid[4]; /* ƒNƒ‰ƒCƒAƒ“ƒg‚h‚c•Û‘¶—p—\–ñ—Ìˆæ */
+	unsigned char  ucItem;         /* ƒAƒCƒeƒ€ƒ^ƒCƒv */
+	unsigned char  ucMenu;         /* ƒ�ƒjƒ…�[ƒ^ƒCƒv */
 } di_item_type_integer_t;
 
 typedef  struct {
-	unsigned short idPanel;    /* �A�C�e�����g�̃p�l���h�c             */
-	unsigned short idBack;     /* �ďo���� ��ʊK�w�̃p�l���h�c        */
-	unsigned short str1_id;    /* �^�C�g�����i�P�s�ځj�̕�����h�c     */
-	unsigned short str1_mod;   /* �^�C�g�����i�P�s�ځj�̕�����C����� */
-	short          sMax;       /* �ő�l                               */
-	short          sMin;       /* �ŏ��l                               */
-	unsigned short step;       /* �ω���                               */
-	short          value;      /* �ݒ�l                               */
-	/* �g���b�v�p�֐��|�C���^               */
+	unsigned short idPanel;    /* ƒAƒCƒeƒ€Ž©�g‚Ìƒpƒlƒ‹‚h‚c             */
+	unsigned short idBack;     /* ŒÄ�o‚µŒ³ �ãˆÊŠK‘w‚Ìƒpƒlƒ‹‚h‚c        */
+	unsigned short str1_id;    /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ‚h‚c     */
+	unsigned short str1_mod;   /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ�C�ü�î•ñ */
+	short          sMax;       /* �Å‘å’l                               */
+	short          sMin;       /* �Å�¬’l                               */
+	unsigned short step;       /* •Ï‰»•�                               */
+	short          value;      /* �Ý’è’l                               */
+	/* ƒgƒ‰ƒbƒv—pŠÖ�”ƒ|ƒCƒ“ƒ^               */
 	void           (*fchecker)(unsigned short, unsigned char, unsigned char);
-	unsigned short msr_id;     /* �P�ʕ�����h�c                       */
-	unsigned char  up_num;     /* ���s��ɑJ�ڂ����ւ̊K�w��         */
-	unsigned char  fig_num;    /* �\������                             */
-	unsigned char  ucMulti;    /* �w���l                               */
-	unsigned char  ucReserved; /* ���g�p                               */
-	unsigned char  reserve_cid[4]; /* �N���C�A���g�h�c�ۑ��p�\��̈�       */
-	unsigned char  ucItem;     /* �A�C�e���^�C�v                       */
-	unsigned char  ucMenu;     /* ���j���[�^�C�v                       */
+	unsigned short msr_id;     /* ’PˆÊ•¶Žš—ñ‚h‚c                       */
+	unsigned char  up_num;     /* ŽÀ�sŒã‚É‘JˆÚ‚·‚é�ã‚Ö‚ÌŠK‘w�”         */
+	unsigned char  fig_num;    /* •\Ž¦Œ…�”                             */
+	unsigned char  ucMulti;    /* Žw�”’l                               */
+	unsigned char  ucReserved; /* –¢Žg—p                               */
+	unsigned char  reserve_cid[4]; /* ƒNƒ‰ƒCƒAƒ“ƒg‚h‚c•Û‘¶—p—\–ñ—Ìˆæ       */
+	unsigned char  ucItem;     /* ƒAƒCƒeƒ€ƒ^ƒCƒv                       */
+	unsigned char  ucMenu;     /* ƒ�ƒjƒ…�[ƒ^ƒCƒv                       */
 } di_item_type_float_t;
 
 typedef  struct {
-	unsigned short idPanel; /* �A�C�e�����g�̃p�l���h�c             */
-	unsigned short idBack;  /* �ďo���� ��ʊK�w�̃p�l���h�c        */
-	unsigned short str1_id; /* �^�C�g�����i�P�s�ځj�̕�����h�c     */
-	short          sMin;    /* �ŏ��l                               */
-	int            sMax;    /* �ő�l                               */
-	int            value;   /* �ݒ�l                               */
-	/* �g���b�v�p�֐��|�C���^               */
+	unsigned short idPanel; /* ƒAƒCƒeƒ€Ž©�g‚Ìƒpƒlƒ‹‚h‚c             */
+	unsigned short idBack;  /* ŒÄ�o‚µŒ³ �ãˆÊŠK‘w‚Ìƒpƒlƒ‹‚h‚c        */
+	unsigned short str1_id; /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ‚h‚c     */
+	short          sMin;    /* �Å�¬’l                               */
+	int            sMax;    /* �Å‘å’l                               */
+	int            value;   /* �Ý’è’l                               */
+	/* ƒgƒ‰ƒbƒv—pŠÖ�”ƒ|ƒCƒ“ƒ^               */
 	void           (*fchecker)(unsigned short, unsigned char, unsigned char);
-	unsigned short msr_id;  /* �P�ʕ�����h�c                       */
-	unsigned char  str1_mod; /* �^�C�g�����i�P�s�ځj�̕�����C����� */
-	unsigned char  step;     /* �ω���                               */
-	unsigned char  fig_num;  /* �\������                             */
-	unsigned char  ucMulti;  /* �w���l                               */
-	unsigned char  reserve_cid[4]; /* �N���C�A���g�h�c�ۑ��p�\��̈�       */
-	unsigned char  ucItem;   /* �A�C�e���^�C�v                       */
-	unsigned char  ucMenu;   /* ���j���[�^�C�v                       */
+	unsigned short msr_id;  /* ’PˆÊ•¶Žš—ñ‚h‚c                       */
+	unsigned char  str1_mod; /* ƒ^ƒCƒgƒ‹•”�i‚P�s–Ú�j‚Ì•¶Žš—ñ�C�ü�î•ñ */
+	unsigned char  step;     /* •Ï‰»•�                               */
+	unsigned char  fig_num;  /* •\Ž¦Œ…�”                             */
+	unsigned char  ucMulti;  /* Žw�”’l                               */
+	unsigned char  reserve_cid[4]; /* ƒNƒ‰ƒCƒAƒ“ƒg‚h‚c•Û‘¶—p—\–ñ—Ìˆæ       */
+	unsigned char  ucItem;   /* ƒAƒCƒeƒ€ƒ^ƒCƒv                       */
+	unsigned char  ucMenu;   /* ƒ�ƒjƒ…�[ƒ^ƒCƒv                       */
 } di_item_type_floatext_t;
 
 typedef  struct di_fontinfo {
-	unsigned char *addr;  /* �A�h���X */
-	unsigned long size;   /* �T�C�Y */
-	unsigned long offset; /* �I�t�Z�b�g */
+	unsigned char *addr;  /* ƒAƒhƒŒƒX */
+	unsigned long size;   /* ƒTƒCƒY */
+	unsigned long offset; /* ƒIƒtƒZƒbƒg */
 } di_fontinfo_t;
 
 typedef  struct di_pdlinfo {
 #define DI_INTERP_LEN_SHORTNAME 3
 #define DI_MINFO_KEY_PDL_CATEGORY_LEN 7
-	int interp_id; /* �C���^�v���^ID */
-	/* �V���[�g�l�[��(��`����Ă��Ȃ��ꍇ��NULL) */
+	int interp_id; /* ƒCƒ“ƒ^ƒvƒŠƒ^ID */
+	/* ƒVƒ‡�[ƒgƒl�[ƒ€(’è‹`‚³‚ê‚Ä‚¢‚È‚¢�ê�‡‚ÍNULL) */
 	char shortname[DI_INTERP_LEN_SHORTNAME + 1];
 	char path; /* printer.ini path ID  */
-	/* printer.ini �t�@�C���̃J�e�S���� */
+	/* printer.ini ƒtƒ@ƒCƒ‹‚ÌƒJƒeƒSƒŠ–¼ */
 	char category[DI_MINFO_KEY_PDL_CATEGORY_LEN + 1];
 } di_pdlinfo_t;
 
 /**
- * ���i���\����
+ * �»•i�î•ñ�\‘¢‘Ì
  */
 typedef struct di_initinfo {
 #define	DI_MACHINECODE_ADONIS_C2		0x00
@@ -1192,7 +1192,7 @@ typedef struct di_initinfo {
 #define DI_MACHINECODE_ARES_P			0x70
 #define DI_MACHINECODE_KAISER3			0x80
 #define DI_MACHINECODE_JUPITER_P2		0x90
-#define DI_MACHINECODE_JUPITER_P2Y		0x93		/* ��� */
+#define DI_MACHINECODE_JUPITER_P2Y		0x93		/* –ò‘Ü */
 #define DI_MACHINECODE_JUPITER_P2M		0xa0
 #define DI_MACHINECODE_JUPITER_P2K		0xb0
 #define	DI_MACHINECODE_URANOS_P2		0xc0
@@ -1261,38 +1261,62 @@ typedef struct di_initinfo {
 #define DI_MACHINECODE_LUNA_P2			0x00480000	/* Luna-P2 group */
 #define DI_MACHINECODE_DIANA_C1L		0x00490000	/* Diana-C1L group */
 	/**
-	 * \brief �@��R�[�h
-	 * �l�͈ȉ�
+	 * \brief ‹@ŽíƒR�[ƒh
+	 * ’l‚ÍˆÈ‰º
 	 * \li DI_MACHINECODE_ADONIS_C2
 	 */
-	unsigned long	machinecode;	/**< �@��R�[�h */
-	unsigned char	*model;			/* ���f�����B"IPSiO CX8200"�� */
-	unsigned char	*maker;			/* ���[�J�[ */
-	unsigned char	*machine_number;/* �@�� */
-	di_optinfo_t	option;			/* �I�v�V�����@�� */
-	unsigned long	function;		/* �@�\���(DI_SYS_FUNC_xx) */
-	unsigned char	disp_lines;		/* �\����ʂ̃��C���� */
-	unsigned char	disp_columns;	/* �\����ʂ̂P���C���̕����� */
-	unsigned char	punch_hole;		/* �p���`�\�Ȍ��̏��(DI_SYS_PUNCH_HOLE_xx) */
-	unsigned long	total_ram_size;	/* �v�����^�ɓ��ڂ���Ă���RAM�e��(Byte) */
+	unsigned long	machinecode;	/**< ‹@ŽíƒR�[ƒh */
+	unsigned char	*model;			/* ƒ‚ƒfƒ‹–¼�B"IPSiO CX8200"“™ */
+	unsigned char	*maker;			/* ƒ��[ƒJ�[ */
+	unsigned char	*machine_number;/* ‹@”Ô */
+	di_optinfo_t	option;			/* ƒIƒvƒVƒ‡ƒ“‹@Ší */
+	unsigned long	function;		/* ‹@”\�î•ñ(DI_SYS_FUNC_xx) */
+	unsigned char	disp_lines;		/* •\Ž¦‰æ–Ê‚Ìƒ‰ƒCƒ“�” */
+	unsigned char	disp_columns;	/* •\Ž¦‰æ–Ê‚Ì‚Pƒ‰ƒCƒ“‚Ì•¶Žš�” */
+	unsigned char	punch_hole;		/* ƒpƒ“ƒ`‰Â”\‚ÈŒŠ‚Ì�î•ñ(DI_SYS_PUNCH_HOLE_xx) */
+	unsigned long	total_ram_size;	/* ƒvƒŠƒ“ƒ^‚É“‹�Ú‚³‚ê‚Ä‚¢‚éRAM—e—Ê(Byte) */
 #define DI_DEST_DOM		0	/* DOM */
 #define DI_DEST_NA		1	/* NA */
 #define DI_DEST_EU		2	/* EU */
-	unsigned char	destination;	/* �d�����n�R�[�h(�������define) */
-	unsigned long	memory_size;	/* �C���^�v���^���g�p�ł��� */
-					/* �������T�C�Y(Byte) */
-	unsigned char	*ver_printer;			/* �v�����^�̃o�[�W���� */
+	unsigned char	destination;	/* ŽdŒü‚¯’nƒR�[ƒh(‚·‚®�ã‚Ìdefine) */
+	unsigned long	memory_size;	/* ƒCƒ“ƒ^ƒvƒŠƒ^‚ªŽg—p‚Å‚«‚é */
+					/* ƒ�ƒ‚ƒŠƒTƒCƒY(Byte) */
+	unsigned char	*ver_printer;			/* ƒvƒŠƒ“ƒ^‚Ìƒo�[ƒWƒ‡ƒ“ */
 } di_initinfo_t;
 
-/* BG/UCR�e�[�u�����\���� */
+/* BG/UCRƒe�[ƒuƒ‹�î•ñ�\‘¢‘Ì */
 typedef struct di_bgucrinfo {
-	unsigned char	*bg;	/* BG�e�[�u�� */
-	unsigned char	*ucr;	/* UCR�e�[�u�� */
-	unsigned char	*bg_hgr;	/* BG�e�[�u��(���n�p) */
-	unsigned char	*ucr_hgr;	/* UCR�e�[�u��(���n�p) */
+	unsigned char	*bg;	/* BGƒe�[ƒuƒ‹ */
+	unsigned char	*ucr;	/* UCRƒe�[ƒuƒ‹ */
+	unsigned char	*bg_hgr;	/* BGƒe�[ƒuƒ‹(�‚–n—p) */
+	unsigned char	*ucr_hgr;	/* UCRƒe�[ƒuƒ‹(�‚–n—p) */
 	unsigned char	*bg_compbk;	/* for composite black */
 	unsigned char	*ucr_compbk;
 } di_bgucrinfo_t;
+
+/* ‰ð‘œ“x�\‘¢‘Ì(ƒrƒbƒg‚Æ‚Ì‘g�‡‚¹) */
+typedef struct di_resolution_info
+{
+	unsigned int x;		/* Žå‘–�¸•ûŒü‰ð‘œ“x */
+	unsigned int y;		/* •›‘–�¸•ûŒü‰ð‘œ“x */
+	unsigned char bit;	/* ƒrƒbƒg�” */
+
+	unsigned char pkgroup;      /* Ž†ŽíƒOƒ‹�[ƒv */
+	unsigned char dit_mode;     /* ƒfƒBƒUƒ‚�[ƒh */
+	unsigned char prtmode;       /* ˆó�üƒ‚�[ƒh(�‚‘¬/•W�€/�‚�¸�×) */
+
+} di_resolution_info_t;
+
+/* ‘�—Ê‹K�§’l�î•ñ�\‘¢‘Ì */
+typedef struct di_tlimit_info
+{
+	di_resolution_info_t reso;	/* ‰ð‘œ“x&�[‚³ */
+	int text;	/* •¶ŽšƒIƒuƒWƒFƒNƒg */
+	int line;	/* �ü‰æƒIƒuƒWƒFƒNƒg */
+	int phot;	/* ŽÊ�^ƒIƒuƒWƒFƒNƒg */
+	int fill;	/* “h‚è‚Â‚Ô‚µƒIƒuƒWƒFƒNƒg */
+} di_tlimit_info_t;
+
 
 /* structure of information of GCR table */
 typedef struct di_gcrinfo {
@@ -1311,217 +1335,217 @@ typedef struct di_gcrinfo {
 	short			*YR_ucr;
 } di_gcrinfo_t;
 
-/* �K�ʃe�[�u�����\���� */
+/* “K—Êƒe�[ƒuƒ‹�î•ñ�\‘¢‘Ì */
 typedef struct di_dropinfo {
-	unsigned char	*lit;	/* �K�ʃf�[�^ */
-	unsigned char	*inv;	/* �t�ϊ��e�[�u�� */
+	unsigned char	*lit;	/* “K—Êƒf�[ƒ^ */
+	unsigned char	*inv;	/* ‹t•ÏŠ·ƒe�[ƒuƒ‹ */
 } di_dropinfo_t;
 
-/* ���ʃ��������\���� */
+/* —¼–ÊƒÁŠ„�‡�î•ñ�\‘¢‘Ì */
 typedef struct di_dupgaminfo {
-	unsigned char	*gam_front;	/* �\�ʊ���[�ʐ^,����,�h��,����] */
-	unsigned char	*gam_back;	/* ���ʊ���[�ʐ^,����,�h��,����] */
+	unsigned char	*gam_front;	/* •\–ÊŠ„�‡[ŽÊ�^,•¶Žš,“h‚è,�ü‰æ] */
+	unsigned char	*gam_back;	/* — –ÊŠ„�‡[ŽÊ�^,•¶Žš,“h‚è,�ü‰æ] */
 } di_dupgaminfo_t;
 
 
-/* �@����\���� */
+/* ‹@Ží�î•ñ�\‘¢‘Ì */
 typedef struct di_devinfo {
 	/*
-	 * �f�B�U���
-	 * ���ۂ̐���
-	 *  �T�|�[�g�r�b�g�� x �𑜓x��ސ� x �f�B�U��ސ� x �T�|�[�g�ő�v���[����
-	 * �ƂȂ�B�e�l�͋@��\�͏��B
-	 * �z�u����
-	 *  for �r�b�g��(�l �� -> ��)
-	 *    for �𑜓x��(�呖��+������ �� -> ��)
-	 *      for �f�B�U��(photo -> text -> cad -> graphics)
-	 *        for �v���[����(K -> C -> M -> Y)
+	 * ƒfƒBƒU�î•ñ
+	 * ŽÀ�Û‚Ì�”‚Í
+	 *  ƒTƒ|�[ƒgƒrƒbƒg�” x ‰ð‘œ“xŽí—Þ�” x ƒfƒBƒUŽí—Þ�” x ƒTƒ|�[ƒg�Å‘åƒvƒŒ�[ƒ“�”
+	 * ‚Æ‚È‚é�BŠe’l‚Í‹@Ží”\—Í�î•ñ�B
+	 * ”z’u�‡‚Í
+	 *  for ƒrƒbƒg�”(’l �¬ -> ‘å)
+	 *    for ‰ð‘œ“x�”(Žå‘–�¸+•›‘–�¸ �¬ -> ‘å)
+	 *      for ƒfƒBƒU�”(photo -> text -> cad -> graphics)
+	 *        for ƒvƒŒ�[ƒ“�”(K -> C -> M -> Y)
 	 *          dither_info
-	 * �ƂȂ�
+	 * ‚Æ‚È‚é
 	 */
 	di_ditinfo_t	*dither_info;
 	di_ditinfo_t	*dither_info_mono;
 
 	/*
-	 * �K���}���
-	 * ��,�z�u���� dither_info �Ɠ��l
+	 * ƒKƒ“ƒ}�î•ñ
+	 * �”,”z’u�‡‚Í dither_info ‚Æ“¯—l
 	 */
 	unsigned char	**gamma_info;
 	unsigned char	**gamma_info_mono;
 
 	/*
-	 * �f�o�C�X�t�H���g���
+	 * ƒfƒoƒCƒXƒtƒHƒ“ƒg�î•ñ
 	 */
 	/*
-	 * �t�H���g�̐擪�A�h���X
+	 * ƒtƒHƒ“ƒg‚Ì�æ“ªƒAƒhƒŒƒX
 	 */
 	unsigned char	*font_address;
 	/*
-	 * �t�H���g�T�C�Y
+	 * ƒtƒHƒ“ƒgƒTƒCƒY
 	 */
 	unsigned long	font_size;
-	/* �t�H���g��� */
-#define DI_FONT_RPCS		0	/* RPCS DOM�p */
-#define DI_FONT_RPCS_EXP	1	/* RPCS EXP�p */
-#define DI_FONT_PS			2	/* PS ���� */
-#define DI_FONT_PSDOM		3	/* PS ���{�� */
-#define DI_FONT_PCL			4	/* PCL�p */
+	/* ƒtƒHƒ“ƒgŽí—Þ */
+#define DI_FONT_RPCS		0	/* RPCS DOM—p */
+#define DI_FONT_RPCS_EXP	1	/* RPCS EXP—p */
+#define DI_FONT_PS			2	/* PS ‰¢•¶ */
+#define DI_FONT_PSDOM		3	/* PS “ú–{Œê */
+#define DI_FONT_PCL			4	/* PCL—p */
 	unsigned char	font_type;
 
 	/*
-	 * CMM�Ŏg�p����v���t�@�C�����
+	 * CMM‚ÅŽg—p‚·‚éƒvƒ�ƒtƒ@ƒCƒ‹�î•ñ
 	 */
 	void	*profaddress;
 	long	profnumber;
 
 	/*
-	 * �@��\�͏��
+	 * ‹@Ží”\—Í�î•ñ
 	 */
-	unsigned int		resonum;	/* �T�|�[�g�𑜓x&�r�b�g�g�ݍ��킹��ސ� */
-	di_resolutioninfo_t	*reso_set;	/* �𑜓x&�r�b�g�g���� */
-						/* reso������(=reso_set[resonum]) */
-	int		ndit;		/* �f�B�U��ސ� */
-	int		nplane;		/* �T�|�[�g�ő�v���[���� */
-	float	bg_startp;	/* BG ���n�܂�J�n���x�� */
-	float	bg_slant;	/* BG �������z */
-	float	ucr_startp;	/* UCR ���n�܂�J�n���x�� */
-	float	ucr_slant;	/* UCR �������z */
-	int		soft_tsave;	/* �\�t�g�g�i�[�Z�[�u�̃T�|�[�g */
-				/* [1:����, 0:�Ȃ�] */
-	float	tsave_ratio;	/* �\�t�g�g�i�[�Z�[�u����(0.0 - 1.0) */
-	int		extend_soft_tsave;	/* �g���\�t�g�g�i�[�Z�[�u�̑Ή� */
-					/* [1:����, 0:�Ȃ�] */
-	int		toner_limit;	/* ���ʋK���̃T�|�[�g */
-				/* [1:����, 0:�Ȃ�] */
-	unsigned int	tlimit_num;	/* �@�킪�T�|�[�g���Ă��鑍�ʋK���l�̎�ސ� */
-	di_tlimitinfo_t	*tlimit_val;/* ���ʋK���l�̃o���G�[�V���� */
-				/* tlimit_num ���� */
-				/* ��ԍŏ����f�t�H���g�l */
-				/* ����ȊO�͓��ꃂ�[�h�̒l */
-				/* �T�|�[�g���Ă��Ȃ����NULL */
+	unsigned int		resonum;	/* ƒTƒ|�[ƒg‰ð‘œ“x&ƒrƒbƒg‘g‚Ý�‡‚í‚¹Ží—Þ�” */
+	di_resolutioninfo_t	*reso_set;	/* ‰ð‘œ“x&ƒrƒbƒg‘g�‡‚¹ */
+						/* reso•ª‚ ‚é(=reso_set[resonum]) */
+	int		ndit;		/* ƒfƒBƒUŽí—Þ�” */
+	int		nplane;		/* ƒTƒ|�[ƒg�Å‘åƒvƒŒ�[ƒ“�” */
+	float	bg_startp;	/* BG ‚ªŽn‚Ü‚éŠJŽnƒŒƒxƒ‹ */
+	float	bg_slant;	/* BG ’¼�üŒù”z */
+	float	ucr_startp;	/* UCR ‚ªŽn‚Ü‚éŠJŽnƒŒƒxƒ‹ */
+	float	ucr_slant;	/* UCR ’¼�üŒù”z */
+	int		soft_tsave;	/* ƒ\ƒtƒgƒgƒi�[ƒZ�[ƒu‚ÌƒTƒ|�[ƒg */
+				/* [1:‚ ‚è, 0:‚È‚µ] */
+	float	tsave_ratio;	/* ƒ\ƒtƒgƒgƒi�[ƒZ�[ƒuŠ„�‡(0.0 - 1.0) */
+	int		extend_soft_tsave;	/* Šg’£ƒ\ƒtƒgƒgƒi�[ƒZ�[ƒu‚Ì‘Î‰ž */
+					/* [1:‚ ‚è, 0:‚È‚µ] */
+	int		toner_limit;	/* ‘�—Ê‹K�§‚ÌƒTƒ|�[ƒg */
+				/* [1:‚ ‚è, 0:‚È‚µ] */
+	unsigned int	tlimit_num;	/* ‹@Ží‚ªƒTƒ|�[ƒg‚µ‚Ä‚¢‚é‘�—Ê‹K�§’l‚ÌŽí—Þ�” */
+	di_tlimitinfo_t	*tlimit_val;/* ‘�—Ê‹K�§’l‚ÌƒoƒŠƒG�[ƒVƒ‡ƒ“ */
+				/* tlimit_num ŒÂ‚ ‚é */
+				/* ˆê”Ô�Å�‰‚ªƒfƒtƒHƒ‹ƒg’l */
+				/* ‚»‚êˆÈŠO‚Í“ÁŽêƒ‚�[ƒh‚Ì’l */
+				/* ƒTƒ|�[ƒg‚µ‚Ä‚¢‚È‚¯‚ê‚ÎNULL */
 
 	/*
-	 * �V�X�e�����
+	 * ƒVƒXƒeƒ€�î•ñ
 	 */
-	char	*shdm_addr;	/* �V�F�A�[�h�������̐擪�A�h���X */
-	long	sys_handle;	/* �V�X�e���n���h�� */
+	char	*shdm_addr;	/* ƒVƒFƒA�[ƒhƒ�ƒ‚ƒŠ‚Ì�æ“ªƒAƒhƒŒƒX */
+	long	sys_handle;	/* ƒVƒXƒeƒ€ƒnƒ“ƒhƒ‹ */
 
 	/*
-	 * �g�����
+	 * Šg’£�î•ñ
 	 */
-#define DI_NOTSUPPORT_EXT_DEVINFO_PARAM	0 /* ����ȍ~�̃����o������ */
-#define DI_SUPPORT_EXT_DEVINFO_PARAM	1 /* ����ȍ~�̃����o���L�� */
-	unsigned long	flag;		/* �e��t���O */
-				/* 1bit�� -- �g�����̗L��/���� */
+#define DI_NOTSUPPORT_EXT_DEVINFO_PARAM	0 /* ‚±‚êˆÈ�~‚Ìƒ�ƒ“ƒo‚ª–³Œø */
+#define DI_SUPPORT_EXT_DEVINFO_PARAM	1 /* ‚±‚êˆÈ�~‚Ìƒ�ƒ“ƒo‚ª—LŒø */
+	unsigned long	flag;		/* ŠeŽíƒtƒ‰ƒO */
+				/* 1bit–Ú -- Šg’£�î•ñ‚Ì—LŒø/–³Œø */
 
-	di_bgucrinfo_t	**bgucr_info;	/* BG/UCR(�e�[�u��) */
+	di_bgucrinfo_t	**bgucr_info;	/* BG/UCR(ƒe�[ƒuƒ‹) */
 
 	di_gcrinfo_t	*gcr_info;	/* WiShGCR */
 
-	di_gcrinfo_t	*gcrhgr_info;	/* WiShGCR(���n�p) */
+	di_gcrinfo_t	*gcrhgr_info;	/* WiShGCR(�‚–n—p) */
 
-	di_dropinfo_t	**drop_info;	/* �K�ʃe�[�u�� */
+	di_dropinfo_t	**drop_info;	/* “K—Êƒe�[ƒuƒ‹ */
 
-	di_dupgaminfo_t	**dupgam_info;	/* ���ʃ����� */
+	di_dupgaminfo_t	**dupgam_info;	/* —¼–ÊƒÁŠ„�‡ */
 
-	int	support_drop;	/* �K�ʂ̃T�|�[�g */
-				/* [1:����, 0:�Ȃ�] */
-	int		cmy_media_num;	/* CMY��������鎆��̐� */
-	unsigned char	*cmy_media;	/* CMY��������鎆��̔z�� */
+	int	support_drop;	/* “K—Ê‚ÌƒTƒ|�[ƒg */
+				/* [1:‚ ‚è, 0:‚È‚µ] */
+	int		cmy_media_num;	/* CMYˆó�ü‚ð‚·‚éŽ†Ží‚Ì�” */
+	unsigned char	*cmy_media;	/* CMYˆó�ü‚ð‚·‚éŽ†Ží‚Ì”z—ñ */
 	int		minbandheight;
 	int		maxbandheight;
 	int		bandsize;
 } dev_info_t, di_devinfo_t;
 
 /*
- * �ȍ~��di_init()�Ń��[�U��DI�ɓn���p�����[�^
+ * ˆÈ�~‚Ídi_init()‚Åƒ†�[ƒU‚ªDI‚É“n‚·ƒpƒ‰ƒ��[ƒ^
  */
 
-/* �񓯊���DI�����ōX�V�����p�����[�^ */
+/* ”ñ“¯Šú‚ÉDI“à•”‚Å�X�V‚³‚ê‚éƒpƒ‰ƒ��[ƒ^ */
 typedef struct di_async_para {
 	/*
-	 * �W���u���Z�b�g���
-	 * �V�X�e������W���u���Z�b�g�v�����������ꍇ�ɍX�V�����
-	 * [0: ���Z�b�g����Ă��Ȃ�, ��0: ���Z�b�g���ꂽ]
+	 * ƒWƒ‡ƒuƒŠƒZƒbƒg�î•ñ
+	 * ƒVƒXƒeƒ€‚©‚çƒWƒ‡ƒuƒŠƒZƒbƒg—v‹�‚ª‚ ‚Á‚½�ê�‡‚É�X�V‚³‚ê‚é
+	 * [0: ƒŠƒZƒbƒg‚³‚ê‚Ä‚¢‚È‚¢, ”ñ0: ƒŠƒZƒbƒg‚³‚ê‚½]
 	 */
 	int	jobreset;
 	/*
-	 * ������O���ǂ���
-	 * ����̋��E�ōX�V�����
-	 * [0: �����, ��0: ����O]
+	 * Ž©Œ¾ŒêŠO‚©‚Ç‚¤‚©
+	 * Œ¾Œê‚Ì‹«ŠE‚Å�X�V‚³‚ê‚é
+	 * [0: Œ¾Œê“à, ”ñ0: Œ¾ŒêŠO]
 	 */
 	int	not_joblang;
 	/*
-	 * �W���uID
-	 * �V�X�e���������v�����������ꍇ�ɍX�V�����
+	 * ƒWƒ‡ƒuID
+	 * ƒVƒXƒeƒ€‚©‚çˆó�ü—v‹�‚ª‚ ‚Á‚½�ê�‡‚É�X�V‚³‚ê‚é
 	 */
 	int	job_id;
 	/*
-	 * �e�X�g�v�����g���v�����ꂽ�� [0: ����Ă��Ȃ�, ��0: ���ꂽ]
-	 * �e�X�g�v�����g�v�����������ꍇ�ɍX�V�����B
-	 * di_notify_msg(DI_NOTIFYMSG_JOBEND)�ŃN���A(=0)�����B
-	 * �e�X�g�v�����g�@�\���T�|�[�g���Ă�����̂ݕK�v�B
+	 * ƒeƒXƒgƒvƒŠƒ“ƒg‚ª—v‹�‚³‚ê‚½‚© [0: ‚³‚ê‚Ä‚¢‚È‚¢, ”ñ0: ‚³‚ê‚½]
+	 * ƒeƒXƒgƒvƒŠƒ“ƒg—v‹�‚ª‚ ‚Á‚½�ê�‡‚É�X�V‚³‚ê‚é�B
+	 * di_notify_msg(DI_NOTIFYMSG_JOBEND)‚ÅƒNƒŠƒA(=0)‚³‚ê‚é�B
+	 * ƒeƒXƒgƒvƒŠƒ“ƒg‹@”\‚ðƒTƒ|�[ƒg‚µ‚Ä‚¢‚éŠÂ‹«‚Ì‚Ý•K—v�B
 	 */
 	int	testprint;
 	/*
-	 * �l�b�g�W���uID
-	 * �V�X�e���������v�����������ꍇ�ɍX�V�����
+	 * ƒlƒbƒgƒWƒ‡ƒuID
+	 * ƒVƒXƒeƒ€‚©‚çˆó�ü—v‹�‚ª‚ ‚Á‚½�ê�‡‚É�X�V‚³‚ê‚é
 	 */
 	int	njob_id;
 	/*
-	 * �`���l���ԍ�
-	 * �V�X�e���������v�������������ɍX�V�����
-	 * �l�� DI_CHANNEL_xxx
+	 * ƒ`ƒƒƒlƒ‹”Ô�†
+	 * ƒVƒXƒeƒ€‚©‚çˆó�ü—v‹�‚ª‚ ‚Á‚½Žž‚É�X�V‚³‚ê‚é
+	 * ’l‚Í DI_CHANNEL_xxx
 	 */
 	int	host_channel;
 	/*
 	 * PDL ID
-	 * �V�X�e���������v�������������ɍX�V�����
-	 * �l�� DI_PDL_xxx
+	 * ƒVƒXƒeƒ€‚©‚çˆó�ü—v‹�‚ª‚ ‚Á‚½Žž‚É�X�V‚³‚ê‚é
+	 * ’l‚Í DI_PDL_xxx
 	 */
 	int	pdl_id;
 	/*
-	 * �v���Z�XID
-	 * �V�X�e���������v�������������ɍX�V�����
+	 * ƒvƒ�ƒZƒXID
+	 * ƒVƒXƒeƒ€‚©‚çˆó�ü—v‹�‚ª‚ ‚Á‚½Žž‚É�X�V‚³‚ê‚é
 	 */
 	long	pid;
 	/*
-	 * �v���O�����ԍ� 
-	 * �V�X�e������v���O�����o�^/�폜�v�������������ɍX�V�����iMSIS�nPDL��p�j
-	 * �l�̃N���A�̓��[�U�������I�ɍs���Ă�������
+	 * ƒvƒ�ƒOƒ‰ƒ€”Ô�† 
+	 * ƒVƒXƒeƒ€‚©‚çƒvƒ�ƒOƒ‰ƒ€“o˜^/�í�œ—v‹�‚ª‚ ‚Á‚½Žž‚É�X�V‚³‚ê‚é�iMSISŒnPDL�ê—p�j
+	 * ’l‚ÌƒNƒŠƒA‚Íƒ†�[ƒU‚ª–¾Ž¦“I‚É�s‚Á‚Ä‚­‚¾‚³‚¢
 	 */
 	int	pno;
 	/*
-	 * �V�X�e������v���C�����Z�b�g�v�������������ɔ�O�ɍX�V�����iMSIS�nPDL��p�j
-	 * �l�̃N���A�̓��[�U�������I�ɍs���Ă�������
+	 * ƒVƒXƒeƒ€‚©‚çƒvƒ‰ƒCƒ€ƒŠƒZƒbƒg—v‹�‚ª‚ ‚Á‚½Žž‚É”ñ‚O‚É�X�V‚³‚ê‚é�iMSISŒnPDL�ê—p�j
+	 * ’l‚ÌƒNƒŠƒA‚Íƒ†�[ƒU‚ª–¾Ž¦“I‚É�s‚Á‚Ä‚­‚¾‚³‚¢
 	 */
 	int	prime_reset;
 	/*
-	 * ���[�U�X�C�b�`�ԍ�
-	 * �V�X�e���������v�������������ɍX�V�����iMSIS�nPDL��p�j
+	 * ƒ†�[ƒUƒXƒCƒbƒ`”Ô�†
+	 * ƒVƒXƒeƒ€‚©‚çˆó�ü—v‹�‚ª‚ ‚Á‚½Žž‚É�X�V‚³‚ê‚é�iMSISŒnPDL�ê—p�j
 	 */
 	int		uswitch;
 	/*
-	 * �f�[�^�����J�n���R
-	 * �V�X�e���������v�������������ɍX�V�����iMSIS�nPDL��p�j
+	 * ƒf�[ƒ^�ˆ—�ŠJŽn—�—R
+	 * ƒVƒXƒeƒ€‚©‚çˆó�ü—v‹�‚ª‚ ‚Á‚½Žž‚É�X�V‚³‚ê‚é�iMSISŒnPDL�ê—p�j
 	 */
 	int		reason;
 } async_para_t, di_async_para_t;
 
 typedef struct di_setinfo {
 	/*
-	 * �񓯊��ɕω�����p�����[�^
-	 * ����GPS��̓���ł̂ݗL��
+	 * ”ñ“¯Šú‚É•Ï‰»‚·‚éƒpƒ‰ƒ��[ƒ^
+	 * Œ»�óGPS�ã‚Ì“®�ì‚Å‚Ì‚Ý—LŒø
 	 */
 	di_async_para_t	*async;
 	/*
-	 * DI���X�g���[������ǂݍ��񂾃o�C�g���B
-	 * di_singet(c) or di_sinseek ���R�[�����邽�тɎ����I�ɍX�V�����B
-	 * DEBUG��define���ăR���p�C�������ꍇ�̂ݗL��
+	 * DI‚ªƒXƒgƒŠ�[ƒ€‚©‚ç“Ç‚Ý�ž‚ñ‚¾ƒoƒCƒg�”�B
+	 * di_singet(c) or di_sinseek ‚ðƒR�[ƒ‹‚·‚é‚½‚Ñ‚ÉŽ©“®“I‚É�X�V‚³‚ê‚é�B
+	 * DEBUG‚ðdefine‚µ‚ÄƒRƒ“ƒpƒCƒ‹‚µ‚½�ê�‡‚Ì‚Ý—LŒø
 	 */
 	int	cmd_offset;
 	/*
-	 * �C���^�v���^ID(�l�͈ȉ���define)
+	 * ƒCƒ“ƒ^ƒvƒŠƒ^ID(’l‚ÍˆÈ‰º‚Ìdefine)
 	 */
 #define DI_INTERP_RPCS			0x0000	/* RPCS */
 #define DI_INTERP_XHTML			0x0010	/* XHTML */
@@ -1543,44 +1567,44 @@ typedef struct di_setinfo {
 #define DI_INTERP_MP_JPEG		0x11001	/* MediaPrintJPEG */
 	 int	interp_id;
 	/*
-	 * �V�X�e���������̂��߂̃I�v�V�����p�����[�^(-1�Ŗ��g�p)
-	 * interp_id �ɂ���ĈӖ����ω�����
-	 * DI_INTERP_RPCS	�N�����R�ʒm
-	 * ���̑�			���g�p
+	 * ƒVƒXƒeƒ€�‰Šú‰»‚Ì‚½‚ß‚ÌƒIƒvƒVƒ‡ƒ“ƒpƒ‰ƒ��[ƒ^(-1‚Å–¢Žg—p)
+	 * interp_id ‚É‚æ‚Á‚ÄˆÓ–¡‚ª•Ï‰»‚·‚é
+	 * DI_INTERP_RPCS	‹N“®—�—R’Ê’m
+	 * ‚»‚Ì‘¼			–¢Žg—p
 	 */
 	long	option;
 } di_setinfo_t;
 
-/* ���[�U�[�W���u�ϐ��\���� */
+/* ƒ†�[ƒU�[ƒWƒ‡ƒu•Ï�”�\‘¢‘Ì */
 typedef struct ujobparam_var {
 	unsigned long	flag;
-/* di_ujob_info_t�Ƀ}�N����`������ */
+/* di_ujob_info_t‚Éƒ}ƒNƒ�’è‹`‚ª‚ ‚é */
 } ujobparam_var_t;
 
 typedef struct di_onebininfo {
-	unsigned short	id;		/* �r���r����ID */
-#define DI_BIN_STAPLER            (1 << 0)        /* �X�e�[�v���� */
-#define DI_BIN_PUNCH              (1 << 1)        /* �p���`�� */
-#define DI_BIN_SHIFT              (1 << 2)        /* �V�t�g�r���� */
+	unsigned short	id;		/* ”rŽ†ƒrƒ“‚ÌID */
+#define DI_BIN_STAPLER            (1 << 0)        /* ƒXƒe�[ƒvƒ‹‰Â */
+#define DI_BIN_PUNCH              (1 << 1)        /* ƒpƒ“ƒ`‰Â */
+#define DI_BIN_SHIFT              (1 << 2)        /* ƒVƒtƒg”rŽ†‰Â */
 #define DI_BIN_PAPER_SENSE        (1 << 3)        /* sense paper exist */
 #define DI_BIN_FULL_SENSE         (1 << 4)        /* sense paper full */
 #define DI_BIN_NODUPLEX           (1 << 5)        /* noduplex */
 #define DI_BIN_SADDLE             (1 << 6)        /* saddle */
-#define DI_BIN_FOLD               (1 << 7)        /* �܂�@�\ */
-	unsigned long	attr;	/* �r���r���̎�� */
-#define DI_BIN_FULL               (1 << 0)        /* ���t */
-#define DI_BIN_ERROR              (1 << 1)        /* �̏��� */
-#define DI_BIN_STOPEXIT           (1 << 2)        /* �r���}�� */
-#define DI_BIN_SADDLE_DISABLE     (1 << 3)        /* ���Ԃ��r���֎~ */
-#define DI_BIN_NORMAL_DISABLE     (1 << 4)        /* ���Ԃ��ȊO�̔r���֎~ */
-	unsigned long	status;	/* �X�e�[�^�X */
+#define DI_BIN_FOLD               (1 << 7)        /* �Ü‚è‹@”\ */
+	unsigned long	attr;	/* ”rŽ†ƒrƒ“‚ÌŽí—Þ */
+#define DI_BIN_FULL               (1 << 0)        /* –ž”t */
+#define DI_BIN_ERROR              (1 << 1)        /* ŒÌ�á�ó‘Ô */
+#define DI_BIN_STOPEXIT           (1 << 2)        /* ”rŽ†—}�§ */
+#define DI_BIN_SADDLE_DISABLE     (1 << 3)        /* ’†’Ô‚¶”rŽ†‹ÖŽ~ */
+#define DI_BIN_NORMAL_DISABLE     (1 << 4)        /* ’†’Ô‚¶ˆÈŠO‚Ì”rŽ†‹ÖŽ~ */
+	unsigned long	status;	/* ƒXƒe�[ƒ^ƒX */
 } di_onebininfo_t;
 
 #define DI_MAX_BIN_NUM 32
 
 typedef struct di_bininfo {
-	long			bin_num;					/* �r���r���̐� */
-	di_onebininfo_t	bininfo[DI_MAX_BIN_NUM];	/* �e�r���̏�� */
+	long			bin_num;					/* ”rŽ†ƒrƒ“‚Ì�” */
+	di_onebininfo_t	bininfo[DI_MAX_BIN_NUM];	/* Šeƒrƒ“‚Ì�î•ñ */
 } di_bininfo_t;
 
 typedef struct di_filectrl {
@@ -1591,101 +1615,101 @@ typedef struct di_filectrl {
 } di_filectrl_t;
 
 typedef struct di_rotenvinfo {
-#define	DI_CHKDIR_STAPLE     (1<<0)	    /* staple�p�����[�^�w�� */
-#define DI_CHKDIR_PUNCH      (1<<1)	    /* punch�p�����[�^�w�� */
-#define DI_CHKDIR_BINDING    (1<<2)	    /* binding�p�����[�^�w�� */
-#define DI_CHKDIR_RESOLUTION (1<<3)	    /* reso_x��reso_y�p�����[�^�w�� */
-#define DI_CHKDIR_DEPTH      (1<<5)	    /* depth�p�����[�^�w�� */
-	unsigned long		flag;			/* �ݒ肷��p�����[�^ */
-	int					psize;			/* �p���T�C�Y�i�K�{�j */
-	unsigned long		pwidth;			/* �p�����i0.1mm�P�ʁj */
-	unsigned long		plength;		/* �p�����i0.1mm�P�ʁj */
+#define	DI_CHKDIR_STAPLE     (1<<0)	    /* stapleƒpƒ‰ƒ��[ƒ^Žw’è */
+#define DI_CHKDIR_PUNCH      (1<<1)	    /* punchƒpƒ‰ƒ��[ƒ^Žw’è */
+#define DI_CHKDIR_BINDING    (1<<2)	    /* bindingƒpƒ‰ƒ��[ƒ^Žw’è */
+#define DI_CHKDIR_RESOLUTION (1<<3)	    /* reso_x‚Æreso_yƒpƒ‰ƒ��[ƒ^Žw’è */
+#define DI_CHKDIR_DEPTH      (1<<5)	    /* depthƒpƒ‰ƒ��[ƒ^Žw’è */
+	unsigned long		flag;			/* �Ý’è‚·‚éƒpƒ‰ƒ��[ƒ^ */
+	int					psize;			/* —pŽ†ƒTƒCƒY�i•K�{�j */
+	unsigned long		pwidth;			/* —pŽ†•��i0.1mm’PˆÊ�j */
+	unsigned long		plength;		/* —pŽ†’·�i0.1mm’PˆÊ�j */
 #define DI_ORIENTATION_PORTRAIT  (1<<0)	/* Portrait */
 #define DI_ORIENTATION_LANDSCAPE (1<<1)	/* Landscape */
-	unsigned char		orientation;	/* �I���G���e�[�V���� */
-#define DI_STAPLE_OFF              (0)  /* �Ȃ� */
-#define DI_STAPLE_LEFT_TOP_HORIZ   (1)  /* �g�p�͐������Ȃ� */
-#define DI_STAPLE_LEFT_TOP_VERT    (2)  /* �g�p�͐������Ȃ� */
-#define DI_STAPLE_LEFT_TOP_SLANT   (3)  /* ����΂� */
-#define DI_STAPLE_RIGHT_TOP_HORIZ  (5)  /* �g�p�͐������Ȃ� */
-#define DI_STAPLE_RIGHT_TOP_VERT   (6)  /* �g�p�͐������Ȃ� */
-#define DI_STAPLE_RIGHT_TOP_SLANT  (7)  /* �E��΂� */
-#define DI_STAPLE_DOUBLE_LEFT      (9)  /* �����Q�� */
-#define DI_STAPLE_DOUBLE_TOP       (10) /* �㑤�Q�� */
-#define DI_STAPLE_DOUBLE_RIGHT     (11) /* �E���Q�� */
-#define DI_STAPLE_BOOKLET          (12) /* �^���Q�� */
-#define DI_STAPLE_LEFT_TOP         (16) /* ���� */
-#define DI_STAPLE_RIGHT_TOP        (17) /* �E�� */
-	unsigned char		staple;			/* �X�e�[�v�� */
-#define DI_PUNCH_OFF   (0)              /* �Ȃ� */
-#define DI_PUNCH_LEFT  (1)              /* ���� */
-#define DI_PUNCH_TOP   (2)              /* ��� */
-#define DI_PUNCH_RIGHT (3)              /* �E�� */
-#define DI_PUNCH_JP2   (0x00)           /* ��ʂ̃p���`��ނ̎w��͂����Ă��Ȃ��Ă��ǂ� */
+	unsigned char		orientation;	/* ƒIƒŠƒGƒ“ƒe�[ƒVƒ‡ƒ“ */
+#define DI_STAPLE_OFF              (0)  /* ‚È‚µ */
+#define DI_STAPLE_LEFT_TOP_HORIZ   (1)  /* Žg—p‚Í�„�§‚µ‚È‚¢ */
+#define DI_STAPLE_LEFT_TOP_VERT    (2)  /* Žg—p‚Í�„�§‚µ‚È‚¢ */
+#define DI_STAPLE_LEFT_TOP_SLANT   (3)  /* �¶�ãŽÎ‚ß */
+#define DI_STAPLE_RIGHT_TOP_HORIZ  (5)  /* Žg—p‚Í�„�§‚µ‚È‚¢ */
+#define DI_STAPLE_RIGHT_TOP_VERT   (6)  /* Žg—p‚Í�„�§‚µ‚È‚¢ */
+#define DI_STAPLE_RIGHT_TOP_SLANT  (7)  /* ‰E�ãŽÎ‚ß */
+#define DI_STAPLE_DOUBLE_LEFT      (9)  /* �¶‘¤‚QŒÂ�Š */
+#define DI_STAPLE_DOUBLE_TOP       (10) /* �ã‘¤‚QŒÂ�Š */
+#define DI_STAPLE_DOUBLE_RIGHT     (11) /* ‰E‘¤‚QŒÂ�Š */
+#define DI_STAPLE_BOOKLET          (12) /* �^’†‚QŒÂ�Š */
+#define DI_STAPLE_LEFT_TOP         (16) /* �¶�ã */
+#define DI_STAPLE_RIGHT_TOP        (17) /* ‰E�ã */
+	unsigned char		staple;			/* ƒXƒe�[ƒvƒ‹ */
+#define DI_PUNCH_OFF   (0)              /* ‚È‚µ */
+#define DI_PUNCH_LEFT  (1)              /* �¶•Ó */
+#define DI_PUNCH_TOP   (2)              /* �ã•Ó */
+#define DI_PUNCH_RIGHT (3)              /* ‰E•Ó */
+#define DI_PUNCH_JP2   (0x00)           /* �ãˆÊ‚Ìƒpƒ“ƒ`Ží—Þ‚ÌŽw’è‚Í‚ ‚Á‚Ä‚à‚È‚­‚Ä‚à—Ç‚¢ */
 #define DI_PUNCH_US2   (0x10)
 #define DI_PUNCH_US3   (0x20)
 #define DI_PUNCH_EU4   (0x30)
 #define DI_PUNCH_NEU4  (0x40)
-	unsigned char		punch;			/* �p���` */
-#define DI_BIND_LEFT      (0)           /* ���Ԃ� */
-#define DI_BIND_TOP       (1)           /* ��Ԃ� */
-#define DI_BIND_RIGHT     (2)           /* �E�Ԃ� */
-#define DI_BIND_BOTTOM    (3)           /* ���Ԃ�(���g�p) */
-#define DI_BIND_LEFTRIGHT (4)           /* ���E�Ԃ�(RTIFF) */
-#define DI_BIND_TOPBOTTOM (5)           /* �㉺�Ԃ�(RTIFF) */
-#define DI_BIND_OFF       (0xF)         /* �w��Ȃ�(gpsPlotChkDirection()�p) */
-	unsigned char		binding;		/* �Ƃ����� */
-	unsigned short		reso_x;			/* X�����̉𑜓x */
-	unsigned short		reso_y;			/* Y�����̉𑜓x */
-#define DI_DEPTH_2        (1)           /* �Q�l(1bit) */
-#define DI_DEPTH_4        (2)           /* �S�l(2bit) */
-unsigned char		depth;			    /* �K�� */
+	unsigned char		punch;			/* ƒpƒ“ƒ` */
+#define DI_BIND_LEFT      (0)           /* �¶’Ô‚¶ */
+#define DI_BIND_TOP       (1)           /* �ã’Ô‚¶ */
+#define DI_BIND_RIGHT     (2)           /* ‰E’Ô‚¶ */
+#define DI_BIND_BOTTOM    (3)           /* ‰º’Ô‚¶(–¢Žg—p) */
+#define DI_BIND_LEFTRIGHT (4)           /* �¶‰E’Ô‚¶(RTIFF) */
+#define DI_BIND_TOPBOTTOM (5)           /* �ã‰º’Ô‚¶(RTIFF) */
+#define DI_BIND_OFF       (0xF)         /* Žw’è‚È‚µ(gpsPlotChkDirection()—p) */
+	unsigned char		binding;		/* ‚Æ‚¶•ûŒü */
+	unsigned short		reso_x;			/* X•ûŒü‚Ì‰ð‘œ“x */
+	unsigned short		reso_y;			/* Y•ûŒü‚Ì‰ð‘œ“x */
+#define DI_DEPTH_2        (1)           /* ‚Q’l(1bit) */
+#define DI_DEPTH_4        (2)           /* ‚S’l(2bit) */
+unsigned char		depth;			    /* ŠK’² */
 } di_rotenvinfo_t;
 
 typedef struct di_imgrotinfo {
-#define DI_ROT_0B    (1<<0) /* �O�x */
-#define DI_ROT_90B   (1<<1) /* �X�O�x */
-#define DI_ROT_180B  (1<<2) /* �P�W�O�x */
-#define DI_ROT_270B  (1<<3) /* �Q�V�O�x */
-#define DI_ROT_ALL   (DI_ROT_0B|DI_ROT_90B|DI_ROT_180B|DI_ROT_270B) /* ��]�����s�K�v */
-#define DI_ROT_NG    (0x80) /* ��]�����s�� */
-#define DI_ROT_ERROR (0)    /* �G���[ (�ʎ��s�Ȃ�) */
+#define DI_ROT_0B    (1<<0) /* ‚O“x */
+#define DI_ROT_90B   (1<<1) /* ‚X‚O“x */
+#define DI_ROT_180B  (1<<2) /* ‚P‚W‚O“x */
+#define DI_ROT_270B  (1<<3) /* ‚Q‚V‚O“x */
+#define DI_ROT_ALL   (DI_ROT_0B|DI_ROT_90B|DI_ROT_180B|DI_ROT_270B) /* ‰ñ“]�ˆ—�•s•K—v */
+#define DI_ROT_NG    (0x80) /* ‰ñ“]�ˆ—�•s‰Â */
+#define DI_ROT_ERROR (0)    /* ƒGƒ‰�[ (’ÊŽ†•s‰Â‚È‚Ç) */
 
-	int direction;	    	/* �摜���� */
-#define DI_ROT_0B    (1<<0)	/* �O�x */
-#define DI_ROT_90B   (1<<1)	/* �X�O�x */
-#define DI_ROT_180B  (1<<2)	/* �P�W�O�x */
-#define DI_ROT_270B  (1<<3)	/* �Q�V�O�x */
-#define DI_ROT_ERROR (0)	/* �΂߃X�e�[�v���o���Ȃ��A���̓p�����[�^�����i�X�e�[�v���w�肵�Ă��Ȃ��ꍇ�Ȃǁj */
-	int slantdirection;		/* �΂߃X�e�[�v�����ł���摜���� */
+	int direction;	    	/* ‰æ‘œ•ûŒü */
+#define DI_ROT_0B    (1<<0)	/* ‚O“x */
+#define DI_ROT_90B   (1<<1)	/* ‚X‚O“x */
+#define DI_ROT_180B  (1<<2)	/* ‚P‚W‚O“x */
+#define DI_ROT_270B  (1<<3)	/* ‚Q‚V‚O“x */
+#define DI_ROT_ERROR (0)	/* ŽÎ‚ßƒXƒe�[ƒvƒ‹�o—ˆ‚È‚¢�A–”‚Íƒpƒ‰ƒ��[ƒ^–³Œø�iƒXƒe�[ƒvƒ‹Žw’è‚µ‚Ä‚¢‚È‚¢�ê�‡‚È‚Ç�j */
+	int slantdirection;		/* ŽÎ‚ßƒXƒe�[ƒvƒ‹‚ª‚Å‚«‚é‰æ‘œ•ûŒü */
 } di_imgrotinfo_t;
 
-/* �J���[�v���t�@�C����� */
-/* GPS�̍\���� gps_color_profile_info�Ɠ����^ */
+/* ƒJƒ‰�[ƒvƒ�ƒtƒ@ƒCƒ‹�î•ñ */
+/* GPS‚Ì�\‘¢‘Ì gps_color_profile_info‚Æ“¯‚¶Œ^ */
 #define	DI_MAX_CPF_PATH_LEN		96
 #define	DI_MAX_CPF_ATTR_LEN		27
 
 typedef struct di_color_profile_info {
 	unsigned long		key;	/* profile ID */
 	unsigned char		media;	/* profile in media */
-	unsigned char		attr[DI_MAX_CPF_ATTR_LEN];	/* ���� */
-	char			path[DI_MAX_CPF_PATH_LEN];	/* �p�X�� */
+	unsigned char		attr[DI_MAX_CPF_ATTR_LEN];	/* ‘®�« */
+	char			path[DI_MAX_CPF_PATH_LEN];	/* ƒpƒX–¼ */
 } di_color_profile_info_t;
 
-/* �v���O�����e�[�u�� */
+/* ƒvƒ�ƒOƒ‰ƒ€ƒe�[ƒuƒ‹ */
 typedef struct di_progtable {
-	unsigned char eml_name[3];	/* �G�~�����[�V������ */
-	unsigned char file_no;	/*�G�~�����[�V�����P�ʂŊǗ�����Ă���v���O�����ԍ��BNVRAM�t�@�C���̃t�@�C���ԍ��ɑΉ�����B */
+	unsigned char eml_name[3];	/* ƒGƒ~ƒ…ƒŒ�[ƒVƒ‡ƒ“–¼ */
+	unsigned char file_no;	/*ƒGƒ~ƒ…ƒŒ�[ƒVƒ‡ƒ“’PˆÊ‚ÅŠÇ—�‚³‚ê‚Ä‚¢‚éƒvƒ�ƒOƒ‰ƒ€”Ô�†�BNVRAMƒtƒ@ƒCƒ‹‚Ìƒtƒ@ƒCƒ‹”Ô�†‚É‘Î‰ž‚·‚é�B */
 } di_progtable_t;
 
-#define	DI_AUTH_LIMIT_ADMINMACHINE	(1 << 0)		/* �@��Ǘ��ҋ@�\ 	*/
-#define	DI_AUTH_LIMIT_ADMINUSER		(1 << 1)		/* ���[�U�[�Ǘ��ҋ@�\ */
-#define	DI_AUTH_LIMIT_ADMINDOCUMENT	(1 << 2)		/* �����Ǘ��ҋ@�\ 	*/
-#define	DI_AUTH_LIMIT_ADMINNETWORK	(1 << 3)		/* �l�b�g���[�N�Ǘ��ҋ@�\ */
-#define	DI_AUTH_LIMIT_CERUSER		(1 << 4)		/* �F�؃��[�U�@�\ 	*/
-#define	DI_AUTH_LIMIT_SUPERVISOR      	(1 << 5)		/* �X�[�p�[�o�C�U�[�@�\ */
-#define	DI_AUTH_LIMIT_SERVICE		(1 << 6)		/* �T�[�r�X�@�\ 	*/
-#define DI_ALL_FUNCTION_LIMIT		0xffffffff		/* �S�@�\���� */
+#define	DI_AUTH_LIMIT_ADMINMACHINE	(1 << 0)		/* ‹@ŠíŠÇ—�ŽÒ‹@”\ 	*/
+#define	DI_AUTH_LIMIT_ADMINUSER		(1 << 1)		/* ƒ†�[ƒU�[ŠÇ—�ŽÒ‹@”\ */
+#define	DI_AUTH_LIMIT_ADMINDOCUMENT	(1 << 2)		/* •¶�‘ŠÇ—�ŽÒ‹@”\ 	*/
+#define	DI_AUTH_LIMIT_ADMINNETWORK	(1 << 3)		/* ƒlƒbƒgƒ��[ƒNŠÇ—�ŽÒ‹@”\ */
+#define	DI_AUTH_LIMIT_CERUSER		(1 << 4)		/* ”F�Øƒ†�[ƒU‹@”\ 	*/
+#define	DI_AUTH_LIMIT_SUPERVISOR      	(1 << 5)		/* ƒX�[ƒp�[ƒoƒCƒU�[‹@”\ */
+#define	DI_AUTH_LIMIT_SERVICE		(1 << 6)		/* ƒT�[ƒrƒX‹@”\ 	*/
+#define DI_ALL_FUNCTION_LIMIT		0xffffffff		/* ‘S‹@”\�§ŒÀ */
 
 /*
 	NVRAM FILE ACCESS
@@ -2191,337 +2215,337 @@ typedef struct {
  */
 
 /**
- * \brief DI I/F�̏������A�y�ѐ��i���̎擾���s�Ȃ��B
+ * \brief DI I/F‚Ì�‰Šú‰»�A‹y‚Ñ�»•i�î•ñ‚ÌŽæ“¾‚ð�s‚È‚¤�B
  *
- * \param initinfo DI���l���Z�b�g����\���́B
- * \param setinfo  DI�ɓn���e��p�����[�^�B����GPS�݂̂ŗL���B
+ * \param initinfo DI‚ª’l‚ðƒZƒbƒg‚·‚é�\‘¢‘Ì�B
+ * \param setinfo  DI‚É“n‚·ŠeŽíƒpƒ‰ƒ��[ƒ^�BŒ»�óGPS‚Ì‚Ý‚Å—LŒø�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO ���s
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO Ž¸”s
  *
- * \pre di_init() ���R�[������Ă��Ȃ��B
- * \pre ���� *initinfo �ɃA�N�Z�X�\�B
- * \pre ���� *setinfo �ɃA�N�Z�X�\�B
- * \pre ���� setinfo->interp_id ���ȉ��̂����ꂩ�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚È‚¢�B
+ * \pre ˆø�” *initinfo ‚ÉƒAƒNƒZƒX‰Â”\�B
+ * \pre ˆø�” *setinfo ‚ÉƒAƒNƒZƒX‰Â”\�B
+ * \pre ˆø�” setinfo->interp_id ‚ªˆÈ‰º‚Ì‚¢‚¸‚ê‚©�B
  *  \li DI_ITNERP_RPCS
  *  \li DI_INTERP_XHTML
  *  \li DI_INTERP_EXIF
  *  \li DI_INTERP_BMLINKS
  *  \li DI_INTERP_PS
  *  \li DI_INTERP_PCL
- * \pre ���� setinfo->async ���A�N�Z�X�\(GPS����̂�)�B
+ * \pre ˆø�” setinfo->async ‚ªƒAƒNƒZƒX‰Â”\(GPS“®�ì‚Ì‚Ý)�B
  *
- * \post di_term() ���R�[�������܂� di_init() �͎g�p�s�\�B
- * \post di_term() ���R�[�������܂�di_init()�������S�Ă̂c�h�̃C���^�[
- * �t�F�[�X���g�p�\�B
- * \post di_term()���R�[�������܂�setinfo->async�̊e�p�����[�^���񓯊�
- * �ɍX�V�����(GPS����̂�)�B
- * \post �p�l���ɂc�h���g�p���Ă���v�����^�A�v�����\��(GPS����̂�)�B
- * \post ���� *initinfo ���̃����o���K�؂Ȓl�ɍX�V�����B
+ * \post di_term() ‚ªƒR�[ƒ‹‚³‚ê‚é‚Ü‚Å di_init() ‚ÍŽg—p•s‰Â”\�B
+ * \post di_term() ‚ªƒR�[ƒ‹‚³‚ê‚é‚Ü‚Ådi_init()‚ð�œ‚­‘S‚Ä‚Ì‚c‚h‚ÌƒCƒ“ƒ^�[
+ * ƒtƒF�[ƒX‚ªŽg—p‰Â”\�B
+ * \post di_term()‚ªƒR�[ƒ‹‚³‚ê‚é‚Ü‚Åsetinfo->async‚ÌŠeƒpƒ‰ƒ��[ƒ^‚ª”ñ“¯Šú
+ * ‚É�X�V‚³‚ê‚é(GPS“®�ì‚Ì‚Ý)�B
+ * \post ƒpƒlƒ‹‚É‚c‚h‚ðŽg—p‚µ‚Ä‚¢‚éƒvƒŠƒ“ƒ^ƒAƒvƒŠ–¼•\Ž¦(GPS“®�ì‚Ì‚Ý)�B
+ * \post ˆø�” *initinfo “à‚Ìƒ�ƒ“ƒo‚ª“K�Ø‚È’l‚É�X�V‚³‚ê‚é�B
  */
 extern EXPORT int di_init( di_initinfo_t *initinfo, di_setinfo_t *setinfo );
 
 /**
- * \brief DI���Z�b�g�����p�����[�^���N���A����B
+ * \brief DI‚ªƒZƒbƒg‚µ‚½ƒpƒ‰ƒ��[ƒ^‚ðƒNƒŠƒA‚·‚é�B
  *
- *  \param devinfo   ��񂪊i�[����Ă���\���́B
- *  \param free_func �{�֐����Ń�������������邽�߂̃R�[���o�b�N�֐��B
+ *  \param devinfo   �î•ñ‚ªŠi”[‚³‚ê‚Ä‚¢‚é�\‘¢‘Ì�B
+ *  \param free_func –{ŠÖ�”“à‚Åƒ�ƒ‚ƒŠ‚ð‰ð•ú‚·‚é‚½‚ß‚ÌƒR�[ƒ‹ƒoƒbƒNŠÖ�”�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO ���s
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO Ž¸”s
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *devinfo �ɃA�N�Z�X�\�B
- * \pre free_func �ɃR�[���\�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *devinfo ‚ÉƒAƒNƒZƒX‰Â”\�B
+ * \pre free_func ‚ÉƒR�[ƒ‹‰Â”\�B
  *
- * \post di_getinfo()�Ŋm�ۂ����������́Afree_func���g�p���ĉ�������B
- * \post *devinfo�̃p�����[�^�̓[���N���A�����B
+ * \post di_getinfo()‚ÅŠm•Û‚µ‚½ƒ�ƒ‚ƒŠ‚Í�Afree_func‚ðŽg—p‚µ‚Ä‰ð•ú‚³‚ê‚é�B
+ * \post *devinfo‚Ìƒpƒ‰ƒ��[ƒ^‚Íƒ[ƒ�ƒNƒŠƒA‚³‚ê‚é�B
  */
 extern EXPORT int di_clear( di_devinfo_t *devinfo, DI_CALLBACK_MEMFREE free_func );
 
 /**
- * \brief DI I/F�̏I���������s�Ȃ��B
+ * \brief DI I/F‚Ì�I—¹�ˆ—�‚ð�s‚È‚¤�B
  *
- * \post di_init(),di_term()�������S�Ă̂c�h�̃C���^�[�t�F�[�X���g�p�s�B
- * \post �v�����^�n�r���A�c�h���g�p���Ă���v�����^�A�v���̏I����F���B
+ * \post di_init(),di_term()‚ð�œ‚­‘S‚Ä‚Ì‚c‚h‚ÌƒCƒ“ƒ^�[ƒtƒF�[ƒX‚ªŽg—p•s‰Â�B
+ * \post ƒvƒŠƒ“ƒ^‚n‚r‚ª�A‚c‚h‚ðŽg—p‚µ‚Ä‚¢‚éƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚Ì�I—¹‚ð”FŽ¯�B
  */
 extern EXPORT void di_term();
 
 /**
- * \brief �v�����^�A�v���̋N������I���܂ŕω����Ȃ��@��ˑ����̎擾��
- *�s�Ȃ��B
+ * \brief ƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚Ì‹N“®‚©‚ç�I—¹‚Ü‚Å•Ï‰»‚µ‚È‚¢‹@ŽíˆË‘¶�î•ñ‚ÌŽæ“¾‚ð
+ *�s‚È‚¤�B
  *
- *  \param devinfo �����i�[����\���́B
- *  \param alloc_func �{�֐����Ń��������m�ۂ��邽�߂̃R�[���o�b�N�֐��B
- *	\param dither_gamma_file �f�B�U��K���}�t�@�C���̃t�@�C�����i�t���p�X
- *�w��j�B
+ *  \param devinfo �î•ñ‚ðŠi”[‚·‚é�\‘¢‘Ì�B
+ *  \param alloc_func –{ŠÖ�”“à‚Åƒ�ƒ‚ƒŠ‚ðŠm•Û‚·‚é‚½‚ß‚ÌƒR�[ƒ‹ƒoƒbƒNŠÖ�”�B
+ *	\param dither_gamma_file ƒfƒBƒU¥ƒKƒ“ƒ}ƒtƒ@ƒCƒ‹‚Ìƒtƒ@ƒCƒ‹–¼�iƒtƒ‹ƒpƒX
+ *Žw’è�j�B
  *
- * \return �Ԃ�l���O�ȊO�̏ꍇ�́A�ȉ��̃r�b�g�t���O��On�̈Ӗ��ƂȂ�B
- *�����̃t���O��On�ƂȂ�ꍇ������B
+ * \return •Ô‚è’l‚ª‚OˆÈŠO‚Ì�ê�‡‚Í�AˆÈ‰º‚Ìƒrƒbƒgƒtƒ‰ƒO‚ÌOn‚ÌˆÓ–¡‚Æ‚È‚é�B
+ *•¡�”‚Ìƒtƒ‰ƒO‚ªOn‚Æ‚È‚é�ê�‡‚à‚ ‚é�B
  *
- * \retval 0     ����I��
- * \retval DI_GI_ERR_CONDITION  ���O�����𖞂����Ă��Ȃ�
- * \retval DI_GI_ERR_DITHER     dither_info �擾���s
- * \retval DI_GI_ERR_GAMMA      gamma_info �擾���s
- * \retval DI_GI_ERR_FONT       font_address & font_size �擾���s
- * \retval DI_GI_ERR_PROF       profaddress & profnumber �擾���s
- * \retval DI_GI_ERR_RESO       resonum & reso_set �擾���s
- * \retval DI_GI_ERR_NDIT       ndit �擾���s
- * \retval DI_GI_ERR_NPLANE     nplane �擾���s
+ * \retval 0     �³�í�I—¹
+ * \retval DI_GI_ERR_CONDITION  Ž–‘O�ðŒ�‚ð–ž‚½‚µ‚Ä‚¢‚È‚¢
+ * \retval DI_GI_ERR_DITHER     dither_info Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_GAMMA      gamma_info Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_FONT       font_address & font_size Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_PROF       profaddress & profnumber Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_RESO       resonum & reso_set Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_NDIT       ndit Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_NPLANE     nplane Žæ“¾Ž¸”s
  * \retval DI_GI_ERR_BGUCR      bg_(startp/slant) & ucr_(startp/slant)
- *�擾���s
- * \retval DI_GI_ERR_TSAVE      soft_tsave �擾���s
- * \retval DI_GI_ERR_TSAVE_R    tsave_ratio �擾���s
- * \retval DI_GI_ERR_TLIMIT     toner_limit �擾���s
- * \retval DI_GI_ERR_TLIMIT_R   tlimit_num & tlimit_val �擾���s
- * \retval DI_GI_ERR_SHDM       shdm_addr �擾���s
- * \retval DI_GI_ERR_SYSH       sys_handle �擾���s
- * \retval DI_GI_ERR_EXTENDTSAVE      extend_soft_tsave �擾���s
+ *Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_TSAVE      soft_tsave Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_TSAVE_R    tsave_ratio Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_TLIMIT     toner_limit Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_TLIMIT_R   tlimit_num & tlimit_val Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_SHDM       shdm_addr Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_SYSH       sys_handle Žæ“¾Ž¸”s
+ * \retval DI_GI_ERR_EXTENDTSAVE      extend_soft_tsave Žæ“¾Ž¸”s
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *devinfo���A�N�Z�X�\�B
- * \pre alloc_func( size )���R�[������ƁAsize �����m�ۂ����������̐擪
- *�A�h���X�̒l���Ԃ��Ă���B
- * \pre dither_gamma_file �Ƃ����t�@�C�������݂���A��������
- *dither_gamma_file��NULL�B
- * \pre alloc_func�Ŏ擾���郁�����T�C�Y�́AGPS���Ŗ�300Byte�AGPS�ȊO
- *�̊��Ŗ�65KByte �ƂȂ�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *devinfo‚ªƒAƒNƒZƒX‰Â”\�B
+ * \pre alloc_func( size )‚ðƒR�[ƒ‹‚·‚é‚Æ�Asize ‚¾‚¯Šm•Û‚µ‚½ƒ�ƒ‚ƒŠ‚Ì�æ“ª
+ *ƒAƒhƒŒƒX‚Ì’l‚ª•Ô‚Á‚Ä‚­‚é�B
+ * \pre dither_gamma_file ‚Æ‚¢‚¤ƒtƒ@ƒCƒ‹‚ª‘¶�Ý‚·‚é�A‚à‚µ‚­‚Í
+ *dither_gamma_file‚ªNULL�B
+ * \pre alloc_func‚ÅŽæ“¾‚·‚éƒ�ƒ‚ƒŠƒTƒCƒY‚Í�AGPSŠÂ‹«‚Å–ñ300Byte�AGPSˆÈŠO
+ *‚ÌŠÂ‹«‚Å–ñ65KByte ‚Æ‚È‚é�B
  *
- * \post *devinfo���̃����o���K�؂Ȓl�ɍX�V�����B
+ * \post *devinfo“à‚Ìƒ�ƒ“ƒo‚ª“K�Ø‚È’l‚É�X�V‚³‚ê‚é�B
  */
 extern EXPORT int di_getinfo(di_devinfo_t *devinfo,
 							 DI_CALLBACK_MEMALLOC alloc_func,
 							 char *dither_gamma_file);
 
 /**
- * \brief �v�����^�n�r����C�x���g�v�����擾����B
+ * \brief ƒvƒŠƒ“ƒ^‚n‚r‚©‚çƒCƒxƒ“ƒg—v‹�‚ðŽæ“¾‚·‚é�B
  *
- * �I���v���ȊO�̗v���̏ꍇ,�C���^�v���^�̓f�[�^�����\��ԂƂȂ�B
+ * �I—¹—v‹�ˆÈŠO‚Ì—v‹�‚Ì�ê�‡,ƒCƒ“ƒ^ƒvƒŠƒ^‚Íƒf�[ƒ^�ˆ—�‰Â”\�ó‘Ô‚Æ‚È‚é�B
  *
- * \retval DI_REQ_PROCESS    �ʏ폈���v��
- * \retval DI_REQ_CANCEL     �ʏ폈���{�W���u�L�����Z���v��
- * \retval DI_REQ_EXIT       �I���v��
- * \retval -1                �G���[
+ * \retval DI_REQ_PROCESS    ’Ê�í�ˆ—�—v‹�
+ * \retval DI_REQ_CANCEL     ’Ê�í�ˆ—��{ƒWƒ‡ƒuƒLƒƒƒ“ƒZƒ‹—v‹�
+ * \retval DI_REQ_EXIT       �I—¹—v‹�
+ * \retval -1                ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é
  *
- * \post �Ԃ�l�ɃV�X�e������̗v�����i�[�����B
- * \post �Ԃ�l��DI_REQ_PROCESS,DI_REQ_CANCEL�̏ꍇ�ɂ́A�v�����^�n�r
- *�̓v�����^�A�v�����f�[�^������ԂɂȂ����Ɣ��f����B
- * \post �Ԃ�l��DI_REQ_EXIT�̏ꍇ�ɂ́A�v�����^�n�r�̓v�����^�A�v����
- *�A�C�h����ԂɂȂ����Ɣ��f����B
+ * \post •Ô‚è’l‚ÉƒVƒXƒeƒ€‚©‚ç‚Ì—v‹�‚ªŠi”[‚³‚ê‚é�B
+ * \post •Ô‚è’l‚ªDI_REQ_PROCESS,DI_REQ_CANCEL‚Ì�ê�‡‚É‚Í�AƒvƒŠƒ“ƒ^‚n‚r
+ *‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚ªƒf�[ƒ^�ˆ—��ó‘Ô‚É‚È‚Á‚½‚Æ”»’f‚·‚é�B
+ * \post •Ô‚è’l‚ªDI_REQ_EXIT‚Ì�ê�‡‚É‚Í�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚ª
+ *ƒAƒCƒhƒ‹�ó‘Ô‚É‚È‚Á‚½‚Æ”»’f‚·‚é�B
  */
 extern EXPORT int di_get_request();
 
 /**
- * \brief �g���C���̎擾���s���B
+ * \brief ƒgƒŒƒC�î•ñ‚ÌŽæ“¾‚ð�s‚¤�B
  *
- * \param trayinfo �g���C�����i�[����\����
+ * \param trayinfo ƒgƒŒƒC�î•ñ‚ðŠi”[‚·‚é�\‘¢‘Ì
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[�A�g���C���擾���s
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[�AƒgƒŒƒC�î•ñŽæ“¾Ž¸”s
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *trayinfo���A�N�Z�X�\�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *trayinfo‚ªƒAƒNƒZƒX‰Â”\�B
  *
- * \post *trayinfo���̃����o���K�؂Ȓl�ɍX�V�����B
+ * \post *trayinfo“à‚Ìƒ�ƒ“ƒo‚ª“K�Ø‚È’l‚É�X�V‚³‚ê‚é�B
  */
 extern EXPORT int di_get_trayinfo(di_trayinfo_t *trayinfo );
 
 /**
- * \brief �A�v���ŗL��񂩂�w��J�e�S���̃L�[�̒l���擾����B
+ * \brief ƒAƒvƒŠŒÅ—L�î•ñ‚©‚çŽw’èƒJƒeƒSƒŠ‚ÌƒL�[‚Ì’l‚ðŽæ“¾‚·‚é�B
  *
- * \param key      �����L�[(������)
- * \param category �����J�e�S��(������)
- * \param value    ��������(������)���i�[����̈�
+ * \param key      ŒŸ�õƒL�[(•¶Žš—ñ)
+ * \param category ŒŸ�õƒJƒeƒSƒŠ(•¶Žš—ñ)
+ * \param value    ŒŸ�õŒ‹‰Ê(•¶Žš—ñ)‚ðŠi”[‚·‚é—Ìˆæ
  *
- * \retval  DI_PINI_OK                 ��������
- * \retval  DI_PINI_KEY_NOT_FOUND      �Y������key��������Ȃ�����
- * \retval  DI_PINI_CATEGORY_NOT_FOUND �Y������category��������Ȃ�
- *����
- * \retval  DI_PINI_ERROR              �G���[
+ * \retval  DI_PINI_OK                 ŒŸ�õ�¬Œ÷
+ * \retval  DI_PINI_KEY_NOT_FOUND      ŠY“–‚·‚ékey‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½
+ * \retval  DI_PINI_CATEGORY_NOT_FOUND ŠY“–‚·‚écategory‚ªŒ©‚Â‚©‚ç‚È‚©
+ *‚Á‚½
+ * \retval  DI_PINI_ERROR              ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre key�̕��������^�[�~�l�[�g���܂�1�����ȏ�32�����ȓ�
- * \pre category�̕��������^�[�~�l�[�g���܂�1�����ȏ�32�����ȓ�
- * \pre value[0]�`value[DI_MAX_VALUE_LEN-1]�܂ŃA�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre key‚Ì•¶Žš�”‚ªƒ^�[ƒ~ƒl�[ƒg‚ðŠÜ‚ß1•¶ŽšˆÈ�ã32•¶ŽšˆÈ“à
+ * \pre category‚Ì•¶Žš�”‚ªƒ^�[ƒ~ƒl�[ƒg‚ðŠÜ‚ß1•¶ŽšˆÈ�ã32•¶ŽšˆÈ“à
+ * \pre value[0]�`value[DI_MAX_VALUE_LEN-1]‚Ü‚ÅƒAƒNƒZƒX‰Â”\
  *
- * \post ��������������value�ɏ������܂��B������DI_MAX_VALUE_LEN
- *��蒷���ꍇ�́ADI_MAX_VALUE_LEN-1�܂ł̕�������擾���āA
- *value[DI_MAX_VALUE_LEN-1]�ɏI�[������ǉ�����B
+ * \post ŒŸ�õ‚µ‚½•¶Žš—ñ‚ªvalue‚É�‘‚«�ž‚Ü‚ê‚é�B•¶Žš—ñ‚ªDI_MAX_VALUE_LEN
+ *‚æ‚è’·‚¢�ê�‡‚Í�ADI_MAX_VALUE_LEN-1‚Ü‚Å‚Ì•¶Žš—ñ‚ðŽæ“¾‚µ‚Ä�A
+ *value[DI_MAX_VALUE_LEN-1]‚É�I’[•¶Žš‚ð’Ç‰Á‚·‚é�B
  */
 extern EXPORT int di_get_appinfo(char *key, char *category, char value[]);
 
 /**
- * \brief ���ϐ��̒l���擾����B
+ * \brief ŠÂ‹«•Ï�”‚Ì’l‚ðŽæ“¾‚·‚é�B
  *
- * \param table_name ���ϐ��e�[�u����
- * \param id         ���ϐ�ID
- * \param val        ����ꂽ���ϐ��̒l
+ * \param table_name ŠÂ‹«•Ï�”ƒe�[ƒuƒ‹–¼
+ * \param id         ŠÂ‹«•Ï�”ID
+ * \param val        “¾‚ç‚ê‚½ŠÂ‹«•Ï�”‚Ì’l
  *
- * \retval  1 ����I���i���ϐ��������I�Ɏw�肳��Ă���j
- * \retval  0 ����I���i���ϐ��������I�Ɏw�肳��ĂȂ����߁A�f�t�H��
- *�g�l�Z�b�g)
- * \retval -1 �G���[�idi_init()���R�[������Ă��Ȃ��j
- * \retval -2 �G���[�itable_name�����݂��Ȃ��j
- * \retval -3 �G���[�i�w�肵�����ϐ����Ȃ��j
+ * \retval  1 �³�í�I—¹�iŠÂ‹«•Ï�”‚ª–¾Ž¦“I‚ÉŽw’è‚³‚ê‚Ä‚¢‚é�j
+ * \retval  0 �³�í�I—¹�iŠÂ‹«•Ï�”‚ª–¾Ž¦“I‚ÉŽw’è‚³‚ê‚Ä‚È‚¢‚½‚ß�AƒfƒtƒHƒ‹
+ *ƒg’lƒZƒbƒg)
+ * \retval -1 ƒGƒ‰�[�idi_init()‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚È‚¢�j
+ * \retval -2 ƒGƒ‰�[�itable_name‚ª‘¶�Ý‚µ‚È‚¢�j
+ * \retval -3 ƒGƒ‰�[�iŽw’è‚µ‚½ŠÂ‹«•Ï�”‚ª‚È‚¢�j
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre table_name�Ƃ����e�[�u�������݂���B
- * \pre ���ϐ� id ���Atable_name�ɑ��݂���B
- * \pre *val���A�N�Z�X�\�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre table_name‚Æ‚¢‚¤ƒe�[ƒuƒ‹‚ª‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�Atable_name‚É‘¶�Ý‚·‚é�B
+ * \pre *val‚ªƒAƒNƒZƒX‰Â”\�B
  *
- * \post *val�Ɏw�肵�����ϐ��̒l���i�[�����B
+ * \post *val‚ÉŽw’è‚µ‚½ŠÂ‹«•Ï�”‚Ì’l‚ªŠi”[‚³‚ê‚é�B
  */
 extern EXPORT int di_get_envvalue( char *table_name, long id, long *val );
 
 /**
- * \brief ���ϐ��̒l���Z�b�g����B
+ * \brief ŠÂ‹«•Ï�”‚Ì’l‚ðƒZƒbƒg‚·‚é�B
  *
- * \param table_name ���ϐ��e�[�u����
- * \param id         ���ϐ�ID
- * \param val        �Z�b�g������ϐ��̒l
+ * \param table_name ŠÂ‹«•Ï�”ƒe�[ƒuƒ‹–¼
+ * \param id         ŠÂ‹«•Ï�”ID
+ * \param val        ƒZƒbƒg‚·‚éŠÂ‹«•Ï�”‚Ì’l
  *
- * \retval  0 ����I��
- * \retval -1 �G���[�idi_init()���R�[������Ă��Ȃ��j
- * \retval -2 �G���[�itable_name�����݂��Ȃ��j
- * \retval -3 �G���[�i �w�肵�����ϐ����Ȃ��j
- * \retval -4 �G���[�i���[�h�I�����[�̊��ϐ��j
- * \retval -5 �G���[�i val ���ݒ�s�\�Ȓl�j
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[�idi_init()‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚È‚¢�j
+ * \retval -2 ƒGƒ‰�[�itable_name‚ª‘¶�Ý‚µ‚È‚¢�j
+ * \retval -3 ƒGƒ‰�[�i Žw’è‚µ‚½ŠÂ‹«•Ï�”‚ª‚È‚¢�j
+ * \retval -4 ƒGƒ‰�[�iƒŠ�[ƒhƒIƒ“ƒŠ�[‚ÌŠÂ‹«•Ï�”�j
+ * \retval -5 ƒGƒ‰�[�i val ‚ª�Ý’è•s‰Â”\‚È’l�j
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre table_name�Ƃ����e�[�u�������݂���B
- * \pre ���ϐ� id ���A�ݒ�\�ȕϐ��Ƃ���table_name�ɑ��݂���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre table_name‚Æ‚¢‚¤ƒe�[ƒuƒ‹‚ª‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�A�Ý’è‰Â”\‚È•Ï�”‚Æ‚µ‚Ätable_name‚É‘¶�Ý‚·‚é�B
  *
- * \post di_set_envvalue( table_name, id, k )�Ƃ����`���Ŗ{�֐����R�[
- *�������ꍇ�Adi_get_envvalue( table_name, id, &val )�Ƃ����val �� k
- * ���Z�b�g�����B
+ * \post di_set_envvalue( table_name, id, k )‚Æ‚¢‚¤Œ`Ž®‚Å–{ŠÖ�”‚ðƒR�[
+ *ƒ‹‚µ‚½�ê�‡�Adi_get_envvalue( table_name, id, &val )‚Æ‚·‚é‚Æval ‚É k
+ * ‚ªƒZƒbƒg‚³‚ê‚é�B
  */
 extern EXPORT int di_set_envvalue( char *table_name, long id, long val );
 
 /**
- * \brief DI�̓���̃^�C�~���O�ŃR�[������֐����w�肷��B
+ * \brief DI‚Ì“Á’è‚Ìƒ^ƒCƒ~ƒ“ƒO‚ÅƒR�[ƒ‹‚·‚éŠÖ�”‚ðŽw’è‚·‚é�B
  *
- * \param type ���� func �Ŏw�肳�ꂽ�R�[���o�b�N�֐����R�[������^�C�~���O�B
- *�e�l�ɑ΂���^�C�~���O�͈ȉ��̂Ƃ���B
+ * \param type ˆø�” func ‚ÅŽw’è‚³‚ê‚½ƒR�[ƒ‹ƒoƒbƒNŠÖ�”‚ðƒR�[ƒ‹‚·‚éƒ^ƒCƒ~ƒ“ƒO�B
+ *Še’l‚É‘Î‚·‚éƒ^ƒCƒ~ƒ“ƒO‚ÍˆÈ‰º‚Ì‚Æ‚¨‚è�B
  *  <table>
  *   <tr>
  *    <td>DI_CALLBACK_READERR_SINGETC</td>
- *    <td>di_singetc() ���œǂݍ��݂����s�����ꍇ</td>
+ *    <td>di_singetc() “à‚Å“Ç‚Ý�ž‚Ý‚ªŽ¸”s‚µ‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_READERR_SINGET</td>
- *    <td>di_singet( )���œǂݍ��݂����s�����ꍇ</td>
+ *    <td>di_singet( )“à‚Å“Ç‚Ý�ž‚Ý‚ªŽ¸”s‚µ‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_SIZEERR_SINGET</td>
- *    <td>di_singet( )�̈����ŁA�T�C�Y�w�肪�s���������ꍇ</td>
+ *    <td>di_singet( )‚Ìˆø�”‚Å�AƒTƒCƒYŽw’è‚ª•s�³‚¾‚Á‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_PROCDATA</td>
- *    <td>�V�X�e������f�[�^�����̊J�n�v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒf�[ƒ^�ˆ—�‚ÌŠJŽn—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_EXIT</td>
- *    <td>�V�X�e������C���^�v���^�I���v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒCƒ“ƒ^ƒvƒŠƒ^�I—¹—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_CANCEL</td>
- *    <td>�V�X�e������f�[�^�����̒��~�v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒf�[ƒ^�ˆ—�‚Ì’†Ž~—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_ONLINE</td>
- *    <td>�V�X�e������I�����C���v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒIƒ“ƒ‰ƒCƒ“—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_OFFLINE</td>
- *    <td>�V�X�e������I�t���C���v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒIƒtƒ‰ƒCƒ“—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_TESTPRINT</td>
- *    <td>�V�X�e������e�X�g�v�����g�v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒeƒXƒgƒvƒŠƒ“ƒg—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_TRAYINFO</td>
- *    <td>�V�X�e�����狋���g���C�̕ύX�ʒm�������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚ç‹‹Ž†ƒgƒŒƒC‚Ì•Ï�X’Ê’m‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_BININFO</td>
- *    <td>�V�X�e������r���r���̕ύX�ʒm�������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚ç”rŽ†ƒrƒ“‚Ì•Ï�X’Ê’m‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_EXITPAPER</td>
- *    <td>�V�X�e�����狭���r���v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚ç‹­�§”rŽ†—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_FONTCOUNT</td>
- *    <td>�V�X�e������t�H���g���̃J�E���g�v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒtƒHƒ“ƒg�”‚ÌƒJƒEƒ“ƒg—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_PRTSTATUS</td>
- *    <td>�V�X�e������v�����^�X�e�[�^�X���̕ύX�ʒm�������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒvƒŠƒ“ƒ^ƒXƒe�[ƒ^ƒX�î•ñ‚Ì•Ï�X’Ê’m‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *   <tr>
  *    <td>DI_CALLBACK_REQ_GAM</td>
- *    <td>�V�X�e������K���}�̍Čv�Z�v���������ꍇ</td>
+ *    <td>ƒVƒXƒeƒ€‚©‚çƒKƒ“ƒ}‚Ì�ÄŒvŽZ—v‹�‚ª‚«‚½�ê�‡</td>
  *   </tr>
  *  </table>
- * \param func �w�肷��R�[���o�b�N�֐�
+ * \param func Žw’è‚·‚éƒR�[ƒ‹ƒoƒbƒNŠÖ�”
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre type �������̐����ɂ���l�̂����ꂩ
- * \pre func ���R�[���\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre type ‚ªˆø�”‚Ì�à–¾‚É‚ ‚é’l‚Ì‚¢‚¸‚ê‚©
+ * \pre func ‚ªƒR�[ƒ‹‰Â”\
  *
- * \post type �ɂ��w�肳�ꂽ�^�C�~���O�� func ���R�[������B
+ * \post type ‚É‚æ‚èŽw’è‚³‚ê‚½ƒ^ƒCƒ~ƒ“ƒO‚Å func ‚ðƒR�[ƒ‹‚·‚é�B
  */
 extern EXPORT int di_set_callbackfunc( int type, DI_CALLBACK_FUNC func );
 
 /**
- * \brief �v�����^�n�r���Ǘ����Ă��郁�����̊m�ۂ��s���B
+ * \brief ƒvƒŠƒ“ƒ^‚n‚r‚ªŠÇ—�‚µ‚Ä‚¢‚éƒ�ƒ‚ƒŠ‚ÌŠm•Û‚ð�s‚¤�B
  *
- * \param size �m�ۂ��郁�����T�C�Y(Byte)
+ * \param size Šm•Û‚·‚éƒ�ƒ‚ƒŠƒTƒCƒY(Byte)
  *
- * \retval �m�ۂ����������̐擪�A�h���X �m�ې���
- * \retval NULL �G���[�A�������m�ێ��s
+ * \retval Šm•Û‚µ‚½ƒ�ƒ‚ƒŠ‚Ì�æ“ªƒAƒhƒŒƒX Šm•Û�¬Œ÷
+ * \retval NULL ƒGƒ‰�[�Aƒ�ƒ‚ƒŠŠm•ÛŽ¸”s
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre di_memory_alloc()���P�x���R�[������Ă��Ȃ�(GPS����̂�)
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre di_memory_alloc()‚ª‚P“x‚àƒR�[ƒ‹‚³‚ê‚Ä‚¢‚È‚¢(GPS“®�ì‚Ì‚Ý)
  *
- * \post �Ԃ�l�̃A�h���X����size�o�C�g���A�N�Z�X�\
+ * \post •Ô‚è’l‚ÌƒAƒhƒŒƒX‚©‚çsizeƒoƒCƒg‚ªƒAƒNƒZƒX‰Â”\
  */
 extern EXPORT char *di_memory_alloc(unsigned long size);
 
 /**
- * \brief di_memory_alloc() �Ŋm�ۂ����������̉�����s���B
+ * \brief di_memory_alloc() ‚ÅŠm•Û‚µ‚½ƒ�ƒ‚ƒŠ‚Ì‰ð•ú‚ð�s‚¤�B
  *
- * \param ptr ������郁�����̐擪�A�h���X
+ * \param ptr ‰ð•ú‚·‚éƒ�ƒ‚ƒŠ‚Ì�æ“ªƒAƒhƒŒƒX
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre ptr��di_memory_alloc()�Ŋm�ۂ����������̐擪�A�h���X�A�������͂O
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ptr‚ªdi_memory_alloc()‚ÅŠm•Û‚µ‚½ƒ�ƒ‚ƒŠ‚Ì�æ“ªƒAƒhƒŒƒX�A‚à‚µ‚­‚Í‚O
  *
- * \post ��������������́A�v�����^�n�r�����p�\
+ * \post ‰ð•ú‚µ‚½ƒ�ƒ‚ƒŠ‚Í�AƒvƒŠƒ“ƒ^‚n‚r‚ª—˜—p‰Â”\
  */
 extern EXPORT int di_memory_free(char *ptr);
 
 /**
- * \brief ���̓z�X�g�o�b�t�@���I�[�v������B
- * �f�[�^�ǂݍ��ݑO�ɕK���{�֐����R�[�����邱��
+ * \brief “ü—ÍƒzƒXƒgƒoƒbƒtƒ@‚ðƒI�[ƒvƒ“‚·‚é�B
+ * ƒf�[ƒ^“Ç‚Ý�ž‚Ý‘O‚É•K‚¸–{ŠÖ�”‚ðƒR�[ƒ‹‚·‚é‚±‚Æ
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �V�X�e������ʏ폈���v�������Ă���
- *(di_get_request(),di_trans_process()�Q��)
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒVƒXƒeƒ€‚©‚ç’Ê�í�ˆ—�—v‹�‚ª—ˆ‚Ä‚¢‚é
+ *(di_get_request(),di_trans_process()ŽQ�Æ)
  *
- * \post di_close_host()�A�������� di_trans_process() ���R�[������܂�
- *�ȉ��� I/F ���g�p�\
+ * \post di_close_host()�A‚à‚µ‚­‚Í di_trans_process() ‚ðƒR�[ƒ‹‚·‚é‚Ü‚Å
+ *ˆÈ‰º‚Ì I/F ‚ªŽg—p‰Â”\
  *  \li di_singetc()
  *  \li di_singet()
  *  \li di_sinpeekc()
@@ -2532,15 +2556,15 @@ extern EXPORT int di_memory_free(char *ptr);
 extern EXPORT int di_open_host();
 
 /**
- * \brief di_open_host()�ɂ��I�[�v�����ꂽ �z�X�g�o�b�t�@���N���[�Y
- *����B
+ * \brief di_open_host()‚É‚æ‚èƒI�[ƒvƒ“‚³‚ê‚½ ƒzƒXƒgƒoƒbƒtƒ@‚ðƒNƒ��[ƒY
+ *‚·‚é�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
  *
- * \post di_open_host() ���R�[������܂ňȉ���I/F���g�p�s�\�B
+ * \post di_open_host() ‚ðƒR�[ƒ‹‚·‚é‚Ü‚ÅˆÈ‰º‚ÌI/F‚ªŽg—p•s‰Â”\�B
  *  \li di_singetc()
  *  \li di_singet()
  *  \li di_sinpeekc()
@@ -2551,355 +2575,355 @@ extern EXPORT int di_open_host();
 extern EXPORT int di_close_host();
 
 /**
- * \brief ���̓X�g���[������P�o�C�g�̓ǂݍ��ށB
+ * \brief “ü—ÍƒXƒgƒŠ�[ƒ€‚©‚ç‚PƒoƒCƒg‚Ì“Ç‚Ý�ž‚Þ�B
  *
- * \param dat �ǂݍ��񂾃f�[�^�̒l
+ * \param dat “Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^‚Ì’l
  *
- * \retval 0     �ǂݍ��ݐ���
- * \retval 0�ȊO �G���[�A�ǂݍ��ݎ��s�AEOF
+ * \retval 0     “Ç‚Ý�ž‚Ý�¬Œ÷
+ * \retval 0ˆÈŠO ƒGƒ‰�[�A“Ç‚Ý�ž‚ÝŽ¸”s�AEOF
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �z�X�g���I�[�v������Ă���i di_open_host() �Q�Ɓj
- * \pre *dat ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_host() ŽQ�Æ�j
+ * \pre *dat ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *dat�ɓ��̓X�g���[���̐擪�P�o�C�g���i�[�����B
- * \post ���[�h�|�C���^�A�s�[�N�|�C���^�����̓ǂݍ��݈ʒu�Ɉړ�����
+ * \post *dat‚É“ü—ÍƒXƒgƒŠ�[ƒ€‚Ì�æ“ª‚PƒoƒCƒg‚ªŠi”[‚³‚ê‚é�B
+ * \post ƒŠ�[ƒhƒ|ƒCƒ“ƒ^�Aƒs�[ƒNƒ|ƒCƒ“ƒ^‚ªŽŸ‚Ì“Ç‚Ý�ž‚ÝˆÊ’u‚ÉˆÚ“®‚·‚é
  */
 extern EXPORT int di_singetc( unsigned char *dat );
 
 /**
- * \brief ���̓X�g���[�����畡���o�C�g�ǂݍ��ށB
+ * \brief “ü—ÍƒXƒgƒŠ�[ƒ€‚©‚ç•¡�”ƒoƒCƒg“Ç‚Ý�ž‚Þ�B
  *
- * \param buf �ǂݍ��ݐ�o�b�t�@
- * \param len �ǂݍ��ރT�C�Y(Byte)
+ * \param buf “Ç‚Ý�ž‚Ý�æƒoƒbƒtƒ@
+ * \param len “Ç‚Ý�ž‚ÞƒTƒCƒY(Byte)
  *
- * \retval >0 �ǂݍ��񂾃f�[�^�̃o�C�g��
+ * \retval >0 “Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^‚ÌƒoƒCƒg�”
  * \retval 0  EOF
- * \retval -1 �G���[
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre ���̓z�X�g���I�[�v������Ă���i di_open_host() �Q�Ɓj
- * \pre len ��0�ȏ�
- * \pre len ��1�ȏ�̏ꍇ�� buf[0]�`buf[len-1] ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre “ü—ÍƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_host() ŽQ�Æ�j
+ * \pre len ‚ª0ˆÈ�ã
+ * \pre len ‚ª1ˆÈ�ã‚Ì�ê�‡‚É buf[0]�`buf[len-1] ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post buf�ɓ��̓X�g���[���̐擪len�o�C�g���i�[�����B
- * \post ���[�h�|�C���^�A�s�[�N�|�C���^�����̓ǂݍ��݈ʒu�Ɉړ�����B
+ * \post buf‚É“ü—ÍƒXƒgƒŠ�[ƒ€‚Ì�æ“ªlenƒoƒCƒg‚ªŠi”[‚³‚ê‚é�B
+ * \post ƒŠ�[ƒhƒ|ƒCƒ“ƒ^�Aƒs�[ƒNƒ|ƒCƒ“ƒ^‚ªŽŸ‚Ì“Ç‚Ý�ž‚ÝˆÊ’u‚ÉˆÚ“®‚·‚é�B
  */
 extern EXPORT int di_singet( unsigned char *buf, long len );
 
 /**
- * \brief ���̓X�g���[������P�o�C�g�ǂݍ��ށB
+ * \brief “ü—ÍƒXƒgƒŠ�[ƒ€‚©‚ç‚PƒoƒCƒg“Ç‚Ý�ž‚Þ�B
  *
- * �ǂݍ��񂾃f�[�^���e�͔j�����Ȃ����߁Adi_reset_sinpeek() �ɂ��ē�
- *�ݍ��݉\�B
+ * “Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^“à—e‚Í”jŠü‚µ‚È‚¢‚½‚ß�Adi_reset_sinpeek() ‚É‚æ‚è�Ä“Ç
+ *‚Ý�ž‚Ý‰Â”\�B
  *
- * \param dat �ǂݍ��񂾃f�[�^�̒l
+ * \param dat “Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^‚Ì’l
  *
- * \retval 0     �ǂݍ��ݐ���
- * \retval 0�ȊO �G���[�AEOF�A�ǂݍ��񂾃f�[�^���z�X�g�o�b�t�@�̃T�C�Y
- *�𒴂����ꍇ
+ * \retval 0     “Ç‚Ý�ž‚Ý�¬Œ÷
+ * \retval 0ˆÈŠO ƒGƒ‰�[�AEOF�A“Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^‚ªƒzƒXƒgƒoƒbƒtƒ@‚ÌƒTƒCƒY
+ *‚ð’´‚¦‚½�ê�‡
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �z�X�g���I�[�v������Ă���i di_open_host() �Q�Ɓj
- * \pre *dat ���A�N�Z�X�\
- * \pre ���̓X�g���[���� hostI/O�i di_select_idevice()�Q�Ɓj
- * \pre di_reset_sinpeek() ���R�[������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_host() ŽQ�Æ�j
+ * \pre *dat ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre “ü—ÍƒXƒgƒŠ�[ƒ€‚ª hostI/O�i di_select_idevice()ŽQ�Æ�j
+ * \pre di_reset_sinpeek() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
  *
- * \post *dat�ɓ��̓X�g���[���̐擪�P�o�C�g���i�[�����B
- * \post �s�[�N�|�C���^���P�o�C�g�����B
+ * \post *dat‚É“ü—ÍƒXƒgƒŠ�[ƒ€‚Ì�æ“ª‚PƒoƒCƒg‚ªŠi”[‚³‚ê‚é�B
+ * \post ƒs�[ƒNƒ|ƒCƒ“ƒ^‚ª‚PƒoƒCƒg‚¸‚ê‚é�B
  */
 extern EXPORT int di_sinpeekc( unsigned char *dat );
 
 /**
- * \brief ���̓X�g���[�����畡���o�C�g�ǂݍ��ށB
+ * \brief “ü—ÍƒXƒgƒŠ�[ƒ€‚©‚ç•¡�”ƒoƒCƒg“Ç‚Ý�ž‚Þ�B
  *
- * �ǂݍ��񂾃f�[�^���e�͔j�����Ȃ����߁Adi_reset_sinpeek() �ɂ��ē�
- *�ݍ��݉\�B
+ * “Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^“à—e‚Í”jŠü‚µ‚È‚¢‚½‚ß�Adi_reset_sinpeek() ‚É‚æ‚è�Ä“Ç
+ *‚Ý�ž‚Ý‰Â”\�B
  *
- * \param buf �ǂݍ��ݐ�o�b�t�@
- * \param len �ǂݍ��ރT�C�Y(Byte)
+ * \param buf “Ç‚Ý�ž‚Ý�æƒoƒbƒtƒ@
+ * \param len “Ç‚Ý�ž‚ÞƒTƒCƒY(Byte)
  *
- * \retval >0 �ǂݍ��񂾃f�[�^�̃o�C�g��
- * \retval 0  EOF�A�s�[�N�œǂݍ��񂾃f�[�^���z�X�g�o�b�t�@�̃T�C�Y��
- *�������ꍇ
- * \retval -1 �G���[
+ * \retval >0 “Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^‚ÌƒoƒCƒg�”
+ * \retval 0  EOF�Aƒs�[ƒN‚Å“Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^‚ªƒzƒXƒgƒoƒbƒtƒ@‚ÌƒTƒCƒY‚ð
+ *’´‚¦‚½�ê�‡
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �z�X�g���I�[�v������Ă���i di_open_host() �Q�Ɓj
- * \pre len ��0�ȏ�
- * \pre len ��1�ȏ�̏ꍇ�� buf[0]�`buf[len-1] ���A�N�Z�X�\
- * \pre ���̓X�g���[���� hostI/O�i di_select_idevice()�Q�Ɓj
- * \pre di_reset_sinpeek() ���R�[������Ă��āA�����̌��
- * di_singetc() , di_singet() , di_sinseek() �̂�������R�[������Ă�
- *�Ȃ��B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_host() ŽQ�Æ�j
+ * \pre len ‚ª0ˆÈ�ã
+ * \pre len ‚ª1ˆÈ�ã‚Ì�ê�‡‚É buf[0]�`buf[len-1] ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre “ü—ÍƒXƒgƒŠ�[ƒ€‚ª hostI/O�i di_select_idevice()ŽQ�Æ�j
+ * \pre di_reset_sinpeek() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚Ä�A‚©‚Â‚»‚ÌŒã‚É
+ * di_singetc() , di_singet() , di_sinseek() ‚Ì‚¢‚¸‚ê‚àƒR�[ƒ‹‚³‚ê‚Ä‚¢
+ *‚È‚¢�B
  *
- * \post buf�ɓ��̓X�g���[���̐擪len�o�C�g���i�[�����B
- * \post �s�[�N�|�C���^���P�o�C�g�����B
+ * \post buf‚É“ü—ÍƒXƒgƒŠ�[ƒ€‚Ì�æ“ªlenƒoƒCƒg‚ªŠi”[‚³‚ê‚é�B
+ * \post ƒs�[ƒNƒ|ƒCƒ“ƒ^‚ª‚PƒoƒCƒg‚¸‚ê‚é�B
  */
 extern EXPORT int di_sinpeek( unsigned char *buf, long len );
 
 /**
- * \brief �z�X�g�o�b�t�@�̓ǂݍ��݈ʒu���A�L���f�[�^�̐擪�Ɉړ�����B
+ * \brief ƒzƒXƒgƒoƒbƒtƒ@‚Ì“Ç‚Ý�ž‚ÝˆÊ’u‚ð�A—LŒøƒf�[ƒ^‚Ì�æ“ª‚ÉˆÚ“®‚·‚é�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �z�X�g���I�[�v������Ă���i di_open_host() �Q�Ɓj
- * \pre ���̓X�g���[���� hostI/O�i di_select_idevice()�Q�Ɓj
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_host() ŽQ�Æ�j
+ * \pre “ü—ÍƒXƒgƒŠ�[ƒ€‚ª hostI/O�i di_select_idevice()ŽQ�Æ�j
  *
- * \post �s�[�N�|�C���^�����[�h�|�C���^�̈ʒu�Ɉړ�����B
+ * \post ƒs�[ƒNƒ|ƒCƒ“ƒ^‚ªƒŠ�[ƒhƒ|ƒCƒ“ƒ^‚ÌˆÊ’u‚ÉˆÚ“®‚·‚é�B
  */
 extern EXPORT int di_reset_sinpeek();
 
 /**
- * \brief �z�X�g�o�b�t�@�ɑ΂��āA�w�肵���o�C�g�������ǂݎ̂Ă�B
+ * \brief ƒzƒXƒgƒoƒbƒtƒ@‚É‘Î‚µ‚Ä�AŽw’è‚µ‚½ƒoƒCƒg�”‚¾‚¯“Ç‚ÝŽÌ‚Ä‚é�B
  *
- * \param len �ǂݍ��ރT�C�Y(Byte)
+ * \param len “Ç‚Ý�ž‚ÞƒTƒCƒY(Byte)
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �z�X�g���I�[�v������Ă���i di_open_host() �Q�Ɓj
- * \pre ���̓X�g���[���� hostI/O�i di_select_idevice()�Q�Ɓj
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_host() ŽQ�Æ�j
+ * \pre “ü—ÍƒXƒgƒŠ�[ƒ€‚ª hostI/O�i di_select_idevice()ŽQ�Æ�j
  *
- * \post ���[�h�|�C���^�ƃs�[�N�|�C���^�����[�h�|�C���^�̈ʒu�Ɉړ�����B
+ * \post ƒŠ�[ƒhƒ|ƒCƒ“ƒ^‚Æƒs�[ƒNƒ|ƒCƒ“ƒ^‚ªƒŠ�[ƒhƒ|ƒCƒ“ƒ^‚ÌˆÊ’u‚ÉˆÚ“®‚·‚é�B
  */
 extern EXPORT int di_sinseek( long len );
 
 /**
- * \brief ���̓X�g���[����ύX����B
+ * \brief “ü—ÍƒXƒgƒŠ�[ƒ€‚ð•Ï�X‚·‚é�B
  *
- * �f�t�H���g�� DI_HOST_IO
+ * ƒfƒtƒHƒ‹ƒg‚Í DI_HOST_IO
  *
- * \param mode �ȉ��̎w����̓X�g���[��
+ * \param mode ˆÈ‰º‚ÌŽw’è“ü—ÍƒXƒgƒŠ�[ƒ€
  *   \li DI_HOST_IO   host I/O
  *   \li DI_MEMORY_IO memory buffer I/O
  *   \li DI_FILE_IO   file I/O
- * \param opt mode�ɂ����e���ω�����
+ * \param opt mode‚É‚æ‚è“à—e‚ª•Ï‰»‚·‚é
  *  <table>
  *   <tr>
- *    <td><center>mode</center></td><td><center>���e</center></td>
+ *    <td><center>mode</center></td><td><center>“à—e</center></td>
  *   </tr>
  *   <tr>
  *    <td>DI_HOST_IO</td>
- *    <td>�g�p���Ȃ�</td>
+ *    <td>Žg—p‚µ‚È‚¢</td>
  *   </tr>
  *   <tr>
  *    <td>DI_MEMORY_IO</td>
  *    <td>
- *      ����������ǂݍ��ރR�[���o�b�N�֐�<br>
- *      �^:typedef int (*CALLBACK_MEMREAD)( unsigned char **, int * );<br>
- *      ��P����: �ǂݍ��ݐ�A�h���X<br>
- *      ��Q����: �ǂݍ��ރT�C�Y<br>
+ *      ƒ�ƒ‚ƒŠ‚©‚ç“Ç‚Ý�ž‚ÞƒR�[ƒ‹ƒoƒbƒNŠÖ�”<br>
+ *      Œ^:typedef int (*CALLBACK_MEMREAD)( unsigned char **, int * );<br>
+ *      ‘æ‚Pˆø�”: “Ç‚Ý�ž‚Ý�æƒAƒhƒŒƒX<br>
+ *      ‘æ‚Qˆø�”: “Ç‚Ý�ž‚ÞƒTƒCƒY<br>
  *    </td>
  *   </tr>
  *   <tr>
  *    <td>DI_FILE_IO</td>
- *    <td>�t�@�C���|�C���^(�^��FILE *)</td>
+ *    <td>ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^(Œ^‚ÍFILE *)</td>
  *   </tr>
  *  </table>
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre mode �������̐����ɂ���l�̂����ꂩ
- * \pre opt ���L���p�����[�^�i�����̐����Q�Ɓj
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre mode ‚ªˆø�”‚Ì�à–¾‚É‚ ‚é’l‚Ì‚¢‚¸‚ê‚©
+ * \pre opt ‚ª—LŒøƒpƒ‰ƒ��[ƒ^�iˆø�”‚Ì�à–¾ŽQ�Æ�j
  *
- * \post di_singetc() , di_singet() �̓ǂݍ��ݐ悪 mode �ɕύX�����B
+ * \post di_singetc() , di_singet() ‚Ì“Ç‚Ý�ž‚Ý�æ‚ª mode ‚É•Ï�X‚³‚ê‚é�B
  */
 extern EXPORT int di_select_idevice( int mode, void *opt );
 
 /**
- * \brief ����𑼃v���Z�X�ֈڍs����
+ * \brief �§Œä‚ð‘¼ƒvƒ�ƒZƒX‚ÖˆÚ�s‚·‚é
  *
- * �{�֐��I�����I/O���؂藣���ꂽ��ԂƂȂ邽��,
- *�ēx�o�b�t�@����̓ǂݍ��݂��s�Ȃ��ꍇ��di_open_host()���R�[������
- *���ƁB
+ * –{ŠÖ�”�I—¹Œã‚ÍI/O‚ª�Ø‚è—£‚³‚ê‚½�ó‘Ô‚Æ‚È‚é‚½‚ß,
+ *�Ä“xƒoƒbƒtƒ@‚©‚ç‚Ì“Ç‚Ý�ž‚Ý‚ð�s‚È‚¤�ê�‡‚Ídi_open_host()‚ðƒR�[ƒ‹‚·‚é
+ *‚±‚Æ�B
  *
- * \return �ēx���䂪�ڍs���Ă������̃V�X�e������̗v��
- * \retval DI_REQ_EXIT    �I���v��
- * \retval DI_REQ_PROCESS �ʏ폈���v��
- * \retval DI_REQ_CANCEL  �W���u�L�����Z���v��
+ * \return �Ä“x�§Œä‚ªˆÚ�s‚µ‚Ä‚«‚½Žž‚ÌƒVƒXƒeƒ€‚©‚ç‚Ì—v‹�
+ * \retval DI_REQ_EXIT    �I—¹—v‹�
+ * \retval DI_REQ_PROCESS ’Ê�í�ˆ—�—v‹�
+ * \retval DI_REQ_CANCEL  ƒWƒ‡ƒuƒLƒƒƒ“ƒZƒ‹—v‹�
  *
- * \pre di_init() ���R�[������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
  *
- * \post �Ԃ�l�ɃV�X�e������̗v�����i�[�����B
- * \post �z�X�g�o�b�t�@���N���[�Y��ԂƂȂ�B
+ * \post •Ô‚è’l‚ÉƒVƒXƒeƒ€‚©‚ç‚Ì—v‹�‚ªŠi”[‚³‚ê‚é�B
+ * \post ƒzƒXƒgƒoƒbƒtƒ@‚ªƒNƒ��[ƒY�ó‘Ô‚Æ‚È‚é�B
  */
 extern EXPORT int di_trans_process();
 
 /**
- * \brief �v�����^OS�փ��b�Z�[�W��ʒm����B
+ * \brief ƒvƒŠƒ“ƒ^OS‚Öƒ�ƒbƒZ�[ƒW‚ð’Ê’m‚·‚é�B
  *
- * \param msg �ʒm���郁�b�Z�[�W
- *  \li DI_NOTIFYMSG_JOBEND    �W���u�̏I��
- *  \li DI_NOTIFYMSG_STATE     ��Ԃ̒ʒm
- *  \li DI_NOTIFYMSG_STRING    ������ɂ���Ԃ̒ʒm
- *  \li DI_NOTIFYMSG_ERRFORCE  �G���[�̋����ʒm
- *  \li DI_NOTIFYMSG_START     �����I�ȋN���ʒm�Bdi_init() �Ŏw�肷��
- *�C���^�v���^ ID ��[ DI_INTERP_PS , DI_INTERP_PCL ] �̏ꍇ�ɕK�v�B
- *  \li DI_NOTIFYMSG_FONTCOUNT �t�H���g�J�E���g�̏I���ʒm
- *  \li DI_NOTIFYMSG_PAUSE �ꎞ��~�v���ɑ΂��鉞���i�����A�������͈ꎞ��~�ł��Ȃ��j�ʒm
- *  \li DI_NOTIFYMSG_RESUME �����ĊJ�ʒm
- * \param opt msg�ɂ����e���ω�����B
+ * \param msg ’Ê’m‚·‚éƒ�ƒbƒZ�[ƒW
+ *  \li DI_NOTIFYMSG_JOBEND    ƒWƒ‡ƒu‚Ì�I—¹
+ *  \li DI_NOTIFYMSG_STATE     �ó‘Ô‚Ì’Ê’m
+ *  \li DI_NOTIFYMSG_STRING    •¶Žš—ñ‚É‚æ‚é�ó‘Ô‚Ì’Ê’m
+ *  \li DI_NOTIFYMSG_ERRFORCE  ƒGƒ‰�[‚Ì‹­�§’Ê’m
+ *  \li DI_NOTIFYMSG_START     –¾Ž¦“I‚È‹N“®’Ê’m�Bdi_init() ‚ÅŽw’è‚·‚é
+ *ƒCƒ“ƒ^ƒvƒŠƒ^ ID ‚ª[ DI_INTERP_PS , DI_INTERP_PCL ] ‚Ì�ê�‡‚É•K—v�B
+ *  \li DI_NOTIFYMSG_FONTCOUNT ƒtƒHƒ“ƒgƒJƒEƒ“ƒg‚Ì�I—¹’Ê’m
+ *  \li DI_NOTIFYMSG_PAUSE ˆêŽž’âŽ~—v‹�‚É‘Î‚·‚é‰ž“š�iŠ®—¹�A‚à‚µ‚­‚ÍˆêŽž’âŽ~‚Å‚«‚È‚¢�j’Ê’m
+ *  \li DI_NOTIFYMSG_RESUME �ˆ—��ÄŠJ’Ê’m
+ * \param opt msg‚É‚æ‚è“à—e‚ª•Ï‰»‚·‚é�B
  *  <table>
  *   <tr>
- *    <td><center>msg</center></td><td><center>���e</center></td>
+ *    <td><center>msg</center></td><td><center>“à—e</center></td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_JOBEND</td>
- *    <td>�g�p���Ȃ�</td>
+ *    <td>Žg—p‚µ‚È‚¢</td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_STATE</td>
- *    <td>�ʒm������<br>
- *        DI_INTERP_STATE_IDLE       �i�f�[�^�҂����j<br>
- *        DI_INTERP_STATE_PROCESSING �i�f�[�^�������j<br>
- *        DI_INTERP_STATE_WAITING    �i�f�[�^���������f�[�^�҂��j<br>
- *        DI_INTERP_STATE_FLUSHING   �i�f�[�^�L�����Z�����j<br>
+ *    <td>’Ê’m‚·‚é�ó‘Ô<br>
+ *        DI_INTERP_STATE_IDLE       �iƒf�[ƒ^‘Ò‚¿’†�j<br>
+ *        DI_INTERP_STATE_PROCESSING �iƒf�[ƒ^�ˆ—�’†�j<br>
+ *        DI_INTERP_STATE_WAITING    �iƒf�[ƒ^�ˆ—�’†‚©‚Âƒf�[ƒ^‘Ò‚¿�j<br>
+ *        DI_INTERP_STATE_FLUSHING   �iƒf�[ƒ^ƒLƒƒƒ“ƒZƒ‹’†�j<br>
  *    </td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_STRING</td>
- *    <td>������̐擪�A�h���X</td>
+ *    <td>•¶Žš—ñ‚Ì�æ“ªƒAƒhƒŒƒX</td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_ERRFORCE</td>
- *    <td>�G���[�R�[�h(�ڍׂ�GPS�d�l��)</td>
+ *    <td>ƒGƒ‰�[ƒR�[ƒh(�Ú�×‚ÍGPSŽd—l�‘)</td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_START</td>
- *    <td>�C���^�v���^ID�B di_setinfo_t �Q��</td>
+ *    <td>ƒCƒ“ƒ^ƒvƒŠƒ^ID�B di_setinfo_t ŽQ�Æ</td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_FONTCOUNT</td>
- *    <td>�g�p���Ȃ�</td>
+ *    <td>Žg—p‚µ‚È‚¢</td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_PAUSE</td>
- *    <td>�ʒm������<br>
- *        DI_INTERP_PAUSE_OK	�i�ꎞ��~�������j<br>
- *        DI_INTERP_PAUSE_NG	�i�ꎞ��~�ł��Ȃ��j<br>
+ *    <td>’Ê’m‚·‚é�ó‘Ô<br>
+ *        DI_INTERP_PAUSE_OK	�iˆêŽž’âŽ~‚µ‚½Žž�j<br>
+ *        DI_INTERP_PAUSE_NG	�iˆêŽž’âŽ~‚Å‚«‚È‚¢�j<br>
  *    </td>
  *   </tr>
  *   <tr>
  *    <td>DI_NOTIFYMSG_RESUME</td>
- *    <td>�g�p���Ȃ�</td>
+ *    <td>Žg—p‚µ‚È‚¢</td>
  *   </tr>
  *  </table>
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre msg �������̐����ɂ���l�̂����ꂩ
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre msg ‚ªˆø�”‚Ì�à–¾‚É‚ ‚é’l‚Ì‚¢‚¸‚ê‚©
  *
- * \post msg �� DI_NOTIFYMSG_JOBEND �Ȃ�A�v�����^�n�r�̓v�����^�A�v��
- *���A�C�h����ԂɂȂ����Ɣ��f����B
- * \post msg �� DI_NOTIFYMSG_STATE �Ȃ�A�v�����^�n�r�̓v�����^�A�v����
- *opt�̏�ԂƔ��f����B
- * \post msg �� DI_NOTIFYMSG_ERRFORCE �Ȃ�A�p�l���ւ̃G���[�\���ƃG��
- *�[���M���O���f���s���B
- * \post msg �� DI_NOTIFYMSG_STRING �Ȃ�A�v�����^�n�r�̓v�����^�A�v��
- *��������w��̏�ԂɂȂ����Ɣ��f����B
- * \post msg �� DI_NOTIFYMSG_START �Ȃ�A�v�����^�n�r�̓v�����^�A�v����
- *�N�����ꂽ�Ɣ��f����B
- * \post msg �� DI_NOTIFYMSG_FINISH_FONTCOUNT �Ȃ�A�v�����^�n�r�̓t�H
- *���g�J�E���g���I�����ꂽ�Ɣ��f����B
- * \post msg �� DI_NOTIFYMSG_PAUSE �Ȃ�A�v�����^�n�r�̓v�����^�A�v����
- *opt�̏�ԂƔ��f����B
- * \post msg �� DI_NOTIFYMSG_RESUME �Ȃ�A�v�����^�n�r�̓v�����^�A�v����
- *�����ĊJ���ꂽ�Ɣ��f����B
+ * \post msg ‚ª DI_NOTIFYMSG_JOBEND ‚È‚ç�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ
+ *‚ªƒAƒCƒhƒ‹�ó‘Ô‚É‚È‚Á‚½‚Æ”»’f‚·‚é�B
+ * \post msg ‚ª DI_NOTIFYMSG_STATE ‚È‚ç�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚ª
+ *opt‚Ì�ó‘Ô‚Æ”»’f‚·‚é�B
+ * \post msg ‚ª DI_NOTIFYMSG_ERRFORCE ‚È‚ç�Aƒpƒlƒ‹‚Ö‚ÌƒGƒ‰�[•\Ž¦‚ÆƒGƒ‰
+ *�[ƒ�ƒMƒ“ƒO”½‰f‚ð�s‚¤�B
+ * \post msg ‚ª DI_NOTIFYMSG_STRING ‚È‚ç�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ
+ *‚ª•¶Žš—ñŽw’è‚Ì�ó‘Ô‚É‚È‚Á‚½‚Æ”»’f‚·‚é�B
+ * \post msg ‚ª DI_NOTIFYMSG_START ‚È‚ç�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚ª
+ *‹N“®‚³‚ê‚½‚Æ”»’f‚·‚é�B
+ * \post msg ‚ª DI_NOTIFYMSG_FINISH_FONTCOUNT ‚È‚ç�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒtƒH
+ *ƒ“ƒgƒJƒEƒ“ƒg‚ª�I—¹‚³‚ê‚½‚Æ”»’f‚·‚é�B
+ * \post msg ‚ª DI_NOTIFYMSG_PAUSE ‚È‚ç�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚ª
+ *opt‚Ì�ó‘Ô‚Æ”»’f‚·‚é�B
+ * \post msg ‚ª DI_NOTIFYMSG_RESUME ‚È‚ç�AƒvƒŠƒ“ƒ^‚n‚r‚ÍƒvƒŠƒ“ƒ^ƒAƒvƒŠ‚ª
+ *�ˆ—��ÄŠJ‚³‚ê‚½‚Æ”»’f‚·‚é�B
  */
 extern EXPORT int di_notify_msg( int msg, long opt );
 
 /**
- * \brief �w�肵���p���T�C�Y���v�����^���T�|�[�g���Ă��邩�₢���킹��B
+ * \brief Žw’è‚µ‚½—pŽ†ƒTƒCƒY‚ðƒvƒŠƒ“ƒ^‚ªƒTƒ|�[ƒg‚µ‚Ä‚¢‚é‚©–â‚¢�‡‚í‚¹‚é�B
  *
- * \param paper_id �p���T�C�YID(GPS��`)
+ * \param paper_id —pŽ†ƒTƒCƒYID(GPS’è‹`)
  *
- * \retval  1 �T�|�[�g����Ă���
- * \retval  0 �T�|�[�g����Ă��Ȃ�
- * \retval -1 �G���[
+ * \retval  1 ƒTƒ|�[ƒg‚³‚ê‚Ä‚¢‚é
+ * \retval  0 ƒTƒ|�[ƒg‚³‚ê‚Ä‚¢‚È‚¢
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
  *
- * \post �Ԃ�l���P�Ȃ�A���̗p���T�C�Y�ŏo�͉\
+ * \post •Ô‚è’l‚ª‚P‚È‚ç�A‚»‚Ì—pŽ†ƒTƒCƒY‚Å�o—Í‰Â”\
  */
 extern EXPORT int di_query_supportpaper( int paper_id );
 
 /**
- * \brief �W���u�ɐݒ肳��Ă���I�v�V������������擾����B
+ * \brief ƒWƒ‡ƒu‚É�Ý’è‚³‚ê‚Ä‚¢‚éƒIƒvƒVƒ‡ƒ“•¶Žš—ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param str �I�v�V����������̐擪�A�h���X
+ * \param str ƒIƒvƒVƒ‡ƒ“•¶Žš—ñ‚Ì�æ“ªƒAƒhƒŒƒX
  *
- * \retval  0 ����
- * \retval -1 ���s(�w�肳�ꂽ�I�v�V�����������r���܂ł����擾�ł���
- *������)�Bstr�ɂ͓r���܂ł̕�����̃A�h���X��Ԃ�
- * \retval -2 ���s�A�G���[
+ * \retval  0 �¬Œ÷
+ * \retval -1 Ž¸”s(Žw’è‚³‚ê‚½ƒIƒvƒVƒ‡ƒ“•¶Žš—ñ‚ð“r’†‚Ü‚Å‚µ‚©Žæ“¾‚Å‚«‚È
+ *‚©‚Á‚½)�Bstr‚É‚Í“r’†‚Ü‚Å‚Ì•¶Žš—ñ‚ÌƒAƒhƒŒƒX‚ð•Ô‚·
+ * \retval -2 Ž¸”s�AƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *str ���A�N�Z�X�\�B
- * \pre �v�����^OS���ʏ폈���v�������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *str ‚ªƒAƒNƒZƒX‰Â”\�B
+ * \pre ƒvƒŠƒ“ƒ^OS‚æ‚è’Ê�í�ˆ—�—v‹�‚ª—ˆ‚Ä‚¢‚é�B
  *
- * \post *str�ɃI�v�V����������̐擪�A�h���X���i�[�����B
+ * \post *str‚ÉƒIƒvƒVƒ‡ƒ“•¶Žš—ñ‚Ì�æ“ªƒAƒhƒŒƒX‚ªŠi”[‚³‚ê‚é�B
  */
 extern EXPORT int di_get_optstr( char **str );
 
 /**
- * \brief �G���[�v�����g�p�̃o�b�t�@�̃A�h���X�擾
+ * \brief ƒGƒ‰�[ƒvƒŠƒ“ƒg—p‚Ìƒoƒbƒtƒ@‚ÌƒAƒhƒŒƒXŽæ“¾
  *
- * \param buffer ���܂ł̃o�b�t�@�̐擪�A�h���X
- * \param size   �擾�����o�b�t�@�̃T�C�Y
+ * \param buffer �¡‚Ü‚Å‚Ìƒoƒbƒtƒ@‚Ì�æ“ªƒAƒhƒŒƒX
+ * \param size   Žæ“¾‚µ‚½ƒoƒbƒtƒ@‚ÌƒTƒCƒY
  *
- * \retval �擾�����o�b�t�@�̐擪�A�h���X ����I��
- * \retval NULL  �G���[
+ * \retval Žæ“¾‚µ‚½ƒoƒbƒtƒ@‚Ì�æ“ªƒAƒhƒŒƒX �³�í�I—¹
+ * \retval NULL  ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *buffer ���A�N�Z�X�\�B
- * \pre *size ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *buffer ‚ªƒAƒNƒZƒX‰Â”\�B
+ * \pre *size ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post �Ԃ�l�Ɏ擾�����o�b�t�@�̐擪�A�h���X���Ԃ��Ă���B
+ * \post •Ô‚è’l‚ÉŽæ“¾‚µ‚½ƒoƒbƒtƒ@‚Ì�æ“ªƒAƒhƒŒƒX‚ª•Ô‚Á‚Ä‚­‚é�B
  */
 extern EXPORT char *di_get_epbuffer( char *buffer, int *size );
 
 /**
- * \brief �w�肵���p���̃T�C�Y���擾����
+ * \brief Žw’è‚µ‚½—pŽ†‚ÌƒTƒCƒY‚ðŽæ“¾‚·‚é
  *
- * \param code   �p���R�[�h
- * \param width  �p�����i0.1mm�P�ʁj
- * \param length �p�������i0.1mm�P�ʁj
+ * \param code   —pŽ†ƒR�[ƒh
+ * \param width  —pŽ†•��i0.1mm’PˆÊ�j
+ * \param length —pŽ†’·‚³�i0.1mm’PˆÊ�j
  *
- * \retval  1 �T�|�[�g���Ă���
- * \retval  0 �T�|�[�g���Ă��Ȃ�
- * \retval -1 �G���[
+ * \retval  1 ƒTƒ|�[ƒg‚µ‚Ä‚¢‚é
+ * \retval  0 ƒTƒ|�[ƒg‚µ‚Ä‚¢‚È‚¢
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
  *
- * \post *width ���p���R�[�h code �̗p�����ƂȂ�
- * \post *length ���p���R�[�h code �̗p�������ƂȂ�
+ * \post *width ‚ª—pŽ†ƒR�[ƒh code ‚Ì—pŽ†•�‚Æ‚È‚é
+ * \post *length ‚ª—pŽ†ƒR�[ƒh code ‚Ì—pŽ†’·‚³‚Æ‚È‚é
  */
 extern EXPORT int di_get_papersize( unsigned char code,
 									unsigned int *width,
 									unsigned int *length );
 
 /**
- * \brief �o�̓z�X�g�o�b�t�@���I�[�v������B
+ * \brief �o—ÍƒzƒXƒgƒoƒbƒtƒ@‚ðƒI�[ƒvƒ“‚·‚é�B
  *
- * �f�[�^�������ݑO�ɕK���{�֐����R�[�����邱��
+ * ƒf�[ƒ^�‘‚«�ž‚Ý‘O‚É•K‚¸–{ŠÖ�”‚ðƒR�[ƒ‹‚·‚é‚±‚Æ
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �V�X�e������ʏ폈���v�������Ă���i di_get_request() �A
- * di_trans_process() �Q�Ɓj
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒVƒXƒeƒ€‚©‚ç’Ê�í�ˆ—�—v‹�‚ª—ˆ‚Ä‚¢‚é�i di_get_request() �A
+ * di_trans_process() ŽQ�Æ�j
  *
- * \post di_close_ohost() �A�������� di_trans_process() ���R�[�������
- *�ňȉ���I/F���g�p�\�B
+ * \post di_close_ohost() �A‚à‚µ‚­‚Í di_trans_process() ‚ðƒR�[ƒ‹‚·‚é‚Ü
+ *‚ÅˆÈ‰º‚ÌI/F‚ªŽg—p‰Â”\�B
  *  \li di_soutputc()
  *  \li di_soutput()
  *  \li di_soutflush()
@@ -2907,15 +2931,15 @@ extern EXPORT int di_get_papersize( unsigned char code,
 extern EXPORT int di_open_ohost();
 
 /**
- * \brief di_open_ohost() �ɂ��I�[�v�����ꂽ�z�X�g�o�b�t�@���N���[�Y
- *����B
+ * \brief di_open_ohost() ‚É‚æ‚èƒI�[ƒvƒ“‚³‚ê‚½ƒzƒXƒgƒoƒbƒtƒ@‚ðƒNƒ��[ƒY
+ *‚·‚é�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
  *
- * \post di_open_ohost() ���R�[������܂ňȉ���I/F���g�p�s�\�B
+ * \post di_open_ohost() ‚ðƒR�[ƒ‹‚·‚é‚Ü‚ÅˆÈ‰º‚ÌI/F‚ªŽg—p•s‰Â”\�B
  *  \li di_soutputc()
  *  \li di_soutput()
  *  \li di_soutflush()
@@ -2923,609 +2947,609 @@ extern EXPORT int di_open_ohost();
 extern EXPORT int di_close_ohost();
 
 /**
- * \brief �o�̓X�g���[���ւP�o�C�g�������ށB
+ * \brief �o—ÍƒXƒgƒŠ�[ƒ€‚Ö‚PƒoƒCƒg�‘‚«�ž‚Þ�B
  *
- * ���M�o�b�t�@�ɏ������ݗ̈悪�Ȃ��ꍇ�ɂ́A���M�f�[�^���������ޗ̈�
- *���ł���܂Ńu���b�N����B
+ * ‘—�Mƒoƒbƒtƒ@‚É�‘‚«�ž‚Ý—Ìˆæ‚ª‚È‚¢�ê�‡‚É‚Í�A‘—�Mƒf�[ƒ^‚ð�‘‚«�ž‚Þ—Ìˆæ
+ *‚ª‚Å‚«‚é‚Ü‚Åƒuƒ�ƒbƒN‚·‚é�B
  *
- * \param dat �������ރf�[�^�̒l
+ * \param dat �‘‚«�ž‚Þƒf�[ƒ^‚Ì’l
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[�A�������ݎ��s
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[�A�‘‚«�ž‚ÝŽ¸”s
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �o�̓z�X�g���I�[�v������Ă���i di_open_ohost() �Q�Ɓj
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre �o—ÍƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_ohost() ŽQ�Æ�j
  *
- * \post ���M�o�b�t�@�� dat ���������܂��B
+ * \post ‘—�Mƒoƒbƒtƒ@‚É dat ‚ª�‘‚«�ž‚Ü‚ê‚é�B
  */
 extern EXPORT int di_soutputc( unsigned char dat );
 
 /**
- * \brief �o�̓X�g���[���֕����o�C�g�������ށB
+ * \brief �o—ÍƒXƒgƒŠ�[ƒ€‚Ö•¡�”ƒoƒCƒg�‘‚«�ž‚Þ�B
  *
- * \param buf �������ރf�[�^
- * \param len �ǂݍ��ރT�C�Y(Byte)
- * \param flag �������ݕ��@
+ * \param buf �‘‚«�ž‚Þƒf�[ƒ^
+ * \param len “Ç‚Ý�ž‚ÞƒTƒCƒY(Byte)
+ * \param flag �‘‚«�ž‚Ý•û–@
  *  <table>
  *   <tr>
- *    <td><center>�l</center></td><td><center>���e</center></td>
+ *    <td><center>’l</center></td><td><center>“à—e</center></td>
  *   </tr>
  *   <tr>
  *    <td>DI_HOST_BLOCK</td>
- *    <td>�m���u���b�N�w��Ȃ��B���M�o�b�t�@�ɏ������ݗ̈悪�Ȃ��ꍇ��
- *        �́A���M�f�[�^���������ޗ̈悪�ł���܂Ńu���b�N����B</td>
+ *    <td>ƒmƒ“ƒuƒ�ƒbƒNŽw’è‚È‚µ�B‘—�Mƒoƒbƒtƒ@‚É�‘‚«�ž‚Ý—Ìˆæ‚ª‚È‚¢�ê�‡‚É
+ *        ‚Í�A‘—�Mƒf�[ƒ^‚ð�‘‚«�ž‚Þ—Ìˆæ‚ª‚Å‚«‚é‚Ü‚Åƒuƒ�ƒbƒN‚·‚é�B</td>
  *   </tr>
  *   <tr>
  *    <td>DI_HOST_NONBLOCK</td>
- *    <td> �m���u���b�N�w�肠��B���M�o�b�t�@�̃u���b�N�͂��Ȃ��i�o�b
- *        �t�@������܂ŏ������݁A�������߂��o�C�g����߂�l�Ƃ��ĕ�
- *        ���j�B</td>
+ *    <td> ƒmƒ“ƒuƒ�ƒbƒNŽw’è‚ ‚è�B‘—�Mƒoƒbƒtƒ@‚Ìƒuƒ�ƒbƒN‚Í‚µ‚È‚¢�iƒoƒb
+ *        ƒtƒ@‚ªˆì‚ê‚é‚Ü‚Å�‘‚«�ž‚Ý�A�‘‚«�ž‚ß‚½ƒoƒCƒg�”‚ð–ß‚è’l‚Æ‚µ‚Ä•Ô
+ *        ‚·�j�B</td>
  *   </tr>
  *  </table>
  *
- * \retval >=0 �������񂾃f�[�^�̃o�C�g��
- * \retval  -1 �G���[
+ * \retval >=0 �‘‚«�ž‚ñ‚¾ƒf�[ƒ^‚ÌƒoƒCƒg�”
+ * \retval  -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �o�̓z�X�g���I�[�v������Ă���i di_open_ohost() �Q�Ɓj
- * \pre len ��0�ȏ�
- * \pre len ��1�ȏ�̏ꍇ�� buf[0]�`buf[len-1] ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre �o—ÍƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_ohost() ŽQ�Æ�j
+ * \pre len ‚ª0ˆÈ�ã
+ * \pre len ‚ª1ˆÈ�ã‚Ì�ê�‡‚É buf[0]�`buf[len-1] ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post buf �̓��e���o�̓X�g���[���ɏ������܂��
+ * \post buf ‚Ì“à—e‚ª�o—ÍƒXƒgƒŠ�[ƒ€‚É�‘‚«�ž‚Ü‚ê‚é
  */
 extern EXPORT int di_soutput( unsigned char *buf, long len, int flag );
 
 /**
- * \brief ���M�o�b�t�@���ɏ������܂ꂽ���A�܂����M����Ă��Ȃ��f�[�^��
- *�z�X�g�ɑ��M����B
+ * \brief ‘—�Mƒoƒbƒtƒ@’†‚É�‘‚«�ž‚Ü‚ê‚½‚ª�A‚Ü‚¾‘—�M‚³‚ê‚Ä‚¢‚È‚¢ƒf�[ƒ^‚ð
+ *ƒzƒXƒg‚É‘—�M‚·‚é�B
  *
- * di_soutputc() ���邢�� di_soutput() �ɂĈ��؂�̑��M�f�[�^�𑗐M
- *�o�b�t�@�ɏ������񂾌�A�K���A���̊֐����ĂԂ��ƁB
+ * di_soutputc() ‚ ‚é‚¢‚Í di_soutput() ‚É‚Äˆê‹æ�Ø‚è‚Ì‘—�Mƒf�[ƒ^‚ð‘—�M
+ *ƒoƒbƒtƒ@‚É�‘‚«�ž‚ñ‚¾Œã�A•K‚¸�A‚±‚ÌŠÖ�”‚ðŒÄ‚Ô‚±‚Æ�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �V�X�e������ʏ폈���v�������Ă���i di_get_request() ,
- * di_trans_process() �Q�Ɓj
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒVƒXƒeƒ€‚©‚ç’Ê�í�ˆ—�—v‹�‚ª—ˆ‚Ä‚¢‚é�i di_get_request() ,
+ * di_trans_process() ŽQ�Æ�j
  *
- * \post ���M�o�b�t�@�̃f�[�^���S�đ��M�����B
+ * \post ‘—�Mƒoƒbƒtƒ@‚Ìƒf�[ƒ^‚ª‘S‚Ä‘—�M‚³‚ê‚é�B
  */
 extern EXPORT int di_soutflush();
 
 /**
- * \brief ���̓X�g���[���̗L���o�C�g�����擾����B
+ * \brief “ü—ÍƒXƒgƒŠ�[ƒ€‚Ì—LŒøƒoƒCƒg�”‚ðŽæ“¾‚·‚é�B
  *
- * \param len ���̓X�g���[���o�b�t�@���̗L���ȃf�[�^�̃o�C�g��
+ * \param len “ü—ÍƒXƒgƒŠ�[ƒ€ƒoƒbƒtƒ@’†‚Ì—LŒø‚Èƒf�[ƒ^‚ÌƒoƒCƒg�”
  *
- * \retval  1 ����I��(EOF���o�b�t�@�Ɋ܂܂�Ă���)
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  1 �³�í�I—¹(EOF‚ªƒoƒbƒtƒ@‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚é)
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �o�̓z�X�g���I�[�v������Ă���i di_open_ohost() �Q�Ɓj
- * \pre *len ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre �o—ÍƒzƒXƒg‚ªƒI�[ƒvƒ“‚³‚ê‚Ä‚¢‚é�i di_open_ohost() ŽQ�Æ�j
+ * \pre *len ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *len�ɓ��̓X�g���[���̗L���o�C�g�����i�[�����B
+ * \post *len‚É“ü—ÍƒXƒgƒŠ�[ƒ€‚Ì—LŒøƒoƒCƒg�”‚ªŠi”[‚³‚ê‚é�B
  */
 extern EXPORT int di_sinavail( long *len );
 
 /**
- * \brief ���ݎw�肳��Ă���D�拋���g���C�����擾����B
+ * \brief Œ»�ÝŽw’è‚³‚ê‚Ä‚¢‚é—D�æ‹‹Ž†ƒgƒŒƒC�î•ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param tray_id �D�拋���g���C���Ɏw�肳��Ă���g���CID�B
- * di_onetrayinfo_t �Q�ƁB
+ * \param tray_id —D�æ‹‹Ž†ƒgƒŒƒC�î•ñ‚ÉŽw’è‚³‚ê‚Ä‚¢‚éƒgƒŒƒCID�B
+ * di_onetrayinfo_t ŽQ�Æ�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *tray_id ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *tray_id ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post �D��g���C�� ID �� *tray_id �Ɋi�[�����B
+ * \post —D�æƒgƒŒƒC‚Ì ID ‚ª *tray_id ‚ÉŠi”[‚³‚ê‚é�B
  */
 extern EXPORT int di_get_deftray( int *tray_id );
 
 /**
- * \brief ���ݎw�肳��Ă���D��r���r�������擾����B
+ * \brief Œ»�ÝŽw’è‚³‚ê‚Ä‚¢‚é—D�æ”rŽ†ƒrƒ“�î•ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param bin_id �D��r���r�����Ɏw�肳��Ă���r��ID�B
- * di_onebininfo_t �Q�ƁB
+ * \param bin_id —D�æ”rŽ†ƒrƒ“�î•ñ‚ÉŽw’è‚³‚ê‚Ä‚¢‚éƒrƒ“ID�B
+ * di_onebininfo_t ŽQ�Æ�B
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *bin_id ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *bin_id ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post �D��r���r����ID��*bin_id�Ɋi�[�����
+ * \post —D�æ”rŽ†ƒrƒ“‚ÌID‚ª*bin_id‚ÉŠi”[‚³‚ê‚é
  */
 extern EXPORT int di_get_defbin( int *bin_id );
 
 /**
- * \brief �r���r�����̎擾���s���B
+ * \brief ”rŽ†ƒrƒ“�î•ñ‚ÌŽæ“¾‚ð�s‚¤�B
  *
- * \param bininfo �r���r�����
+ * \param bininfo ”rŽ†ƒrƒ“�î•ñ
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *bininfo ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *bininfo ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *bininfo �̒l�Ɣr���r���̏�񂪈�v����B
+ * \post *bininfo ‚Ì’l‚Æ”rŽ†ƒrƒ“‚Ì�î•ñ‚ªˆê’v‚·‚é�B
  */
 extern EXPORT int di_get_bininfo( di_bininfo_t *bininfo );
 
 /**
- * \brief �v�����^�̃X�e�[�^�X�����擾����B
+ * \brief ƒvƒŠƒ“ƒ^‚ÌƒXƒe�[ƒ^ƒX�î•ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param status �X�e�[�^�X���
+ * \param status ƒXƒe�[ƒ^ƒX�î•ñ
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *status ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *status ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *status �̒l�ƃv�����^�̃X�e�[�^�X��񂪈�v����B
+ * \post *status ‚Ì’l‚ÆƒvƒŠƒ“ƒ^‚ÌƒXƒe�[ƒ^ƒX�î•ñ‚ªˆê’v‚·‚é�B
  */
 extern EXPORT int di_get_status( di_status_t *status );
 
 /**
- * \brief �g�[�^���J�E���^�[�̒l���擾����B
+ * \brief ƒg�[ƒ^ƒ‹ƒJƒEƒ“ƒ^�[‚Ì’l‚ðŽæ“¾‚·‚é�B
  *
- * \param cnt �g�[�^���J�E���^�[�̒l
+ * \param cnt ƒg�[ƒ^ƒ‹ƒJƒEƒ“ƒ^�[‚Ì’l
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *tray_id ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *tray_id ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post cnt �̒l�ƃg�[�^���J�E���^�[�̒l����v����B
+ * \post cnt ‚Ì’l‚Æƒg�[ƒ^ƒ‹ƒJƒEƒ“ƒ^�[‚Ì’l‚ªˆê’v‚·‚é�B
  */
 extern EXPORT int di_get_totalcounter( long *cnt );
 
 /**
- * \brief EhterTalk �p�����[�^���擾����B
+ * \brief EhterTalk ƒpƒ‰ƒ��[ƒ^‚ðŽæ“¾‚·‚é�B
  *
- * \param info EtherTalk �p�����[�^
+ * \param info EtherTalk ƒpƒ‰ƒ��[ƒ^
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *info ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post info �̒l��EtherTalk�p�����[�^�̒l����v����B
+ * \post info ‚Ì’l‚ÆEtherTalkƒpƒ‰ƒ��[ƒ^‚Ì’l‚ªˆê’v‚·‚é�B
  */
 extern EXPORT int di_get_ethertalkinfo( di_ethertalk_info_t *info );
 
 /**
- * \brief EhterTalk �p�����[�^��ݒ肷��B
+ * \brief EhterTalk ƒpƒ‰ƒ��[ƒ^‚ð�Ý’è‚·‚é�B
  *
- * \param info EtherTalk �p�����[�^
+ * \param info EtherTalk ƒpƒ‰ƒ��[ƒ^
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *info ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post di_get_ethertalkinfo() �Ŏ擾����Ethertalk�p�����[�^�� *info �Ɠ������Ȃ�B
+ * \post di_get_ethertalkinfo() ‚ÅŽæ“¾‚µ‚½Ethertalkƒpƒ‰ƒ��[ƒ^‚ª *info ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_set_ethertalkinfo( di_ethertalk_info_t *info );
 
 /**
- * \brief ���[�U�[�W���u����ݒ肷��B
+ * \brief ƒ†�[ƒU�[ƒWƒ‡ƒu�î•ñ‚ð�Ý’è‚·‚é�B
  *
- * \param job_id ���[�U�[�W���uID
- * \param info   ���[�U�[�W���u���
+ * \param job_id ƒ†�[ƒU�[ƒWƒ‡ƒuID
+ * \param info   ƒ†�[ƒU�[ƒWƒ‡ƒu�î•ñ
  *
- * \retval 0     ����I��
- * \retval -1    �G���[
- * \retval -2    �w�肵���p�����[�^���T�|�[�g���Ă��Ȃ�
+ * \retval 0     �³�í�I—¹
+ * \retval -1    ƒGƒ‰�[
+ * \retval -2    Žw’è‚µ‚½ƒpƒ‰ƒ��[ƒ^‚ðƒTƒ|�[ƒg‚µ‚Ä‚¢‚È‚¢
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �V�X�e������ʏ폈���v�������Ă���
- * ( di_get_request() , di_trans_process )�Q��
- * \pre *info ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒVƒXƒeƒ€‚©‚ç’Ê�í�ˆ—�—v‹�‚ª—ˆ‚Ä‚¢‚é
+ * ( di_get_request() , di_trans_process )ŽQ�Æ
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post ���[�U�[�W���u��񂪃V�X�e���ɐݒ肳��Ă���B
+ * \post ƒ†�[ƒU�[ƒWƒ‡ƒu�î•ñ‚ªƒVƒXƒeƒ€‚É�Ý’è‚³‚ê‚Ä‚¢‚é�B
  */
 extern EXPORT int di_set_ujobinfo( int job_id, di_ujob_info_t *info );
 
 /**
- * \brief ���[�U�[�W���u�����擾����B
+ * \brief ƒ†�[ƒU�[ƒWƒ‡ƒu�î•ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param job_id ���[�U�[�W���uID
- * \param info   ���[�U�[�W���u���
+ * \param job_id ƒ†�[ƒU�[ƒWƒ‡ƒuID
+ * \param info   ƒ†�[ƒU�[ƒWƒ‡ƒu�î•ñ
  *
- * \retval 0     ����I��
- * \retval -1    �G���[
- * \retval -2    �w�肵���p�����[�^���T�|�[�g���Ă��Ȃ�
+ * \retval 0     �³�í�I—¹
+ * \retval -1    ƒGƒ‰�[
+ * \retval -2    Žw’è‚µ‚½ƒpƒ‰ƒ��[ƒ^‚ðƒTƒ|�[ƒg‚µ‚Ä‚¢‚È‚¢
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre �V�X�e������ʏ폈���v�������Ă���
- * ( di_get_request() , di_trans_process )�Q��
- * \pre *info ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre ƒVƒXƒeƒ€‚©‚ç’Ê�í�ˆ—�—v‹�‚ª—ˆ‚Ä‚¢‚é
+ * ( di_get_request() , di_trans_process )ŽQ�Æ
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *info�̋��p��up�Ɍ��ݐݒ肳��Ă���l������B
- * \post �ݒ肳��Ă��Ȃ��ꍇ�ɂ�info->flag�ɂĎw�肳�ꂽ�t���O�����Z�b�g�����B
+ * \post *info‚Ì‹¤—p‘Ìup‚ÉŒ»�Ý�Ý’è‚³‚ê‚Ä‚¢‚é’l‚ª“ü‚é�B
+ * \post �Ý’è‚³‚ê‚Ä‚¢‚È‚¢�ê�‡‚É‚Íinfo->flag‚É‚ÄŽw’è‚³‚ê‚½ƒtƒ‰ƒO‚ªƒŠƒZƒbƒg‚³‚ê‚é�B
  */
 extern EXPORT int di_get_ujobinfo( int job_id, di_ujob_info_t *info );
 
 /**
- * \brief �r�b�g�X�C�b�`�̒l���擾����B
+ * \brief ƒrƒbƒgƒXƒCƒbƒ`‚Ì’l‚ðŽæ“¾‚·‚é�B
  *
- * \param no  �r�b�g�X�C�b�`�̔ԍ�
- * \param val �r�b�g�X�C�b�`�̒l
+ * \param no  ƒrƒbƒgƒXƒCƒbƒ`‚Ì”Ô�†
+ * \param val ƒrƒbƒgƒXƒCƒbƒ`‚Ì’l
  *
- * \retval 0     ����I��
- * \retval 0�ȊO �G���[
+ * \retval 0     �³�í�I—¹
+ * \retval 0ˆÈŠO ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *val ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *val ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post no�Ԗڂ̃r�b�g�X�C�b�`�̒l�� *val �Ɠ������Ȃ�B
+ * \post no”Ô–Ú‚ÌƒrƒbƒgƒXƒCƒbƒ`‚Ì’l‚ª *val ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_bitswinfo( int no, int *val );
 
 /**
- * �e��f�B�X�N�����擾����B
+ * ŠeŽíƒfƒBƒXƒN�î•ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param type �f�B�X�N�̎��
+ * \param type ƒfƒBƒXƒN‚ÌŽí—Þ
  *  <table>
  *   <tr>
- *    <td><center>�l</center></td><td><center>���e</center></td>
+ *    <td><center>’l</center></td><td><center>“à—e</center></td>
  *   </tr>
  *   <tr>
  *    <td>DI_HDD_DOWNLOAD</td>
- *    <td>�t�@�C���_�E�����[�h�p�n�[�h�f�B�X�N</td>
+ *    <td>ƒtƒ@ƒCƒ‹ƒ_ƒEƒ“ƒ��[ƒh—pƒn�[ƒhƒfƒBƒXƒN</td>
  *   </tr>
  *   <tr>
  *    <td>DI_HDD_SPOOL</td>
- *    <td>�X�v�[���p�n�[�h�f�B�X�N</td>
+ *    <td>ƒXƒv�[ƒ‹—pƒn�[ƒhƒfƒBƒXƒN</td>
  *   </tr>
  *   <tr>
  *    <td>DI_RAM_DOWNLOAD</td>
- *    <td>�t�@�C���_�E�����[�h�pRAM�f�B�X�N</td>
+ *    <td>ƒtƒ@ƒCƒ‹ƒ_ƒEƒ“ƒ��[ƒh—pRAMƒfƒBƒXƒN</td>
  *   </tr>
  *   <tr>
  *    <td>DI_RAM_SPOOL</td>
- *    <td>�X�v�[���pRAM�f�B�X�N</td>
+ *    <td>ƒXƒv�[ƒ‹—pRAMƒfƒBƒXƒN</td>
  *   </tr>
  *  </table>
- * \param info �f�B�X�N�̏��
+ * \param info ƒfƒBƒXƒN‚Ì�î•ñ
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 type�̃f�B�X�N�����ڂ���Ă��Ȃ�
- * \retval -3 ��t���ہi�Ăяo���̓�d�������������ꍇ�j
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 type‚ÌƒfƒBƒXƒN‚ª“‹�Ú‚³‚ê‚Ä‚¢‚È‚¢
+ * \retval -3 Žó•t‹‘”Û�iŒÄ‚Ñ�o‚µ‚Ì“ñ�d‰»‚ª”­�¶‚µ‚½�ê�‡�j
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre type �������̐����ɂ���l�̂����ꂩ
- * \pre *val ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre type ‚ªˆø�”‚Ì�à–¾‚É‚ ‚é’l‚Ì‚¢‚¸‚ê‚©
+ * \pre *val ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post type �Ŏw�肳�ꂽ�f�B�X�N���l�� *info �Ɠ������Ȃ�B
+ * \post type ‚ÅŽw’è‚³‚ê‚½ƒfƒBƒXƒN�î•ñ’l‚ª *info ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_diskinfo( int type, di_diskinfo_t *info );
 
 /**
- * \brief �X�g���[�W�f�o�C�X�փt�@�C����ۑ�����B
+ * \brief ƒXƒgƒŒ�[ƒWƒfƒoƒCƒX‚Öƒtƒ@ƒCƒ‹‚ð•Û‘¶‚·‚é�B
  *
- * \param type �X�g���[�W�̎��
+ * \param type ƒXƒgƒŒ�[ƒW‚ÌŽí—Þ
  *  <table>
  *   <tr>
- *    <td><center>�l</center></td><td><center>���e</center></td>
+ *    <td><center>’l</center></td><td><center>“à—e</center></td>
  *   </tr>
  *   <tr>
  *    <td>DI_STORAGE_NVRAM</td>
  *    <td>NVRAM</td>
  *   </tr>
  *  </table>
- * \param fname �S�����̃t�@�C����
- * \param data  �������ރf�[�^�z��̐擪�A�h���X
- * \param size  data�̔z��̒���
+ * \param fname ‚S•¶Žš‚Ìƒtƒ@ƒCƒ‹–¼
+ * \param data  �‘‚«�ž‚Þƒf�[ƒ^”z—ñ‚Ì�æ“ªƒAƒhƒŒƒX
+ * \param size  data‚Ì”z—ñ‚Ì’·‚³
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 �e�ʕs���ɂ�鎸�s
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 —e—Ê•s‘«‚É‚æ‚éŽ¸”s
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre type �������̐����ɂ���l�̂����ꂩ
- * \pre *fname �Ŏw�肷��t�@�C�������S����
- * \pre data[0]�`data[size-1] �܂ł��A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre type ‚ªˆø�”‚Ì�à–¾‚É‚ ‚é’l‚Ì‚¢‚¸‚ê‚©
+ * \pre *fname ‚ÅŽw’è‚·‚éƒtƒ@ƒCƒ‹–¼‚ª‚S•¶Žš
+ * \pre data[0]�`data[size-1] ‚Ü‚Å‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post �X�g���[�W�� fname �Ƃ����t�@�C���� data �̓��e�� size ������
- *���܂��B
+ * \post ƒXƒgƒŒ�[ƒW‚É fname ‚Æ‚¢‚¤ƒtƒ@ƒCƒ‹‚Å data ‚Ì“à—e‚ª size •ª�‘‚«
+ *�ž‚Ü‚ê‚é�B
  */
 extern EXPORT int di_write_storage( int type, char *fname,
 									unsigned char *data, long size );
 
 /**
- * \brief �X�g���[�W�f�o�C�X�ɏ������܂�Ă���t�@�C������f�[�^��ǂ�
- *���ށB
+ * \brief ƒXƒgƒŒ�[ƒWƒfƒoƒCƒX‚É�‘‚«�ž‚Ü‚ê‚Ä‚¢‚éƒtƒ@ƒCƒ‹‚©‚çƒf�[ƒ^‚ð“Ç‚Ý
+ *�ž‚Þ�B
  *
- * \param type    �X�g���[�W�̎��(���e�� di_write_storage() �Ɠ���)
- * \param fname   �S�����̃t�@�C����
- * \param data    �ǂݍ��񂾃f�[�^���i�[����z��̐擪�A�h���X
- * \param size    data�̔z��̒���
- * \param data_size ���ۂɓǂ񂾃f�[�^�̃T�C�Y
+ * \param type    ƒXƒgƒŒ�[ƒW‚ÌŽí—Þ(“à—e‚Í di_write_storage() ‚Æ“¯‚¶)
+ * \param fname   ‚S•¶Žš‚Ìƒtƒ@ƒCƒ‹–¼
+ * \param data    “Ç‚Ý�ž‚ñ‚¾ƒf�[ƒ^‚ðŠi”[‚·‚é”z—ñ‚Ì�æ“ªƒAƒhƒŒƒX
+ * \param size    data‚Ì”z—ñ‚Ì’·‚³
+ * \param data_size ŽÀ�Û‚É“Ç‚ñ‚¾ƒf�[ƒ^‚ÌƒTƒCƒY
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 fname �Ƃ����t�@�C�������݂��Ȃ�
- * \retval -3 data[size]���傫���t�@�C���������̂ōŌ�܂œǂݍ��߂�
- *�������B���̏ꍇ�ł�size��������data[]�ɓǂݍ��܂�A*data_size�ɃR�s
- *�[�����f�[�^�̃o�C�g��(=size)���Ԃ�B
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 fname ‚Æ‚¢‚¤ƒtƒ@ƒCƒ‹‚ª‘¶�Ý‚µ‚È‚¢
+ * \retval -3 data[size]‚æ‚è‘å‚«‚¢ƒtƒ@ƒCƒ‹‚¾‚Á‚½‚Ì‚Å�ÅŒã‚Ü‚Å“Ç‚Ý�ž‚ß‚È
+ *‚©‚Á‚½�B‚±‚Ì�ê�‡‚Å‚àsize•ª‚¾‚¯‚Ídata[]‚É“Ç‚Ý�ž‚Ü‚ê�A*data_size‚ÉƒRƒs
+ *�[‚µ‚½ƒf�[ƒ^‚ÌƒoƒCƒg�”(=size)‚ª•Ô‚é�B
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre type �������̐����ɂ���l�̂����ꂩ
- * \pre *fname �Ŏw�肷��t�@�C�������S����
- * \pre data[0]�`data[size-1] �܂ł��A�N�Z�X�\
- * \pre *data_size ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre type ‚ªˆø�”‚Ì�à–¾‚É‚ ‚é’l‚Ì‚¢‚¸‚ê‚©
+ * \pre *fname ‚ÅŽw’è‚·‚éƒtƒ@ƒCƒ‹–¼‚ª‚S•¶Žš
+ * \pre data[0]�`data[size-1] ‚Ü‚Å‚ªƒAƒNƒZƒX‰Â”\
+ * \pre *data_size ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post �X�g���[�W�ɂ��� fname �Ƃ����t�@�C������ size ���̃f�[�^��
- *data�ɓǂݍ��܂��B
+ * \post ƒXƒgƒŒ�[ƒW‚É‚ ‚é fname ‚Æ‚¢‚¤ƒtƒ@ƒCƒ‹‚©‚ç size •ª‚Ìƒf�[ƒ^‚ª
+ *data‚É“Ç‚Ý�ž‚Ü‚ê‚é�B
  */
 extern EXPORT int di_read_storage( int type, char *fname, unsigned char *data,
 								   long size, long *data_size );
 
 /**
- * \brief �X�g���[�W�f�o�C�X�ɏ������܂�Ă���t�@�C�����폜����B
+ * \brief ƒXƒgƒŒ�[ƒWƒfƒoƒCƒX‚É�‘‚«�ž‚Ü‚ê‚Ä‚¢‚éƒtƒ@ƒCƒ‹‚ð�í�œ‚·‚é�B
  *
- * \param type  �X�g���[�W�̎��(���e�� di_write_storage() �Ɠ���)
- * \param fname �S�����̃t�@�C����
+ * \param type  ƒXƒgƒŒ�[ƒW‚ÌŽí—Þ(“à—e‚Í di_write_storage() ‚Æ“¯‚¶)
+ * \param fname ‚S•¶Žš‚Ìƒtƒ@ƒCƒ‹–¼
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre type �������̐����ɂ���l�̂����ꂩ
- * \pre *fname �Ŏw�肷��t�@�C�������S����
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre type ‚ªˆø�”‚Ì�à–¾‚É‚ ‚é’l‚Ì‚¢‚¸‚ê‚©
+ * \pre *fname ‚ÅŽw’è‚·‚éƒtƒ@ƒCƒ‹–¼‚ª‚S•¶Žš
  *
- * \post �X�g���[�W�� fname �Ƃ����t�@�C�������݂��Ȃ��B
+ * \post ƒXƒgƒŒ�[ƒW‚É fname ‚Æ‚¢‚¤ƒtƒ@ƒCƒ‹‚ª‘¶�Ý‚µ‚È‚¢�B
  */
 extern EXPORT int di_delete_storage( int type, char *fname );
 
 /**
- * \brief �����ɍ��v����w��p����v������
+ * \brief �ðŒ�‚É�‡’v‚·‚éŽw’è—pŽ†‚ð—v‹�‚·‚é
  *
- * \param plotid  �v���b�^ID
- * \param psize   �p���T�C�YID
- * \param nodir   �p������
+ * \param plotid  ƒvƒ�ƒbƒ^ID
+ * \param psize   —pŽ†ƒTƒCƒYID
+ * \param nodir   —pŽ†•ûŒü
  *  <table>
  *   <tr>
- *    <td><center>�l</center></td><td><center>���e</center></td>
+ *    <td><center>’l</center></td><td><center>“à—e</center></td>
  *   </tr>
  *   <tr>
  *    <td>0</td>
- *    <td>�p���T�C�Y�Ŏw�肵�������̂݁B</td>
+ *    <td>—pŽ†ƒTƒCƒY‚ÅŽw’è‚µ‚½•ûŒü‚Ì‚Ý�B</td>
  *   </tr>
  *   <tr>
  *    <td>1</td>
- *    <td>�p���T�C�Y���قȂ�����ł��n�j�B</td>
+ *    <td>—pŽ†ƒTƒCƒY‚ªˆÙ‚È‚é•ûŒü‚Å‚à‚n‚j�B</td>
  *   </tr>
  *  </table>
- * \param ptype   ����
- * \param trayid  �g���CID
- * \param req     �v������
+ * \param ptype   Ž†Ží
+ * \param trayid  ƒgƒŒƒCID
+ * \param req     —v‹�Œ‹‰Ê
  *
- * \retval  4 �T�u�y�[�p�[�T�C�Y���L���̂Ƃ��A�v���p���T�C�Y�Ɨގ�����
- *�T�C�Y�̗p�����o������
- * \retval  3 �G���[��ʂɂ����郆�[�U�[�̑���ɂ��A����������I����
- *�ꂽ
- * \retval  2 �G���[��ʂɂ����郆�[�U�[�̑���ɂ��A�W���u�L�����Z��
- *���I�����ꂽ
- * \retval  1 �G���[�X�L�b�v����������
- * \retval  0 �����Ɉ�v����p�����o������
- * \retval -1 �G���[
- * \retval -2 �r�W�[�i�I�[�v���ς݃y�[�W�̈�����I�����Ă��Ȃ��j
+ * \retval  4 ƒTƒuƒy�[ƒp�[ƒTƒCƒY‚ª—LŒø‚Ì‚Æ‚«�A—v‹�—pŽ†ƒTƒCƒY‚Æ—ÞŽ—‚µ‚½
+ *ƒTƒCƒY‚Ì—pŽ†‚ª�oŒ»‚µ‚½
+ * \retval  3 ƒGƒ‰�[‰æ–Ê‚É‚¨‚¯‚éƒ†�[ƒU�[‚Ì‘€�ì‚É‚æ‚è�A‹­�§ˆó�ü‚ª‘I‘ð‚³
+ *‚ê‚½
+ * \retval  2 ƒGƒ‰�[‰æ–Ê‚É‚¨‚¯‚éƒ†�[ƒU�[‚Ì‘€�ì‚É‚æ‚è�AƒWƒ‡ƒuƒLƒƒƒ“ƒZƒ‹
+ *‚ª‘I‘ð‚³‚ê‚½
+ * \retval  1 ƒGƒ‰�[ƒXƒLƒbƒv‚ª”­�¶‚µ‚½
+ * \retval  0 �ðŒ�‚Éˆê’v‚·‚é—pŽ†‚ª�oŒ»‚µ‚½
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 ƒrƒW�[�iƒI�[ƒvƒ“�Ï‚Ýƒy�[ƒW‚Ìˆó�ü‚ª�I—¹‚µ‚Ä‚¢‚È‚¢�j
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *req ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *req ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post �v�����ʂ� *req �Ɋi�[�����
+ * \post —v‹�Œ‹‰Ê‚ª *req ‚ÉŠi”[‚³‚ê‚é
  */
 extern EXPORT int di_request_paper(int plotid, int psize, int nodir, int ptype,
 								   int trayid, di_res_reqpaper_t *req);
 
 /**
- * \brief ���ϐ��̃f�t�H���g�l���擾����B
+ * \brief ŠÂ‹«•Ï�”‚ÌƒfƒtƒHƒ‹ƒg’l‚ðŽæ“¾‚·‚é�B
  *
- * \param table_name  ���ϐ��e�[�u����
- * \param id          ���ϐ�ID
- * \param val         ����ꂽ���ϐ��̒l
+ * \param table_name  ŠÂ‹«•Ï�”ƒe�[ƒuƒ‹–¼
+ * \param id          ŠÂ‹«•Ï�”ID
+ * \param val         “¾‚ç‚ê‚½ŠÂ‹«•Ï�”‚Ì’l
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 table_name�����݂��Ȃ�
- * \retval -3 �w�肵�����ϐ����Ȃ�
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 table_name‚ª‘¶�Ý‚µ‚È‚¢
+ * \retval -3 Žw’è‚µ‚½ŠÂ‹«•Ï�”‚ª‚È‚¢
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre table_name �Ƃ����e�[�u�������݂���B
- * \pre ���ϐ� id ���Atable_name �ɑ��݂���B
- * \pre *val ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre table_name ‚Æ‚¢‚¤ƒe�[ƒuƒ‹‚ª‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�Atable_name ‚É‘¶�Ý‚·‚é�B
+ * \pre *val ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *val �����ϐ� id �̃f�t�H���g�l�Ɠ������Ȃ�B
+ * \post *val ‚ªŠÂ‹«•Ï�” id ‚ÌƒfƒtƒHƒ‹ƒg’l‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_defenvvalue(char *table_name, long id, long *val);
 
 /**
- * \brief ���ϐ��̃f�t�H���g�l�̃Z�b�g
+ * \brief ŠÂ‹«•Ï�”‚ÌƒfƒtƒHƒ‹ƒg’l‚ÌƒZƒbƒg
  *
- * \param table_name  ���ϐ��e�[�u����
- * \param id          ���ϐ�ID
- * \param  val        �Z�b�g������ϐ��̒l
+ * \param table_name  ŠÂ‹«•Ï�”ƒe�[ƒuƒ‹–¼
+ * \param id          ŠÂ‹«•Ï�”ID
+ * \param  val        ƒZƒbƒg‚·‚éŠÂ‹«•Ï�”‚Ì’l
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 table_name�����݂��Ȃ�
- * \retval -3 �w�肵�����ϐ����Ȃ�
- * \retval -4 ���[�h�I�����[�̊��ϐ�
- * \retval -5 val���ݒ�s�\�Ȓl
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 table_name‚ª‘¶�Ý‚µ‚È‚¢
+ * \retval -3 Žw’è‚µ‚½ŠÂ‹«•Ï�”‚ª‚È‚¢
+ * \retval -4 ƒŠ�[ƒhƒIƒ“ƒŠ�[‚ÌŠÂ‹«•Ï�”
+ * \retval -5 val‚ª�Ý’è•s‰Â”\‚È’l
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre table_name �Ƃ����e�[�u�������݂���B
- * \pre ���ϐ� id ���Atable_name �ɑ��݂���B
- * \pre ���ϐ� id ���Atable_name �ɐݒ�\�ł���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre table_name ‚Æ‚¢‚¤ƒe�[ƒuƒ‹‚ª‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�Atable_name ‚É‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�Atable_name ‚É�Ý’è‰Â”\‚Å‚ ‚é�B
  *
- * \post val �����ϐ� id �̃f�t�H���g�l�Ɠ������Ȃ�B
+ * \post val ‚ªŠÂ‹«•Ï�” id ‚ÌƒfƒtƒHƒ‹ƒg’l‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_set_defenvvalue(char *table_name, long id, long val);
 
 /**
- * \brief ���ϐ����̎擾
+ * \brief ŠÂ‹«•Ï�”�î•ñ‚ÌŽæ“¾
  *
- * \param table_name  ���ϐ��e�[�u����
- * \param id          ���ϐ�ID
- * \param info        ���ϐ��̏��
+ * \param table_name  ŠÂ‹«•Ï�”ƒe�[ƒuƒ‹–¼
+ * \param id          ŠÂ‹«•Ï�”ID
+ * \param info        ŠÂ‹«•Ï�”‚Ì�î•ñ
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 table_name�����݂��Ȃ�
- * \retval -3 �w�肵�����ϐ����Ȃ�
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 table_name‚ª‘¶�Ý‚µ‚È‚¢
+ * \retval -3 Žw’è‚µ‚½ŠÂ‹«•Ï�”‚ª‚È‚¢
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre table_name �Ƃ����e�[�u�������݂���B
- * \pre ���ϐ� id ���Atable_name �ɑ��݂���B
- * \pre *table_name ���A�N�Z�X�\
- * \pre *info ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre table_name ‚Æ‚¢‚¤ƒe�[ƒuƒ‹‚ª‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�Atable_name ‚É‘¶�Ý‚·‚é�B
+ * \pre *table_name ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *info �����ϐ����Ɠ������Ȃ�B
+ * \post *info ‚ªŠÂ‹«•Ï�”�î•ñ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_envvalinfo(char *table_name, long id,
 									di_envinfo_t *info);
 
 /**
- * \brief ���ϐ��̒l���X�g�̎擾
+ * \brief ŠÂ‹«•Ï�”‚Ì’lƒŠƒXƒg‚ÌŽæ“¾
  *
- * \param table_name  ���ϐ��e�[�u����
- * \param id          ���ϐ�ID
- * \param start       �擾���������ϐ��̒l�̃��X�g���̐擪�ԍ�
- * \param end         �擾���������ϐ��̒l�̃��X�g���̏I���ԍ�
- * \param list        �l�̃��X�g������z��̃|�C���^
- * \param list_num    list�ɓ��͂����L���ȕϐ����X�g�̍��ڐ�
+ * \param table_name  ŠÂ‹«•Ï�”ƒe�[ƒuƒ‹–¼
+ * \param id          ŠÂ‹«•Ï�”ID
+ * \param start       Žæ“¾‚µ‚½‚¢ŠÂ‹«•Ï�”‚Ì’l‚ÌƒŠƒXƒg’†‚Ì�æ“ª”Ô�†
+ * \param end         Žæ“¾‚µ‚½‚¢ŠÂ‹«•Ï�”‚Ì’l‚ÌƒŠƒXƒg’†‚Ì�I—¹”Ô�†
+ * \param list        ’l‚ÌƒŠƒXƒg‚ð“ü‚ê‚é”z—ñ‚Ìƒ|ƒCƒ“ƒ^
+ * \param list_num    list‚É“ü—Í‚µ‚½—LŒø‚È•Ï�”ƒŠƒXƒg‚Ì�€–Ú�”
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 table_name�����݂��Ȃ�
- * \retval -3 �w�肵�����ϐ����Ȃ�
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 table_name‚ª‘¶�Ý‚µ‚È‚¢
+ * \retval -3 Žw’è‚µ‚½ŠÂ‹«•Ï�”‚ª‚È‚¢
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre table_name �Ƃ����e�[�u�������݂���B
- * \pre ���ϐ� id ���Atable_name �ɑ��݂���B
- * \pre *table_name ���A�N�Z�X�\
- * \pre list[0]�`list[end-start]  ���A�N�Z�X�\
- * \pre *list_num ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre table_name ‚Æ‚¢‚¤ƒe�[ƒuƒ‹‚ª‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�Atable_name ‚É‘¶�Ý‚·‚é�B
+ * \pre *table_name ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre list[0]�`list[end-start]  ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre *list_num ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post list[0]�`list[list_num-1] �����ϐ�id�̒l�̃��X�g�Ɠ������Ȃ�B
+ * \post list[0]�`list[list_num-1] ‚ªŠÂ‹«•Ï�”id‚Ì’l‚ÌƒŠƒXƒg‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_envvallist(char *table_name, long id,
 									unsigned long start, unsigned long end,
 									long *list, long *list_num);
 
 /**
- * \brief �p�l���\��������擾����B
+ * \brief ƒpƒlƒ‹•\Ž¦Œ¾Œê‚ðŽæ“¾‚·‚é�B
  *
- * \param language   �p�l���\������
+ * \param language   ƒpƒlƒ‹•\Ž¦Œ¾Œê
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *table_name ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *table_name ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *language ���p�l���\������Ɠ������Ȃ�B
+ * \post *language ‚ªƒpƒlƒ‹•\Ž¦Œ¾Œê‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_panellang(unsigned char *language);
 
 /**
- * \brief ���ڂ���Ă���t���b�V���������̊e������擾����B
+ * \brief “‹�Ú‚³‚ê‚Ä‚¢‚éƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ‚ÌŠeŽí�î•ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param id         �t���b�V���������̔ԍ�
- * \param info       id�Ԗڂ̃t���b�V���������̏��
+ * \param id         ƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ‚Ì”Ô�†
+ * \param info       id”Ô–Ú‚Ìƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ‚Ì�î•ñ
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *info ���A�N�Z�X�\
- * \pre id �� 1�`n �͈͓̔��Bn �� di_get_flashmemnum() �Ŏ擾�����
- *�t���b�V���������̐��B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre id ‚ª 1�`n ‚Ì”ÍˆÍ“à�Bn ‚Í di_get_flashmemnum() ‚ÅŽæ“¾‚³‚ê‚é
+ *ƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ‚Ì�”�B
  *
- * \post *info �� id �Ԗڂ̃t���b�V�����������Ɠ������Ȃ�B
+ * \post *info ‚ª id ”Ô–Ú‚Ìƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ�î•ñ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_flashmeminfo(int id, di_flashmem_info_t *info);
 
 /**
- * \brief ���ڂ���Ă���t���b�V���������̐����擾����B
+ * \brief “‹�Ú‚³‚ê‚Ä‚¢‚éƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ‚Ì�”‚ðŽæ“¾‚·‚é�B
  *
- * \param num     �t���b�V���������̐�
+ * \param num     ƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ‚Ì�”
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *num ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *num ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *num �����ڂ���Ă���t���b�V���������̐��Ɠ������Ȃ�B
+ * \post *num ‚ª“‹�Ú‚³‚ê‚Ä‚¢‚éƒtƒ‰ƒbƒVƒ…ƒ�ƒ‚ƒŠ‚Ì�”‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_flashmemnum(long *num);
 
 /**
- * \brief �ʎ��\�ȍő�p���T�C�Y���擾����B
+ * \brief ’ÊŽ†‰Â”\‚È�Å‘å—pŽ†ƒTƒCƒY‚ðŽæ“¾‚·‚é�B
  *
- * \param x     �呖������(�P�� : 1/10mm)
- * \param y     ����������(�P�� : 1/10mm)
+ * \param x     Žå‘–�¸•ûŒü(’PˆÊ : 1/10mm)
+ * \param y     •›‘–�¸•ûŒü(’PˆÊ : 1/10mm)
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *x ���A�N�Z�X�\
- * \pre *y ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *x ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre *y ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *x ���呖�������̒ʎ��\�ő�T�C�Y�Ɠ������Ȃ�B
- * \post *y �������������̒ʎ��\�ő�T�C�Y�Ɠ������Ȃ�B
+ * \post *x ‚ªŽå‘–�¸•ûŒü‚Ì’ÊŽ†‰Â”\�Å‘åƒTƒCƒY‚Æ“™‚µ‚­‚È‚é�B
+ * \post *y ‚ª•›‘–�¸•ûŒü‚Ì’ÊŽ†‰Â”\�Å‘åƒTƒCƒY‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_maxpapersize(long *x, long *y);
 
 /**
- * \brief �G���W���ō쑜�\�ȍő�T�C�Y���擾����B
+ * \brief ƒGƒ“ƒWƒ“‚Å�ì‘œ‰Â”\‚È�Å‘åƒTƒCƒY‚ðŽæ“¾‚·‚é�B
  *
- * \param x     �呖������(�P�� : 1/10mm)
- * \param y     ����������(�P�� : 1/10mm)
+ * \param x     Žå‘–�¸•ûŒü(’PˆÊ : 1/10mm)
+ * \param y     •›‘–�¸•ûŒü(’PˆÊ : 1/10mm)
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *x ���A�N�Z�X�\
- * \pre *y ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *x ‚ªƒAƒNƒZƒX‰Â”\
+ * \pre *y ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *x ���呖�������̍쑜�\�ő�T�C�Y�Ɠ������Ȃ�B
- * \post *y �������������̍쑜�\�ő�T�C�Y�Ɠ������Ȃ�B
+ * \post *x ‚ªŽå‘–�¸•ûŒü‚Ì�ì‘œ‰Â”\�Å‘åƒTƒCƒY‚Æ“™‚µ‚­‚È‚é�B
+ * \post *y ‚ª•›‘–�¸•ûŒü‚Ì�ì‘œ‰Â”\�Å‘åƒTƒCƒY‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_maximagesize(long *x, long *y);
 
 /**
- * \brief ���j���[�A�C�e�����̎擾
+ * \brief ƒ�ƒjƒ…�[ƒAƒCƒeƒ€�î•ñ‚ÌŽæ“¾
  *
- * \param panel_id  ���j���[�A�C�e���̃p�l��ID
- * \param itemtype  ���j���[�A�C�e���̃A�C�e���^�C�v
- * \param menutype  ���j���[�A�C�e���̃��j���[�^�C�v
- * \param buf       ���j���[�A�C�e���̏����i�[����o�b�t�@
+ * \param panel_id  ƒ�ƒjƒ…�[ƒAƒCƒeƒ€‚Ìƒpƒlƒ‹ID
+ * \param itemtype  ƒ�ƒjƒ…�[ƒAƒCƒeƒ€‚ÌƒAƒCƒeƒ€ƒ^ƒCƒv
+ * \param menutype  ƒ�ƒjƒ…�[ƒAƒCƒeƒ€‚Ìƒ�ƒjƒ…�[ƒ^ƒCƒv
+ * \param buf       ƒ�ƒjƒ…�[ƒAƒCƒeƒ€‚Ì�î•ñ‚ðŠi”[‚·‚éƒoƒbƒtƒ@
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre buf[0]�`buf[31] ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre buf[0]�`buf[31] ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post buf �����j���[�A�C�e���̏��Ɠ������Ȃ�B
+ * \post buf ‚ªƒ�ƒjƒ…�[ƒAƒCƒeƒ€‚Ì�î•ñ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_menuitem(unsigned long panel_id,
 								  unsigned long itemtype,
@@ -3533,75 +3557,75 @@ extern EXPORT int di_get_menuitem(unsigned long panel_id,
 								  unsigned char *buf);
 
 /**
- * \brief �w�肷��f�o�C�X���當������擾����B
+ * \brief Žw’è‚·‚éƒfƒoƒCƒX‚©‚ç•¶Žš—ñ‚ðŽæ“¾‚·‚é�B
  *
- * \param type    �f�o�C�X���
- * \param device  �f�o�C�X�̏ڍ�
- * \param id      ������ID
- * \param buf     ��������i�[����o�b�t�@
- * \param size    �I�[�������܂񂾕�����̒���
+ * \param type    ƒfƒoƒCƒXŽí—Þ
+ * \param device  ƒfƒoƒCƒX‚Ì�Ú�×
+ * \param id      •¶Žš—ñID
+ * \param buf     •¶Žš—ñ‚ðŠi”[‚·‚éƒoƒbƒtƒ@
+ * \param size    �I’[•¶Žš‚ðŠÜ‚ñ‚¾•¶Žš—ñ‚Ì’·‚³
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre buf[0]�`buf[size-1] ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre buf[0]�`buf[size-1] ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post buf ���w�肳�ꂽ�f�o�C�X�̕�����Ɠ������Ȃ�B
+ * \post buf ‚ªŽw’è‚³‚ê‚½ƒfƒoƒCƒX‚Ì•¶Žš—ñ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_string(int type, long device, unsigned long id,
 								unsigned char *buf, unsigned long size);
 								
 /**
- * \brief �t�H���g�̏����擾����B
+ * \brief ƒtƒHƒ“ƒg‚Ì�î•ñ‚ðŽæ“¾‚·‚é�B
  *
- * �t�H���g�̊�{���� di_getinfo() �Ŏ擾�ł��邪�A�ڍ׏����擾��
- *��ꍇ�A�������� di_getinfo() �Ŏ擾�ł���t�H���g�ȊO�̎�ނ̃t�H��
- *�g�����擾����ꍇ�ɖ{�֐����g�p����B
+ * ƒtƒHƒ“ƒg‚ÌŠî–{�î•ñ‚Í di_getinfo() ‚ÅŽæ“¾‚Å‚«‚é‚ª�A�Ú�×�î•ñ‚ðŽæ“¾‚·
+ *‚é�ê�‡�A‚à‚µ‚­‚Í di_getinfo() ‚ÅŽæ“¾‚Å‚«‚éƒtƒHƒ“ƒgˆÈŠO‚ÌŽí—Þ‚ÌƒtƒHƒ“
+ *ƒg�î•ñ‚ðŽæ“¾‚·‚é�ê�‡‚É–{ŠÖ�”‚ðŽg—p‚·‚é�B
  *
- * \param type  �t�H���g�̎��
- * \param info  �t�H���g�̏��
+ * \param type  ƒtƒHƒ“ƒg‚ÌŽí—Þ
+ * \param info  ƒtƒHƒ“ƒg‚Ì�î•ñ
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *info ���A�N�Z�X�\
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\
  *
- * \post *info �� type �̃t�H���g���Ɠ������Ȃ�B
+ * \post *info ‚ª type ‚ÌƒtƒHƒ“ƒg�î•ñ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_fontinfo(int type, di_fontinfo_t *info);
 
 /**
- * \brief ����PDL�����擾����
+ * \brief “‹�ÚPDL�î•ñ‚ðŽæ“¾‚·‚é
  *
  * \param pdl_id  PDL ID
- * \param info    PDL���
+ * \param info    PDL�î•ñ
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 �w��PDL�����ڂ���Ă��Ȃ�
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 Žw’èPDL‚ª“‹�Ú‚³‚ê‚Ä‚¢‚È‚¢
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre pdl_id ���L��ID
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre pdl_id ‚ª—LŒøID
  *
- * \post *info �� pdl_id �� PDL ���Ɠ������Ȃ�B
+ * \post *info ‚ª pdl_id ‚Ì PDL �î•ñ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_pdlinfo(int pdl_id, di_pdlinfo_t *info);
 
 /**
- * \brief ���[�U�[�W���u�ϐ��̒l���擾����B
+ * \brief ƒ†�[ƒU�[ƒWƒ‡ƒu•Ï�”‚Ì’l‚ðŽæ“¾‚·‚é�B
  *
- * \param ujobparam ���[�U�[�W���u���
+ * \param ujobparam ƒ†�[ƒU�[ƒWƒ‡ƒu�î•ñ
  *
- * \retval  0 ����I��
- * \retval -1 �W���uID������
- * \retval -2 �T�|�[�g���Ă��Ȃ��p�����[�^���w�肵��
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒWƒ‡ƒuID‚ª–³Œø
+ * \retval -2 ƒTƒ|�[ƒg‚µ‚Ä‚¢‚È‚¢ƒpƒ‰ƒ��[ƒ^‚ðŽw’è‚µ‚½
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre *ujobparam ���A�N�Z�X�\�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre *ujobparam ‚ªƒAƒNƒZƒX‰Â”\�B
  *
- * \post *ujobparam �����[�U�[�W���u�ϐ��̒l�Ɠ������Ȃ�B
+ * \post *ujobparam ‚ªƒ†�[ƒU�[ƒWƒ‡ƒu•Ï�”‚Ì’l‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_ujobparamvar( ujobparam_var_t *ujobparam );
 
@@ -3631,76 +3655,76 @@ extern EXPORT void di_set_ujobid(int ujobid);
 
 
 /**
- * \brief �w�肳�ꂽ�p�����̏������ɁA�K�v�ȉ摜��]�����̏����擾
- *����B
+ * \brief Žw’è‚³‚ê‚½—pŽ†“™‚Ì�î•ñ‚ðŒ³‚É�A•K—v‚È‰æ‘œ‰ñ“]•ûŒü‚Ì�î•ñ‚ðŽæ“¾
+ *‚·‚é�B
  *
- * \param plotid �v���b�^ID
- * \param info   �摜��]�����̔�����s�����߂̏��
- * \param result �摜��]�����̔��茋��
+ * \param plotid ƒvƒ�ƒbƒ^ID
+ * \param info   ‰æ‘œ‰ñ“]•ûŒü‚Ì”»’è‚ð�s‚¤‚½‚ß‚Ì�î•ñ
+ * \param result ‰æ‘œ‰ñ“]•ûŒü‚Ì”»’èŒ‹‰Ê
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
- * \retval -2 �֐����T�|�[�g����Ă��Ȃ�
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
+ * \retval -2 ŠÖ�”‚ªƒTƒ|�[ƒg‚³‚ê‚Ä‚¢‚È‚¢
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre plotid ���L�� ID�B
- * \pre *info ���A�N�Z�X�\�B
- * \pre *result ���A�N�Z�X�\�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre plotid ‚ª—LŒø ID�B
+ * \pre *info ‚ªƒAƒNƒZƒX‰Â”\�B
+ * \pre *result ‚ªƒAƒNƒZƒX‰Â”\�B
  *
- * \post *result ���摜��]�����̏��Ɠ������Ȃ�B
+ * \post *result ‚ª‰æ‘œ‰ñ“]•ûŒü‚Ì�î•ñ‚Æ“™‚µ‚­‚È‚é�B
  */
 extern EXPORT int di_get_imgrotinfo( int plotid, di_rotenvinfo_t *info, di_imgrotinfo_t *result );
 
 /**
- * \brief �K���}�Čv�Z���s���B
+ * \brief ƒKƒ“ƒ}�ÄŒvŽZ‚ð�s‚¤�B
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init() ���R�[������Ă���B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
  *
- * \post �V�X�e�����̃K���}���Čv�Z�����B
+ * \post ƒVƒXƒeƒ€“à‚ÌƒKƒ“ƒ}‚ª�ÄŒvŽZ‚³‚ê‚é�B
  */
 extern EXPORT int di_update_gamma();
 
 /**
- * \brief ���ϐ��̒l(�o�C�g��)���擾����B
+ * \brief ŠÂ‹«•Ï�”‚Ì’l(ƒoƒCƒg—ñ)‚ðŽæ“¾‚·‚é�B
  *
- * \param table_name ���ϐ��e�[�u����
- * \param id         ���ϐ�ID
- * \param val        ����ꂽ���ϐ��̒l
- * \param in_size    �o�C�g��val�̃o�C�g���B���ϐ���������̏ꍇ�ɂ́ANULL�^�[�~�l�[�g�����邾���̐����w�肷�邱�ƁB
- * \param out_size   �o�C�g��̗L���ȃo�C�g���B���ϐ���������̏ꍇ�ɂ́ANULL�^�[�~�l�[�g���܂ޒ�����Ԃ��B
+ * \param table_name ŠÂ‹«•Ï�”ƒe�[ƒuƒ‹–¼
+ * \param id         ŠÂ‹«•Ï�”ID
+ * \param val        “¾‚ç‚ê‚½ŠÂ‹«•Ï�”‚Ì’l
+ * \param in_size    ƒoƒCƒg—ñval‚ÌƒoƒCƒg�”�BŠÂ‹«•Ï�”‚ª•¶Žš—ñ‚Ì�ê�‡‚É‚Í�ANULLƒ^�[ƒ~ƒl�[ƒg‚ª“ü‚é‚¾‚¯‚Ì�”‚ðŽw’è‚·‚é‚±‚Æ�B
+ * \param out_size   ƒoƒCƒg—ñ‚Ì—LŒø‚ÈƒoƒCƒg�”�BŠÂ‹«•Ï�”‚ª•¶Žš—ñ‚Ì�ê�‡‚É‚Í�ANULLƒ^�[ƒ~ƒl�[ƒg‚ðŠÜ‚Þ’·‚³‚ð•Ô‚·�B
  *
- * \retval  1 ����I���i���ϐ��������I�Ɏw�肳��Ă���j
- * \retval  0 ����I���i���ϐ��������I�Ɏw�肳��ĂȂ����߁A�f�t�H��
- *�g�l�Z�b�g)
- * \retval -1 �G���[�idi_init()���R�[������Ă��Ȃ��A�֐����T�|�[�g���Ă��Ȃ��j
- * \retval -2 �G���[�itable_name�����݂��Ȃ��j
- * \retval -3 �G���[�i�w�肵�����ϐ����Ȃ��j
- * \retval -4 �G���[�iin_size������������j
+ * \retval  1 �³�í�I—¹�iŠÂ‹«•Ï�”‚ª–¾Ž¦“I‚ÉŽw’è‚³‚ê‚Ä‚¢‚é�j
+ * \retval  0 �³�í�I—¹�iŠÂ‹«•Ï�”‚ª–¾Ž¦“I‚ÉŽw’è‚³‚ê‚Ä‚È‚¢‚½‚ß�AƒfƒtƒHƒ‹
+ *ƒg’lƒZƒbƒg)
+ * \retval -1 ƒGƒ‰�[�idi_init()‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚È‚¢�AŠÖ�”‚ðƒTƒ|�[ƒg‚µ‚Ä‚¢‚È‚¢�j
+ * \retval -2 ƒGƒ‰�[�itable_name‚ª‘¶�Ý‚µ‚È‚¢�j
+ * \retval -3 ƒGƒ‰�[�iŽw’è‚µ‚½ŠÂ‹«•Ï�”‚ª‚È‚¢�j
+ * \retval -4 ƒGƒ‰�[�iin_size‚ª�¬‚³‚·‚¬‚é�j
  *
- * \pre di_init() ���R�[������Ă���B
- * \pre table_name�Ƃ����e�[�u�������݂���B
- * \pre ���ϐ� id ���Atable_name�ɑ��݂���B
- * \pre val[0]-val[in_size-1]���A�N�Z�X�\�B
- * \pre *out_size���A�N�Z�X�\�B
+ * \pre di_init() ‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é�B
+ * \pre table_name‚Æ‚¢‚¤ƒe�[ƒuƒ‹‚ª‘¶�Ý‚·‚é�B
+ * \pre ŠÂ‹«•Ï�” id ‚ª�Atable_name‚É‘¶�Ý‚·‚é�B
+ * \pre val[0]-val[in_size-1]‚ªƒAƒNƒZƒX‰Â”\�B
+ * \pre *out_size‚ªƒAƒNƒZƒX‰Â”\�B
  *
- * \post val[0]-val[out_size-1]�Ɏw�肵�����ϐ��̒l���i�[�����B
+ * \post val[0]-val[out_size-1]‚ÉŽw’è‚µ‚½ŠÂ‹«•Ï�”‚Ì’l‚ªŠi”[‚³‚ê‚é�B
  */
 extern EXPORT int di_get_envdata( char *table_name, long id, void *val, unsigned long in_size, unsigned long *out_size );
 
 /**
- * \brief �p�l���ɃG�~�����[�V��������\������B
+ * \brief ƒpƒlƒ‹‚ÉƒGƒ~ƒ…ƒŒ�[ƒVƒ‡ƒ“–¼‚ð•\Ž¦‚·‚é�B
  *
- * \retval  0 ����I��
- * \retval -1 �G���[
+ * \retval  0 �³�í�I—¹
+ * \retval -1 ƒGƒ‰�[
  *
- * \pre di_init()���R�[������Ă���
- * \pre str��NULL�łȂ�
- * \pre str��NULL�^�[�~�l�[�g���܂߂āA8�o�C�g�ȓ��ł���
+ * \pre di_init()‚ªƒR�[ƒ‹‚³‚ê‚Ä‚¢‚é
+ * \pre str‚ªNULL‚Å‚È‚¢
+ * \pre str‚ªNULLƒ^�[ƒ~ƒl�[ƒg‚ðŠÜ‚ß‚Ä�A8ƒoƒCƒgˆÈ“à‚Å‚ ‚é
  *
- * \post �p�l����str�Ŏw�肵���G�~�����[�V���������\�������(GPS����̂�)
+ * \post ƒpƒlƒ‹‚Éstr‚ÅŽw’è‚µ‚½ƒGƒ~ƒ…ƒŒ�[ƒVƒ‡ƒ“–¼‚ª•\Ž¦‚³‚ê‚é(GPS“®�ì‚Ì‚Ý)
  */
 extern EXPORT int di_disp_setemulation( char *str );
 
@@ -3714,7 +3738,7 @@ extern EXPORT int di_disp_setprognum( unsigned short prog_id );
 extern EXPORT int di_disp_menucheckfinish( void );
 extern EXPORT int di_disp_addmenuitem( unsigned char *buf );
 
-/* �v���O�����o�^ */
+/* ƒvƒ�ƒOƒ‰ƒ€“o˜^ */
 extern EXPORT struct di_progtable * di_get_programinfo ( unsigned int prog_no );
 extern EXPORT int di_register_program( int prog_no, di_progtable_t *psw );
 extern EXPORT int di_delete_program(int prog_no );

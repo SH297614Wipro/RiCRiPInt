@@ -1065,11 +1065,19 @@ currentglobal false setglobal
 	      /Text 	[ /CMM (TextColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
 	      /Other 	[ /CMM (OtherColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
 	    >>
-	    /DeviceRGB
-	    <<
-	      /Default 	[ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
-	    >>
-	 >> setinterceptcolorspace
+		 /DeviceRGB
+	  	 <<
+		   /Text 	[ /CMM (DefaultColorMapFeaturesRGBText) /DeviceRGB /DeviceCMYK ]
+		   /Picture [ /CMM (DefaultColorMapFeaturesRGBImage) /DeviceRGB /DeviceCMYK ]	     
+		   /Default [ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
+		 >>
+		 /DeviceGray
+	  	 <<
+		    /Text [ /CMM (DefaultColorMapFeaturesGrayText) /DeviceGray /DeviceCMYK ]
+		    /Picture [ /CMM (DefaultColorMapFeaturesGrayImage) /DeviceGray /DeviceCMYK ] 
+		    /Default [ /CMM (DefaultColorMapFeaturesGray) /DeviceGray /DeviceCMYK ]
+		>>
+	  >> setinterceptcolorspace
     } {
       dup 1 eq {
         % Enable color management using ICC profiles

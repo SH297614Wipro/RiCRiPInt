@@ -65,23 +65,23 @@ int get_appinfo_di_GPS( char *key, char *category, long  len, char *buf )
 	
 	switch( retval ) 
 	{
-	case SERCH_OK: /* ¬Œ÷ */
+	case SERCH_OK: /* Â�Â¬Å’Ã· */
 		return DI_PINI_OK;
-	case SERCH_KEY_NOT_FOUND: /* ŠY“–‚·‚ékey‚ª‚Ý‚Â‚©‚ç‚È‚©‚Á‚½ */
+	case SERCH_KEY_NOT_FOUND: /* Å Yâ€œâ€“â€šÂ·â€šÃ©keyâ€šÂªâ€šÃ�â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ©â€šÃ�â€šÂ½ */
 		return DI_PINI_KEY_NOT_FOUND;
-	case SERCH_CATEGORY_NOT_FOUND: /* ŠY“–‚·‚écategory‚ª‚Ý‚Â‚©‚ç‚È‚©‚Á‚½ */
+	case SERCH_CATEGORY_NOT_FOUND: /* Å Yâ€œâ€“â€šÂ·â€šÃ©categoryâ€šÂªâ€šÃ�â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ©â€šÃ�â€šÂ½ */
 		return DI_PINI_CATEGORY_NOT_FOUND;
-	case SERCH_BUFFER_OVER: /* value‚É“ü‚èØ‚ç‚È‚©‚Á‚½ */
+	case SERCH_BUFFER_OVER: /* valueâ€šÃ‰â€œÃ¼â€šÃ¨Â�Ã˜â€šÃ§â€šÃˆâ€šÂ©â€šÃ�â€šÂ½ */
 		/*
-	 	 * ‚±‚ÌƒGƒ‰[‚ÍŒ»óƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢‚Ì‚Å,«—ˆ‚à‚µƒTƒ|[ƒg‚³‚ê‚Ä‚à
-	 	 * ®‡‚ð‚Æ‚é‚½‚ß’ÊíƒGƒ‰[‚Æ‚µ‚Ä‚¨‚­
-		 * ¨‚¢‚Â‚Ì‚Ü‚É‚©ƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚½‚Ì‚ÅA•ÊƒGƒ‰[‚Æ‚µ‚½
-		 * (2005/10/14 ŒF’J)
+	 	 * â€šÂ±â€šÃŒÆ’GÆ’â€°Â�[â€šÃ�Å’Â»Â�Ã³Æ’TÆ’|Â�[Æ’gâ€šÂ³â€šÃªâ€šÃ„â€šÂ¢â€šÃˆâ€šÂ¢â€šÃŒâ€šÃ…,Â�Â«â€”Ë†â€šÃ â€šÂµÆ’TÆ’|Â�[Æ’gâ€šÂ³â€šÃªâ€šÃ„â€šÃ 
+	 	 * Â�Â®Â�â€¡â€šÃ°â€šÃ†â€šÃ©â€šÂ½â€šÃŸâ€™ÃŠÂ�Ã­Æ’GÆ’â€°Â�[â€šÃ†â€šÂµâ€šÃ„â€šÂ¨â€šÂ­
+		 * Â�Â¨â€šÂ¢â€šÃ‚â€šÃŒâ€šÃœâ€šÃ‰â€šÂ©Æ’TÆ’|Â�[Æ’gâ€šÂ³â€šÃªâ€šÃ„â€šÂ¢â€šÂ½â€šÃŒâ€šÃ…Â�Aâ€¢ÃŠÆ’GÆ’â€°Â�[â€šÃ†â€šÂµâ€šÂ½
+		 * (2005/10/14 Å’Fâ€™J)
 	 	 */
 		return DI_PINI_TOOLONG_VALUE;
-	case SERCH_ILLEGAL_PARAM: /* •s³‚Èƒpƒ‰ƒ[ƒ^ */
+	case SERCH_ILLEGAL_PARAM: /* â€¢sÂ�Â³â€šÃˆÆ’pÆ’â€°Æ’Â�Â�[Æ’^ */
 		return DI_PINI_ERROR;
-	case SERCH_INIT_ERROR: /* ƒtƒ@ƒCƒ‹‚ÌƒI[ƒvƒ“‚©mmap‚ÉŽ¸”s */
+	case SERCH_INIT_ERROR: /* Æ’tÆ’@Æ’CÆ’â€¹â€šÃŒÆ’IÂ�[Æ’vÆ’â€œâ€šÂ©mmapâ€šÃ‰Å½Â¸â€�s */
 		return DI_PINI_ERROR;
 	default:
 		return DI_PINI_ERROR;
@@ -102,9 +102,9 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 	int			paper = DEF_PAPER, prt_mode = DEF_PRT_MODE, dit_mode = DEF_DIT_MODE;
 /*	#endif 	*/	/* USE_IMAQ */
 
-	/* ‰ð‘œ“x•[‚³Ží—Þ”‚ðŽæ“¾ */
+	/* â€°Ã°â€˜Å“â€œxÂ�â€¢Â�[â€šÂ³Å½Ã­â€”ÃžÂ�â€�â€šÃ°Å½Ã¦â€œÂ¾ */
 	idx = 1;
-	while( idx ) {	/* ”Ô†‡‚ÉŒŸõ */
+	while( idx ) {	/* â€�Ã”Â�â€ Â�â€¡â€šÃ‰Å’Å¸Â�Ãµ */
 		sprintf( strbuf, "reso%d", idx );
 
 		if( get_appinfo_di_GPS(strbuf, CATEGORY_DI ,sizeof(buf),buf) != SERCH_KEY_OK ) 
@@ -116,15 +116,15 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 			search = 1;
 		}
 		if( !search ) 
-		{ /* ŒŸõŽ¸”s */
-			/* ‰ð‘œ“x•[‚³Ží—Þ”Œˆ’è */
+		{ /* Å’Å¸Â�ÃµÅ½Â¸â€�s */
+			/* â€°Ã°â€˜Å“â€œxÂ�â€¢Â�[â€šÂ³Å½Ã­â€”ÃžÂ�â€�Å’Ë†â€™Ã¨ */
 			if( idx > 1 ) 
-			{ /* ‚P‚Â‚ÍƒJƒeƒSƒŠ‚ª‚ ‚Á‚½ê‡ */
+			{ /* â€šPâ€šÃ‚â€šÃ�Æ’JÆ’eÆ’SÆ’Å â€šÂªâ€šÂ â€šÃ�â€šÂ½Â�ÃªÂ�â€¡ */
 				devinfo->resonum = --idx;
 			} 
 			else 
 			{
-				/* ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^ */
+				/* Æ’fÆ’tÆ’HÆ’â€¹Æ’gÆ’pÆ’â€°Æ’Â�Â�[Æ’^ */
 				devinfo->resonum = DEF_RESONUM;
 			}
 			break;
@@ -132,7 +132,7 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 
 		if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) 
 		{
-			/* VŽd—l‚Íƒpƒ‰ƒ[ƒ^‚ª‚U‚Â */
+			/* Â�VÅ½dâ€”lâ€šÃ�Æ’pÆ’â€°Æ’Â�Â�[Æ’^â€šÂªâ€šUâ€šÃ‚ */
 			if( sscanf(outbuf,"%d,%d,%d,%d,%d,%d" ,&x,&y,&bit,&paper,&prt_mode,&dit_mode) != 6 ) 
 			{
 				search = 0;
@@ -144,7 +144,7 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 		} 
 		else 
 		{
-			/* ‹ŒŽd—l‚Íƒpƒ‰ƒ[ƒ^‚ª‚R‚Â */
+			/* â€¹Å’Å½dâ€”lâ€šÃ�Æ’pÆ’â€°Æ’Â�Â�[Æ’^â€šÂªâ€šRâ€šÃ‚ */
 			if( sscanf(outbuf,"%d,%d,%d",&x,&y,&bit) != 3 ) 
 			{
 				search = 0;
@@ -155,21 +155,21 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 			}
 		}
 		if( !search ) 
-		{ /* ŒŸõŽ¸”s */
-			/* ‰ð‘œ“x•[‚³Ží—Þ”Œˆ’è */
+		{ /* Å’Å¸Â�ÃµÅ½Â¸â€�s */
+			/* â€°Ã°â€˜Å“â€œxÂ�â€¢Â�[â€šÂ³Å½Ã­â€”ÃžÂ�â€�Å’Ë†â€™Ã¨ */
 			if( idx > 1 ) 
-			{ /* ‚P‚Â‚ÍƒJƒeƒSƒŠ‚ª‚ ‚Á‚½ê‡ */
+			{ /* â€šPâ€šÃ‚â€šÃ�Æ’JÆ’eÆ’SÆ’Å â€šÂªâ€šÂ â€šÃ�â€šÂ½Â�ÃªÂ�â€¡ */
 				devinfo->resonum = --idx;
 			} 
 			else 
 			{
-				/* ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^ */
+				/* Æ’fÆ’tÆ’HÆ’â€¹Æ’gÆ’pÆ’â€°Æ’Â�Â�[Æ’^ */
 				devinfo->resonum = DEF_RESONUM;
 			}
 			break;
 		}
 /*	#endif 	*/	/* USE_IMAQ */
-		if( idx == 1 ) { /* ‚¨‚·‚·‚ß‰ð‘œ“x•[‚³ */
+		if( idx == 1 ) { /* â€šÂ¨â€šÂ·â€šÂ·â€šÃŸâ€°Ã°â€˜Å“â€œxÂ�â€¢Â�[â€šÂ³ */
 			def_resox = x;
 			def_resoy = y;
 			def_bit   = bit;
@@ -181,14 +181,14 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 		}
 		idx++;
 	}
-	/* ƒƒ‚ƒŠŠm•Û */
+	/* Æ’Â�Æ’â€šÆ’Å Å mâ€¢Ã› */
 	devinfo->reso_set = (di_resolutioninfo_t *)
 		mmalloc(sizeof(di_resolutioninfo_t) * devinfo->resonum);
 	if( !devinfo->reso_set ) {
 		return DI_GET_NG;
 	}
 
-	/* ŽÀÛ‚Éƒpƒ‰ƒ[ƒ^Žæ“¾ */
+	/* Å½Ã€Â�Ã›â€šÃ‰Æ’pÆ’â€°Æ’Â�Â�[Æ’^Å½Ã¦â€œÂ¾ */
 	reso = devinfo->reso_set;
 	for( i=1; i<=idx; i++ ) {
 		sprintf( strbuf, "reso%d", i );
@@ -200,19 +200,19 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 		} else {
 			search = 1;
 		}
-		if( !search ) { /* ŒŸõŽ¸”s */
-			/* ‰ð‘œ“x•[‚³Ží—Þ”Œˆ’è */
-			if( idx > 1 ) { /* ‚P‚Â‚ÍƒJƒeƒSƒŠ‚ª‚ ‚Á‚½ê‡ */
+		if( !search ) { /* Å’Å¸Â�ÃµÅ½Â¸â€�s */
+			/* â€°Ã°â€˜Å“â€œxÂ�â€¢Â�[â€šÂ³Å½Ã­â€”ÃžÂ�â€�Å’Ë†â€™Ã¨ */
+			if( idx > 1 ) { /* â€šPâ€šÃ‚â€šÃ�Æ’JÆ’eÆ’SÆ’Å â€šÂªâ€šÂ â€šÃ�â€šÂ½Â�ÃªÂ�â€¡ */
 				devinfo->resonum = --idx;
 			} else {
-				/* ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^ */
+				/* Æ’fÆ’tÆ’HÆ’â€¹Æ’gÆ’pÆ’â€°Æ’Â�Â�[Æ’^ */
 				devinfo->resonum = DEF_RESONUM;
 			}
 			break;
 		}
 
 		if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) {
-			/* VŽd—l‚Íƒpƒ‰ƒ[ƒ^‚ª‚U‚Â */
+			/* Â�VÅ½dâ€”lâ€šÃ�Æ’pÆ’â€°Æ’Â�Â�[Æ’^â€šÂªâ€šUâ€šÃ‚ */
 			if( sscanf(outbuf,"%d,%d,%d,%d,%d,%d"
 				   ,&x,&y,&bit,&paper,&prt_mode,&dit_mode) != 6 ) {
 				search = 0;
@@ -220,19 +220,19 @@ int get_resocombo_GPS(di_devinfo_GPS_t *devinfo)
 				search = 1;
 			}
 		} else {
-			/* ‹ŒŽd—l‚Íƒpƒ‰ƒ[ƒ^‚ª‚R‚Â */
+			/* â€¹Å’Å½dâ€”lâ€šÃ�Æ’pÆ’â€°Æ’Â�Â�[Æ’^â€šÂªâ€šRâ€šÃ‚ */
 			if( sscanf(outbuf,"%d,%d,%d",&x,&y,&bit) != 3 ) {
 				search = 0;
 			} else {
 				search = 1;
 			}
 		}
-		if( !search ) { /* ŒŸõŽ¸”s */
-			/* ‰ð‘œ“x•[‚³Ží—Þ”Œˆ’è */
-			if( idx > 1 ) { /* ‚P‚Â‚ÍƒJƒeƒSƒŠ‚ª‚ ‚Á‚½ê‡ */
+		if( !search ) { /* Å’Å¸Â�ÃµÅ½Â¸â€�s */
+			/* â€°Ã°â€˜Å“â€œxÂ�â€¢Â�[â€šÂ³Å½Ã­â€”ÃžÂ�â€�Å’Ë†â€™Ã¨ */
+			if( idx > 1 ) { /* â€šPâ€šÃ‚â€šÃ�Æ’JÆ’eÆ’SÆ’Å â€šÂªâ€šÂ â€šÃ�â€šÂ½Â�ÃªÂ�â€¡ */
 				devinfo->resonum = --idx;
 			} else {
-				/* ƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^ */
+				/* Æ’fÆ’tÆ’HÆ’â€¹Æ’gÆ’pÆ’â€°Æ’Â�Â�[Æ’^ */
 				devinfo->resonum = DEF_RESONUM;
 			}
 			break;
@@ -258,11 +258,11 @@ int get_maxdit( int *max_dit ) /* Should it be static??*/
 	printf("Entered  get_maxdit()..\n");
 	if( (get_appinfo_di_GPS("max_dit" ,CATEGORY_DI ,sizeof(buf),buf) != SERCH_KEY_OK)
 		|| (sscanf(outbuf, "%d", max_dit) != 1) ) {
-		/* ƒGƒ‰[‚Ìê‡‚ÍƒfƒtƒHƒ‹ƒg’l */
+		/* Æ’GÆ’â€°Â�[â€šÃŒÂ�ÃªÂ�â€¡â€šÃ�Æ’fÆ’tÆ’HÆ’â€¹Æ’gâ€™l */
 		*max_dit = DEF_DIT;
 	}
 
-	/* ƒfƒBƒU‚ÌƒTƒ|[ƒg—L–³ */
+	/* Æ’fÆ’BÆ’Uâ€šÃŒÆ’TÆ’|Â�[Æ’gâ€”Lâ€“Â³ */
 	support_dithergamma = (*max_dit) ? 1 : 0;
 
 	printf("Exiting get_maxdit()..\n");
@@ -274,7 +274,7 @@ int get_maxplane( int *max_plane )
 	printf("Entered  get_maxplane()..\n");
 	if( (get_appinfo_di_GPS("max_plane" ,CATEGORY_DI ,sizeof(buf),buf) != SERCH_KEY_OK)
 		|| (sscanf(outbuf, "%d", max_plane) != 1) ) {
-		/* ƒGƒ‰[‚Ìê‡‚ÍƒfƒtƒHƒ‹ƒg’l */
+		/* Æ’GÆ’â€°Â�[â€šÃŒÂ�ÃªÂ�â€¡â€šÃ�Æ’fÆ’tÆ’HÆ’â€¹Æ’gâ€™l */
 		*max_plane = DEF_PLANE;
 	}
 		
@@ -290,7 +290,7 @@ int get_render_info_GPS_di_ (di_devinfo_GPS_t *devinfo)
 	if( get_maxdit( &devinfo->ndit ) != DI_GET_OK )
 		return DI_GET_NG;
 
-	/* ƒTƒ|[ƒgÅ‘åƒvƒŒ[ƒ“” */
+	/* Æ’TÆ’|Â�[Æ’gÂ�Ã…â€˜Ã¥Æ’vÆ’Å’Â�[Æ’â€œÂ�â€� */
 	if( get_maxplane( &devinfo->nplane ) != DI_GET_OK )
 		return DI_GET_NG;
 	printf("Exiting get_render_info_di_()..\n");
@@ -322,7 +322,7 @@ void adjust_dgparam_GPS( dg_param_t *para ) /* This API is static in GPS, and in
 		if( (para->resox == org_resox) && (para->resoy == org_resoy) &&
 			(para->bit == org_bit) && (para->dit == org_dit) ) 
 		{
-			/* •ÏŠ·‚·‚é‰ð‘œ“x•[‚³•ƒfƒBƒU‚ªŒ©‚Â‚©‚Á‚½‚Ì‚Å,•ÏŠ·‚·‚é */
+			/* â€¢Ã�Å Â·â€šÂ·â€šÃ©â€°Ã°â€˜Å“â€œxÂ�â€¢Â�[â€šÂ³Â�â€¢Æ’fÆ’BÆ’Uâ€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃ�â€šÂ½â€šÃŒâ€šÃ…,â€¢Ã�Å Â·â€šÂ·â€šÃ© */
 			if (fflag == 0)
 			{
 				printf(("trans=%dx%dx%d-%d->%dx%dx%d-%d,",
@@ -388,7 +388,7 @@ int get_1dit_di_GPS( di_devinfo_GPS_t *devinfo, int bit, int dpix, int dpiy, int
 		ndit = (gps_nclr_dit_t *)(adr + npln->dit);
 
 		ditinfo->dit_ptr = (unsigned char *)(adr + (unsigned char *)ndit->dit);
-		/* Œ^—Ž‚¿’ˆÓ */
+		/* Å’^â€”Å½â€šÂ¿â€™Â�Ë†Ã“ */
 		ditinfo->x_size = (unsigned char)ndit->xsz;
 		ditinfo->y_size = (unsigned char)ndit->ysz;
 
@@ -409,7 +409,7 @@ int get_1dit_di_GPS( di_devinfo_GPS_t *devinfo, int bit, int dpix, int dpiy, int
 	dit = (gps_clr_dit_t *)(adr + pln->dit);
 
 	ditinfo->dit_ptr = (unsigned char *)(adr + (unsigned char *)dit->dit);
-	/* Œ^—Ž‚¿’ˆÓ */
+	/* Å’^â€”Å½â€šÂ¿â€™Â�Ë†Ã“ */
 	ditinfo->x_size = (unsigned char)dit->xsz;
 	ditinfo->y_size = (unsigned char)dit->ysz;
 
@@ -434,26 +434,26 @@ int get_dinfo_GPS(di_devinfo_GPS_t *devinfo, int reso, int dit, int color, di_di
 	int	i;
 	dg_param_t	dgparam;
 
-	/* ƒfƒBƒUEƒÁƒ‚[ƒh—pƒpƒ‰ƒ[ƒ^‚ÌƒZƒbƒg */
+	/* Æ’fÆ’BÆ’UÂ�EÆ’Ã�Æ’â€šÂ�[Æ’hâ€”pÆ’pÆ’â€°Æ’Â�Â�[Æ’^â€šÃŒÆ’ZÆ’bÆ’g */
 	dgparam.resox = devinfo->reso_set[reso].x;
 	dgparam.resoy = devinfo->reso_set[reso].y;
 	dgparam.bit   = devinfo->reso_set[reso].bit;
 	dgparam.color = color;
 
 	if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) 
-	{ /* Šg’£Žd—l */
+	{ /* Å gâ€™Â£Å½dâ€”l */
 		dgparam.dit      = devinfo->reso_set[reso].dit_mode;
 		dgparam.paper    = devinfo->reso_set[reso].paper;
 		dgparam.prt_mode = devinfo->reso_set[reso].prt_mode;
 	} else 
-	{ /* ‹ŒŽd—l */
-		/* ‚ ‚ç‚©‚¶‚ß‚±‚±‚ÅGPS‚ÌŽd—l‚É•ÏX‚µ‚Ä‚¨‚­ */
+	{ /* â€¹Å’Å½dâ€”l */
+		/* â€šÂ â€šÃ§â€šÂ©â€šÂ¶â€šÃŸâ€šÂ±â€šÂ±â€šÃ…GPSâ€šÃŒÅ½dâ€”lâ€šÃ‰â€¢Ã�Â�Xâ€šÂµâ€šÃ„â€šÂ¨â€šÂ­ */
 		dgparam.dit   = gps_dgmd[dit];
 	}
 
-	/* ‚±‚±‚Å ditinfo ‚Ì‘Sƒƒ“ƒo‚ð–„‚ß‚é */
+	/* â€šÂ±â€šÂ±â€šÃ… ditinfo â€šÃŒâ€˜SÆ’Â�Æ’â€œÆ’oâ€šÃ°â€“â€žâ€šÃŸâ€šÃ© */
 
-	/* Še‹@Ží–ˆ‚Ìƒpƒ‰ƒ[ƒ^•â³ */
+	/* Å eâ€¹@Å½Ã­â€“Ë†â€šÃŒÆ’pÆ’â€°Æ’Â�Â�[Æ’^â€¢Ã¢Â�Â³ */
 	adjust_dgparam_GPS( &dgparam );
 
 /*#ifdef SUPPORT_DITHERGAMMA_PRODUCT*/
@@ -614,7 +614,7 @@ int get_1gam_di_GPS( di_devinfo_GPS_t *devinfo, int bit, int dpix, int dpiy, int
 	        GPS_PenvClose(gps_client, retval);
 
 
-		/* Œ»ó‰˜HƒÁŒÅ’è */
+		/* Å’Â»Â�Ã³â€°Â�ËœHÆ’Ã�Å’Ã…â€™Ã¨ */
 		if (ngam->gam[headrank]) 
 		{
 			*ptr = (unsigned char *)(adr + (unsigned char *)ngam->gam[headrank]);
@@ -638,9 +638,9 @@ int get_1gam_di_GPS( di_devinfo_GPS_t *devinfo, int bit, int dpix, int dpiy, int
 
 	*ptr = (unsigned char *)(adr + (unsigned char *)gam->gam);
 	/*
-	 * ƒÁ’²®Œã‚ÌÄŽæ“¾‚É‚Â‚¢‚Ä‚Í—vŒŸ“¢‚¾‚ªAŒ»ó‚Å‚Í GPS ‘¤‚Å
-	 * gpscolor_getShrd() Žž‚ÉÄŒvŽZ‚µ‚Ä‚­‚ê‚é‚Ì‚Å CDC ‚Å‚Í
-	 * ŠÖ’m‚µ‚È‚¢(00/06/13)
+	 * Æ’Ã�â€™Â²Â�Â®Å’Ã£â€šÃŒÂ�Ã„Å½Ã¦â€œÂ¾â€šÃ‰â€šÃ‚â€šÂ¢â€šÃ„â€šÃ�â€”vÅ’Å¸â€œÂ¢â€šÂ¾â€šÂªÂ�AÅ’Â»Â�Ã³â€šÃ…â€šÃ� GPS â€˜Â¤â€šÃ…
+	 * gpscolor_getShrd() Å½Å¾â€šÃ‰Â�Ã„Å’vÅ½Zâ€šÂµâ€šÃ„â€šÂ­â€šÃªâ€šÃ©â€šÃŒâ€šÃ… CDC â€šÃ…â€šÃ�
+	 * Å Ã–â€™mâ€šÂµâ€šÃˆâ€šÂ¢(00/06/13)
 	 */
 	}
 
@@ -656,28 +656,28 @@ int get_ginfo_GPS( di_devinfo_GPS_t *devinfo,  int reso, int dit, int color, uns
 	printf("Entering get_ginfo_GPS() .\n");
 	dg_param_t	dgparam;
 
-	/* ƒfƒBƒUEƒÁƒ‚[ƒh—pƒpƒ‰ƒ[ƒ^‚ÌƒZƒbƒg */
+	/* Æ’fÆ’BÆ’UÂ�EÆ’Ã�Æ’â€šÂ�[Æ’hâ€”pÆ’pÆ’â€°Æ’Â�Â�[Æ’^â€šÃŒÆ’ZÆ’bÆ’g */
 	dgparam.resox = devinfo->reso_set[reso].x;
 	dgparam.resoy = devinfo->reso_set[reso].y;
 	dgparam.bit   = devinfo->reso_set[reso].bit;
 	dgparam.color = color;
 
-	if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) { /* Šg’£Žd—l */
+	if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) { /* Å gâ€™Â£Å½dâ€”l */
 		dgparam.dit      = devinfo->reso_set[reso].dit_mode;
 		dgparam.paper    = devinfo->reso_set[reso].paper;
 		dgparam.prt_mode = devinfo->reso_set[reso].prt_mode;
-	} else { /* ‹ŒŽd—l */
-		/* ‚ ‚ç‚©‚¶‚ß‚±‚±‚ÅGPS‚ÌŽd—l‚É•ÏX‚µ‚Ä‚¨‚­ */
+	} else { /* â€¹Å’Å½dâ€”l */
+		/* â€šÂ â€šÃ§â€šÂ©â€šÂ¶â€šÃŸâ€šÂ±â€šÂ±â€šÃ…GPSâ€šÃŒÅ½dâ€”lâ€šÃ‰â€¢Ã�Â�Xâ€šÂµâ€šÃ„â€šÂ¨â€šÂ­ */
 		dgparam.dit   = gps_dgmd[dit];
 	}
 
-	/* Še‹@Ží–ˆ‚Ìƒpƒ‰ƒ[ƒ^•â³ */
+	/* Å eâ€¹@Å½Ã­â€“Ë†â€šÃŒÆ’pÆ’â€°Æ’Â�Â�[Æ’^â€¢Ã¢Â�Â³ */
 	adjust_dgparam_GPS( &dgparam );
 
 /*#ifdef SUPPORT_DITHERGAMMA_PRODUCT*/
 	if( support_dithergamma ) {
 
-	/* ƒÁ Get! */
+	/* Æ’Ã� Get! */
 	if (get_1gam_di_GPS( devinfo, dgparam.bit, dgparam.resox, dgparam.resoy,
 			  dgparam.dit, dgparam.color, dgparam.paper,
 			  dgparam.prt_mode, ptr ) < 0)
@@ -711,12 +711,12 @@ int get_gamma_info_di_GPS(di_devinfo_GPS_t *devinfo)
 
 	if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) 
 	{
-		/* Šg’£Žd—l‚Å‚Í,resonum–ˆ‚ÉƒKƒ“ª‚P‚ÂŒˆ’è‚µ‚Ä‚¢‚é */
+		/* Å gâ€™Â£Å½dâ€”lâ€šÃ…â€šÃ�,resonumâ€“Ë†â€šÃ‰Æ’KÆ’â€œÂªâ€šPâ€šÃ‚Å’Ë†â€™Ã¨â€šÂµâ€šÃ„â€šÂ¢â€šÃ© */
 		modenum = devinfo->resonum * devinfo->nplane;
 	} 
 	else 
 	{
-		/* ‹ŒŽd—l‚Å‚Í,resonum–ˆ‚ÉƒKƒ“ƒ‚ª•¡”‚ ‚é */
+		/* â€¹Å’Å½dâ€”lâ€šÃ…â€šÃ�,resonumâ€“Ë†â€šÃ‰Æ’KÆ’â€œÆ’â€šÂªâ€¢Â¡Â�â€�â€šÂ â€šÃ© */
 		modenum = devinfo->resonum * devinfo->ndit * devinfo->nplane;
 	}
 
@@ -728,20 +728,20 @@ int get_gamma_info_di_GPS(di_devinfo_GPS_t *devinfo)
 	gam_ptr = devinfo->gamma_info;
 
 	if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) 
-	{ /* Šg’£Žd—l */
+	{ /* Å gâ€™Â£Å½dâ€”l */
 	for (reso = 0; reso < devinfo->resonum; reso++)
 		for (c = 0; c < devinfo->nplane; c++)
-			/* ‚PŽí—Þ‚ÌƒKƒ“ƒŽæ“¾ */
+			/* â€šPÅ½Ã­â€”Ãžâ€šÃŒÆ’KÆ’â€œÆ’Å½Ã¦â€œÂ¾ */
 
 			if (get_ginfo_GPS(devinfo, reso, 0, c, gam_ptr++)	!= DI_GET_OK)
 				return DI_GET_NG;
 	} 
 	else 
-	{ /* ‹ŒŽd—l */
+	{ /* â€¹Å’Å½dâ€”l */
 	for (reso = 0; reso < devinfo->resonum; reso++)
 			for (dit = 0; dit < devinfo->ndit; dit++)
 				for (c = 0; c < devinfo->nplane; c++)
-					/* ‚PŽí—Þ‚ÌƒKƒ“ƒŽæ“¾ */
+					/* â€šPÅ½Ã­â€”Ãžâ€šÃŒÆ’KÆ’â€œÆ’Å½Ã¦â€œÂ¾ */
 
 					if (get_ginfo_GPS(devinfo, reso, dit, c, gam_ptr++)	!= DI_GET_OK)
 						return DI_GET_NG;
@@ -985,13 +985,13 @@ int get_bgucr_param_di_GPS(di_devinfo_GPS_t *devinfo)
         printf("Entering get_bgucr_param_di_GPS()..\n");	
 	
 	
-	/* BG/UCRƒpƒ‰ƒ[ƒ^ */
+	/* BG/UCRÆ’pÆ’â€°Æ’Â�Â�[Æ’^ */
 	int reso;
 	di_bgucrinfo_t *bgucr_ptr;
 	dg_param_t dgparam;
 	
 	if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) 
-	{ /* Šg’£Žd—l */
+	{ /* Å gâ€™Â£Å½dâ€”l */
 		devinfo->bgucr_info = (di_bgucrinfo_t **)mmalloc( sizeof(di_bgucrinfo_t) * devinfo->resonum);
 
 		if (devinfo->bgucr_info == 0)
@@ -1023,7 +1023,7 @@ int get_bgucr_param_di_GPS(di_devinfo_GPS_t *devinfo)
 			|| (sscanf(outbuf, "%f,%f,%f,%f", &devinfo->bg_startp, &devinfo->bg_slant, 
 					&devinfo->ucr_startp, &devinfo->ucr_slant) != 4) ) 
 		{
-			/* ƒL[‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚ÍƒfƒtƒHƒ‹ƒgƒpƒ‰ƒ[ƒ^‚ð•Ô‚· */
+			/* Æ’LÂ�[â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ¢Â�ÃªÂ�â€¡â€šÃ�Æ’fÆ’tÆ’HÆ’â€¹Æ’gÆ’pÆ’â€°Æ’Â�Â�[Æ’^â€šÃ°â€¢Ã”â€šÂ· */
 			devinfo->bg_startp  = DEF_BG_SP;
 			devinfo->bg_slant   = DEF_BG_SLANT;
 			devinfo->ucr_startp = DEF_UCR_SP;
@@ -1035,6 +1035,109 @@ int get_bgucr_param_di_GPS(di_devinfo_GPS_t *devinfo)
 	return DI_GET_OK;
 
 }
+
+int get_1tlimit_di_GPS(di_devinfo_GPS_t *devinfo, int dpix, int dpiy, int bit,
+			int dit, unsigned char paper, unsigned char prt_mode,
+			di_tlimitinfo_t *tlimit )
+{
+	unsigned long		*ptr;
+	long			off;
+	int			id;
+	int			adr;
+	gps_nclr_shdm_t 	*nshdm;
+	gps_nclr_data_t		*ndt;
+
+
+	/* gps_color_socket.c ‚É‚ ‚é‚Ì‚Å,‚ ‚Æ‰ñ‚µ */
+	GPS_Color_getShrd();
+	off = loffset; /*Got from GPS Wrapper function of Shrd() call..	*/
+
+	if( off < 0 ) {
+		return -1;
+	}
+	/*; assert(off >= 0) ;*/
+
+	if( !(devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM) ) {
+		return -1;
+	}
+
+	nshdm = (gps_nclr_shdm_t*)(devinfo->shdm_addr + off);
+
+	id = GPS_Color_getID2(dpix, dpiy, bit, dit, prt_mode, paper);
+
+	if( id < 0 ) {
+		return -1;
+	}
+
+	/* get data */
+	ndt = &(nshdm->data);
+	ndt = &(ndt[id]);
+	adr = (int)nshdm;
+
+	/* set data */
+
+	/* ‘�—Ê‹K�§’l */
+	ptr = (unsigned long *)(adr + ndt->limit.limit);
+	/* ŽÊ�^, •¶Žš, “h‚è, �ü‰æ‚Ì�‡ */
+	tlimit->phot  = *ptr++;
+	tlimit->text  = *ptr++;
+	tlimit->fill  = *ptr++;
+	tlimit->line  = *ptr;
+
+	return 0;
+}
+
+int get_tlimit_di_GPS(di_devinfo_GPS_t *devinfo)
+{
+	unsigned int	i;
+	dg_param_t dgparam;
+
+	if( devinfo->toner_limit == TRUE ) {	/* ƒgƒi�[�§ŒÀ‚ ‚è */
+		int		idx;
+		char	strbuf[32];
+		char	text,phot,grap,thin;
+		int		resox,resoy,bit;
+
+		/* ‘�—Ê‹K�§’lƒpƒ^�[ƒ“�”Žæ“¾ */
+		if( devinfo->flag & DI_SUPPORT_EXT_DEVINFO_PARAM ) { /* Šg’£Žd—l */
+			int reso;
+			di_tlimitinfo_t *tlimit_ptr;
+
+			/* ‘�—Ê‹K�§’l‚Íƒ‚�[ƒh•ª‚ ‚é */
+			devinfo->tlimit_num = devinfo->resonum;
+
+			devinfo->tlimit_val = (di_tlimitinfo_t **)mmalloc( sizeof(di_tlimitinfo_t) * devinfo->resonum);
+
+			if (devinfo->tlimit_val == 0)
+				return DI_GET_NG;
+
+			tlimit_ptr = (di_tlimitinfo_t *)devinfo->tlimit_val;
+
+			for (reso = 0; reso < devinfo->resonum; reso++) {
+				dgparam.resox		= devinfo->reso_set[reso].x;
+				dgparam.resoy		= devinfo->reso_set[reso].y;
+				dgparam.bit			= devinfo->reso_set[reso].bit;
+				dgparam.dit			= devinfo->reso_set[reso].dit_mode;
+				dgparam.paper		= devinfo->reso_set[reso].paper;
+				dgparam.prt_mode	= devinfo->reso_set[reso].prt_mode;
+				adjust_dgparam_GPS( &dgparam );
+				if (get_1tlimit_di_GPS(devinfo,
+					dgparam.resox, dgparam.resoy, dgparam.bit,
+					dgparam.dit, dgparam.paper, dgparam.prt_mode,
+					tlimit_ptr++ ) < 0) {
+					return DI_GET_NG;
+				}
+			}
+
+		}
+	} else {	/* ƒgƒi�[�§ŒÀ–³‚µ */
+		devinfo->tlimit_num = 0;
+		devinfo->tlimit_val = 0;
+	}
+
+	return DI_GET_OK;
+}
+
 
 int get_1drop_di_GPS( di_devinfo_GPS_t *devinfo, int dpix, int dpiy, int bit,int dit, unsigned char paper, unsigned char prt_mode, di_dropinfo_t *drop )
 {
@@ -1096,7 +1199,7 @@ int get_drop_di_GPS( di_devinfo_GPS_t *devinfo)
 		return DI_GET_OK;
 	}
 
-	/* “K—Êƒf[ƒ^‚ðƒTƒ|[ƒg‚µ‚Ä‚¢‚È‚¢ê‡‚Í‚È‚É‚à‚µ‚È‚¢ */
+	/* â€œKâ€”ÃŠÆ’fÂ�[Æ’^â€šÃ°Æ’TÆ’|Â�[Æ’gâ€šÂµâ€šÃ„â€šÂ¢â€šÃˆâ€šÂ¢Â�ÃªÂ�â€¡â€šÃ�â€šÃˆâ€šÃ‰â€šÃ â€šÂµâ€šÃˆâ€šÂ¢ */
 	if( devinfo->support_drop == FALSE ) {
 		return DI_GET_OK;
 	}
@@ -1169,8 +1272,8 @@ int get_1dupgam_di_GPS( di_devinfo_GPS_t *devinfo, int dpix, int dpiy, int bit,i
 	/* set data */
 	if (ndt->dupgam.gam_front == 0 ||
 	    ndt->dupgam.gam_back  == 0 ) {
-	  /* —¼–ÊƒÁ”ä—¦ƒf[ƒ^‚ª‘¶Ý‚µ‚È‚¢ê‡(ƒIƒtƒZƒbƒg‚ª0)‚Í
-	     dupgam->gam_*‚Í(uchar *)0‚Æ‚µ‚Ä‚¨‚­(PR‘¤‚Åƒ`ƒFƒbƒN) */
+	  /* â€”Â¼â€“ÃŠÆ’Ã�â€�Ã¤â€”Â¦Æ’fÂ�[Æ’^â€šÂªâ€˜Â¶Â�Ã�â€šÂµâ€šÃˆâ€šÂ¢Â�ÃªÂ�â€¡(Æ’IÆ’tÆ’ZÆ’bÆ’gâ€šÂª0)â€šÃ�
+	     dupgam->gam_*â€šÃ�(uchar *)0â€šÃ†â€šÂµâ€šÃ„â€šÂ¨â€šÂ­(PRâ€˜Â¤â€šÃ…Æ’`Æ’FÆ’bÆ’N) */
 	  dupgam->gam_front = (unsigned char *)0;
 	  dupgam->gam_back  = (unsigned char *)0;
 	} else {
@@ -1226,8 +1329,8 @@ int get_profile_di_GPS( di_devinfo_GPS_t *devinfo )
 {
 	printf("Entered get_profile_di_GPS() ..\n");
 
-	long	prof_num = 0;	/* ƒvƒƒtƒ@ƒCƒ‹” */
-	gps_color_profile_info_GPS_t	*prof_addr = 0;	/* ƒvƒƒtƒ@ƒCƒ‹—Ìˆæ‚ÌƒAƒhƒŒƒX */
+	long	prof_num = 0;	/* Æ’vÆ’Â�Æ’tÆ’@Æ’CÆ’â€¹Â�â€� */
+	gps_color_profile_info_GPS_t	*prof_addr = 0;	/* Æ’vÆ’Â�Æ’tÆ’@Æ’CÆ’â€¹â€”ÃŒË†Ã¦â€šÃŒÆ’AÆ’hÆ’Å’Æ’X */
 
 	if( GPS_Color_getProfile( gps_client, &prof_addr, &prof_num )== GPS_FUNC_SUPPORT)
                 printf("gpsColor_getProfile() Successful..\n");
@@ -1235,7 +1338,7 @@ int get_profile_di_GPS( di_devinfo_GPS_t *devinfo )
                 printf("gpsColor_getProfile() failed..\n");
 				
 
-	/* DI ‚ÉƒZƒbƒg */
+	/* DI â€šÃ‰Æ’ZÆ’bÆ’g */
 	devinfo->profaddress = (void *)prof_addr;
 	devinfo->profnumber  = prof_num;
 
@@ -1245,25 +1348,26 @@ int get_profile_di_GPS( di_devinfo_GPS_t *devinfo )
 
 int di_getinfo_GPS(di_devinfo_GPS_t *devinfo, char *dither_gamma_file)
 {
-        printf("Entering di_getinfo_GPS()..\n");
+	DI_CALLBACK_MEMALLOC alloc_func;
+	printf("Entering di_getinfo_GPS()..\n");
         int ret = DI_OK;
         printf("Assuming gpsOpen() updated shdm_addr properly....\n");
         printf(" gps_shdm_addr = [%p]\n", gps_shdm_addr);
 	
-                if (get_render_info_GPS_di_(devinfo) == DI_GET_OK)
-                {
-                        /* ƒfƒBƒUƒpƒ‰ƒ<81><81>[ƒ^Žæ“¾ */
-                        if (get_dither_info_di_GPS(devinfo) != DI_GET_OK)
+			if (get_render_info_GPS_di_(devinfo) == DI_GET_OK)
 			{
-				printf("returning ERROR at line #1256..\n");	
-                                ret |= DI_GI_ERR_DITHER;
-			}
-                        /* ƒKƒ“ƒƒpƒ‰ƒ<81><81>[ƒ^Žæ“¾ */
+					/* Æ’fÆ’BÆ’UÆ’pÆ’â€°Æ’<81><81>[Æ’^Å½Ã¦â€œÂ¾ */
+					if (get_dither_info_di_GPS(devinfo) != DI_GET_OK)
+		{
+			printf("returning ERROR at line #1256..\n");
+							ret |= DI_GI_ERR_DITHER;
+		}
+                        /* Æ’KÆ’â€œÆ’Æ’pÆ’â€°Æ’<81><81>[Æ’^Å½Ã¦â€œÂ¾ */
                         if (get_gamma_info_di_GPS(devinfo) != DI_GET_OK)
                                 ret |= DI_GI_ERR_GAMMA;
                 }
                 else
-                { /*  ƒŒƒ“ƒ_ƒŠƒ“ƒOƒpƒ‰ƒ<81><81>[ƒ^Žæ“¾Ž¸”s */
+                { /*  Æ’Å’Æ’â€œÆ’_Æ’Å Æ’â€œÆ’OÆ’pÆ’â€°Æ’<81><81>[Æ’^Å½Ã¦â€œÂ¾Å½Â¸â€�s */
                         ret |= DI_GI_ERR_RESO | DI_GI_ERR_NDIT
                                    | DI_GI_ERR_DITHER | DI_GI_ERR_GAMMA;
 
@@ -1276,24 +1380,24 @@ int di_getinfo_GPS(di_devinfo_GPS_t *devinfo, char *dither_gamma_file)
 		if (get_gcr_di_GPS(devinfo) != DI_GET_OK)
 			ret |= DI_GI_ERR_GCR;
 
-		/* BG/UCR ƒpƒ‰ƒ[ƒ^Žæ“¾ */
+		/* BG/UCR Æ’pÆ’â€°Æ’Â�Â�[Æ’^Å½Ã¦â€œÂ¾ */
 		if( get_bgucr_param_di_GPS(devinfo) != DI_GET_OK )
 			ret |= DI_GI_ERR_BGUCR;
-#if 0
-		/* ‘—Ê‹K§’lŽæ“¾ */
-		if( get_tlimit_di_( devinfo, alloc_func ) != DI_GET_OK )
-			ret |= DI_GI_ERR_TLIMIT_R;
-#endif
 
-		/* “K—Êƒe[ƒuƒ‹Žæ“¾ */
+		/* â€˜Â�â€”ÃŠâ€¹KÂ�Â§â€™lÅ½Ã¦â€œÂ¾ */
+		if( get_tlimit_di_GPS( devinfo) != DI_GET_OK )
+			ret |= DI_GI_ERR_TLIMIT_R;
+
+
+		/* â€œKâ€”ÃŠÆ’eÂ�[Æ’uÆ’â€¹Å½Ã¦â€œÂ¾ */
 		if( get_drop_di_GPS( devinfo ) != DI_GET_OK )
 			ret |= DI_GI_ERR_DROP;
 
-		/* —¼–ÊƒÁŠ„‡Žæ“¾ */
+		/* â€”Â¼â€“ÃŠÆ’Ã�Å â€žÂ�â€¡Å½Ã¦â€œÂ¾ */
 		if( get_dupgam_di_GPS( devinfo ) != DI_GET_OK )
 			ret |= DI_GI_ERR_DUPGAM;
 
-		/* ƒvƒƒtƒ@ƒCƒ‹î•ñŽæ“¾ */
+		/* Æ’vÆ’Â�Æ’tÆ’@Æ’CÆ’â€¹Â�Ã®â€¢Ã±Å½Ã¦â€œÂ¾ */
 		if( get_profile_di_GPS( devinfo ) != DI_GET_OK )
 			ret |= DI_GI_ERR_PROF;
 

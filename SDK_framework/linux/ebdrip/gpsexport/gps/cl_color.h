@@ -11,6 +11,20 @@
 #endif
 #include "gps/device.h"
 
+// color mode.
+#define	PAGE_COLOR_K	0x00		// mono print mode.
+#define	PAGE_COLOR_CMYK	0x80		// CMYK color print mode.
+#define	PAGE_COLOR_RK	0x40		// RK color print mode.
+#define	PAGE_COLOR_CMY	0x20		// CMY color print mode.
+#define	PAGE_COLOR_MASK	0xFC		// color mode mask.
+#define	PAGE_COLOR_XRGB	0x10	// XRGB color print mode.
+#define	PAGE_COLOR_XG	0x08	//XG color print mode.
+#define	PAGE_COLOR_RK2	0x04		// RK2 color print mode.
+
+#define	SET_DIT_IMAG(ditmod)	((ditmod & DIT_MASK) << 6)
+#define	SET_DIT_GRAP(ditmod)	((ditmod & DIT_MASK) << 4)
+#define	SET_DIT_TEXT(ditmod)	((ditmod & DIT_MASK) << 2)
+#define	SET_DIT_LINE(ditmod)	((ditmod & DIT_MASK) << 0)
 
 
 #define NUM_CMMOBJECT	4
@@ -18,29 +32,165 @@
 #define FULLX86		0x00ffffff
 
 /* FROM PRGrawphicsDrawinfo.h*/
-#define	DIT_PHOT		0	/* ŽÊ^ƒfƒBƒU */
-#define	DIT_TEXT		1	/* •¶ŽšƒfƒBƒU */
-#define	DIT_GRAP		2	/* ƒOƒ‰ƒtƒBƒbƒNƒXƒfƒBƒU */
-#define	DIT_CAD			3	/* CADƒfƒBƒU */
-#define	DIT_MAX			4	/* ƒfƒBƒUŽí—Þ” */
+#define	DIT_PHOT		0	/* ï¾…ï½½ï¾ƒç’°çœŸï¾†æ–­ï¾†é�”ï¾†æ—¦ */
+#define	DIT_TEXT		1	/* çª¶ï½¢ï¾‚ï½¶ï¾…ï½½ï¾…ï½¡ï¾†æ–­ï¾†é�”ï¾†æ—¦ */
+#define	DIT_GRAP		2	/* ï¾†ä¸¹ï¾†å�œï¿½ï¾†ç¨šï¾†é�”ï¾†é�›ï¾†èª°ï¾†æ¹›ï¾†æ–­ï¾†é�”ï¾†æ—¦ */
+#define	DIT_CAD			3	/* CADï¾†æ–­ï¾†é�”ï¾†æ—¦ */
+#define	DIT_MAX			4	/* ï¾†æ–­ï¾†é�”ï¾†æ—¦ï¾…ï½½ï¾ƒï½­çª¶æ°¾æ¥ªçµ¶ï¿½ */
 #define	DIT_MASK		0x03
 
-#define GRAY_G2K			0	/* ƒOƒŒƒC‚Ì‚Ý••ÏŠ·orBG/UCR */
-#define GRAY_CMYK			1	/* í‚ÉBG/UCR */
-#define GRAY_K2K			2	/* •‚Ì‚Ý••ÏŠ·orBG/UCR */
-#define GRAY_CMY			3	/* BG/UCR‚µ‚È‚¢(RGB->CMY‚Ì‚Ý) */
-#define GRAY_PIXELK  		4	/* ƒJƒ‰[ƒCƒ[ƒW‚Å‚àƒOƒŒƒC‚Ì‚Ý
-				   ••ÏŠ·orBG/UCRi–{“–‚ÌG2Kj */
-#define GRAY_MAYBEK  		5	/* ‰æ‘f—š—ð‚ðŒ©‚ÄGRAY->K•ÏŠ·‚ðs‚È‚¤ */
-#define GRAY_ABOUTK   		6	/* RàGàB‚ÅGRAY->K•ÏŠ·‚ðs‚È‚¤ */
-#define GRAY_IMAGEK			7	/* ƒCƒ[ƒW‚Å‚àK2K‚ðs‚È‚¤      */
+/* GRAY MODE æŒ‡å®šã�®ã�Ÿã‚�ã�«ã‚«ãƒ©ãƒ¼ã�¨ãƒ¢ãƒŽã‚’åˆ†ã�‘ã‚‹å¿…è¦�ã�Œæœ‰ã‚‹ */
+#define PR_OBJ_IMAG_COLOR			4
+#define PR_OBJ_IMAG_MONO			5
+#define PR_OBJ_MASK_1ST			0x07
+
+#define GAMMA_THROUGH  //bala todo
+
+/*
+ * æ��ç”»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã�®ç¨®é¡ž
+ * ã�“ã�®ç¨®é¡žã�«ã‚ˆã�£ã�¦ãƒ‡ã‚£ã‚¶ã‚„ K ç”Ÿæˆ�è¦�å‰‡ã‚’åˆ‡æ›¿ã�ˆã‚‹
+ */
+#define OBJ_IMAG	0	/* ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define OBJ_GRAP	1	/* ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯(å¡—ã‚Š)ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define OBJ_TEXT		2	/* æ–‡å­—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define OBJ_LINE		3	/* ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯(ç·š)ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define OBJ_MAX		4	/* ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç¨®é¡žæ•° */
+#define OBJ_MASK	0x03	/* OBJ_{IMAG,GRAP,TEXT,LINE} ç”¨ãƒžã‚¹ã‚¯ */
+/* GRAY MODE æŒ‡å®šã�®ã�Ÿã‚�ã�«ã‚«ãƒ©ãƒ¼ã�¨ãƒ¢ãƒŽã‚’åˆ†ã�‘ã‚‹å¿…è¦�ã�Œæœ‰ã‚‹ */
+#define OBJ_IMAG_COLOR			4
+#define OBJ_IMAG_MONO			5
+#define OBJ_MASK_1ST			0x07
+
+#define	COLOR_BGMODE		0x08	// BG mode (0:FG,1:BG)
+#define	COLOR_2NDFGBG		0x10	// 2nd FG/BG (0:OFF,1:ON)
+#define	COLOR_2NDBGMODE		0x20	// 2nd BG mode (0:FG,1:BG)
+#define	COLOR_2NDMASK		0x30	/* 2nd ãƒ¢ãƒ¼ãƒ‰æŒ‡å®šã�®ãƒžã‚¹ã‚¯       */
+#define	COLOR_GRADATION		0x40	/* ã‚°ãƒ©ãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³æ��ç”»æŒ‡å®š       */
+#define	COLOR_SCANRULE		0x80	/* ã‚¹ã‚­ãƒ£ãƒ³ãƒ©ã‚¤ãƒ³å¤‰æ�›è¦�å‰‡       */
+
+/*
+ * ƒIƒuƒWƒFƒNƒgŽí—Þ–ˆ‚ÌƒOƒŒƒCˆó�üŽí—Þƒ‚�[ƒh
+ * 	Še•`‰æƒIƒuƒWƒFƒNƒg (ƒCƒ��[ƒW�A•¶Žš�AƒOƒ‰ƒtƒBƒbƒN(�ü�A“h‚è)) ‚É�A
+ * 	‚»‚ê‚¼‚ê‚Ç‚ÌƒOƒŒƒCˆó�ü•ûŽ® (G2K,CMYK,K2K) ‚Ì‚Ç‚ê‚ðŽg‚¤‚©‚ðŽ¦‚·ƒ‚�[ƒh
+ * 	gmod ‚Í pagestart ‚Ì 'g' ƒIƒvƒVƒ‡ƒ“‚ÅŽw’è‚³‚ê‚é vec_gray ‚ðŽg‚¤�B
+ *
+ * gmod: IIGGTTLL
+ *	II:	ƒCƒ��[ƒWƒIƒuƒWƒFƒNƒg—pƒOƒŒƒCˆó�ü•ûŽ®
+ *	GG:	ƒOƒ‰ƒtƒBƒbƒN(“h‚è)ƒIƒuƒWƒFƒNƒg—pƒOƒŒƒCˆó�ü•ûŽ®
+ *	TT:	•¶ŽšƒIƒuƒWƒFƒNƒg—pƒOƒŒƒCˆó�ü•ûŽ®
+ *	LL:	�ü‰æƒIƒuƒWƒFƒNƒg—pƒOƒŒƒCˆó�ü•ûŽ®
+ */
+#define	GRAY_IMAG_MODE(gmod)	((gmod >> 24) & GRAY_MASK)
+#define	GRAY_GRAP_MODE(gmod)	((gmod >> 16) & GRAY_MASK)
+#define	GRAY_TEXT_MODE(gmod)	((gmod >> 8)  & GRAY_MASK)
+#define	GRAY_LINE_MODE(gmod)	((gmod >> 0)  & GRAY_MASK)
+
+/*
+ * ã‚°ãƒ¬ã‚¤å�°åˆ·æ–¹å¼�
+ *	GRAY_G2K (æ—§ GRAY_K1)
+ *		ã‚°ãƒ¬ã‚¤ (R=G=B)ã�«ã�®ã�¿é»’å¤‰æ�› (K=1.0-R) ã‚’è¡Œã�ªã�†ã€‚
+ *		ã��ã‚Œä»¥å¤–ã�¯ BG/UCR ã‚’æŽ›ã�‘ã‚‹ã€‚
+ *		æ–‡æ›¸/è¡¨ã�§æ–‡å­—ã‚„ç½«ç·šã�®é»’ãƒˆãƒŠãƒ¼ã�«ã‚ˆã‚‹å�°åˆ·ã‚’ä¿�è¨¼ã�™ã‚‹ã€‚
+ *
+ *	GRAY_CMYK
+ *		æ–‡å­—, ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯, ã‚¤ãƒ¡ãƒ¼ã‚¸ã�§ BG/UCR ã‚’æŽ›ã�‘ã‚‹ã€‚
+ *		CMY ã‚°ãƒ©ãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ã�®éšŽèª¿é€£ç¶šæ€§ã�Œç¶­æŒ�ã�§ã��ã‚‹ã€‚
+ *
+ *	GRAY_K2K (æ—§ GRAY_TEXTK1)
+ *		é»’ (R=G=B=0) ã�®ã�¿é»’å¤‰æ�› (K=1.0) ã‚’è¡Œã�ªã�†ã€‚
+ *		ã��ã‚Œä»¥å¤–ã�¯ BG/UCR ã‚’æŽ›ã�‘ã‚‹ã€‚
+ *		DTP MODE ã�ªã�©ã€�ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã�«ã‚ˆã‚‹ã‚°ãƒ¬ã‚¤ã�®
+ *		ã‚°ãƒ©ãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ã�«ã�¯CMYã‚’ã€�æ–‡å­—ã�ªã�©ã�®ç´”é»’ã�«ã�¯
+ *		é»’ï¼‘è‰²ã�§å�°åˆ·ã�™ã‚‹å ´å�ˆã�«ä½¿ç”¨ã�™ã‚‹ã€‚
+ *
+ *	GRAY_CMY
+ *		BG/UCRã‚’ã�›ã�šå�˜ç´”ã�«RGBã�‹ã‚‰CMYã�«å¤‰æ�›ã�™ã‚‹ã€‚
+ *
+ *	GRAY_PIXELK
+ *		ã‚«ãƒ©ãƒ¼ã‚¤ãƒ¡ãƒ¼ã‚¸ã�§ã‚‚ã‚°ãƒ¬ã‚¤ï¼ˆRï¼�Gï¼�Bï¼‰ã�§ã�‚ã‚Œã�°é»’å¤‰æ�›ã�™ã‚‹
+ *             ï¼ˆæœ¬å½“ã�®GRAY_G2Kï¼‰
+ *              ItBOXã�®2è‰²ï¼ˆM+K, C+Kï¼‰å¯¾å¿œã�§å¿…è¦�ã�¨ã�ªã�£ã�Ÿã€‚
+ *
+ *	GRAY_MAYBEK
+ *		ç”»ç´ å±¥æ­´ã‚’è¦‹ã�¦GRAY->Kå¤‰æ�›ã‚’è¡Œã�ªã�†ã€‚ å�˜ç´”ã�«GRAY_G2Kã�§
+ *	        ã�¯æ–‡å­—ã�ªã�©ã‚‚ã�™ã�¹ã�¦CMYKã�§æ��ç”»ã�—ã�¦ã�—ã�¾ã�†ã€‚
+ *              ä¸€æ–¹ã€�GRAY_PIXELKã�§ã�¯ã‚«ãƒ©ãƒ¼ã‚¤ãƒ¡ãƒ¼ã‚¸ã�§éšŽèª¿æ€§ã�Œç¶­æŒ�ã�§ã��
+ *              ã�ªã�„å ´å�ˆã�Œã�‚ã‚‹ã€‚ ç”»ç´ å�‚ç…§ç¯„å›²ã�¯8ç”»ç´ ã€‚
+ *              BMLinkSå¯¾å¿œï¼ˆStretchBltã�®ã�¿ã�§é€�ã�£ã�¦ã��ã‚‹ï¼‰ã�§å¿…è¦�ã�¨ã�ªã�£ã�Ÿã€‚
+ *
+ *	GRAY_ABOUTK
+ *		ã‚¢ãƒ—ãƒªã�ŒRâ‰’Gâ‰’Bã�§æ��ç”»ã�—ã�¦ã��ã‚‹ã�Ÿã‚�ã€�ä¸€éƒ¨ã� ã�‘4Cã�§æ��ç”»ã�•
+ *	        ã‚Œã‚‹ã�¨ã�„ã�†ä»•æ§˜ã�Œã�‚ã‚Šã€�ã�“ã‚Œã‚’å›žé�¿ã�™ã‚‹ã�Ÿã‚�ã�®æ‰‹æ®µã€‚
+ *	        ã�Ÿã� ã�—ã€�ãƒ‰ãƒ©ã‚¤ãƒ�å�´ã�§ã‚‚å¯¾å¿œã�§ã��ã‚‹ã�Ÿã‚�ã€�wantãƒ¬ãƒ™ãƒ«ã€‚
+ *	        è¿‘ä¼¼è‰²ç¯„å›²ã�¯1
+ */
+#define GRAY_G2K			0	/* ã‚°ãƒ¬ã‚¤ã�®ã�¿é»’å¤‰æ�›orBG/UCR */
+#define GRAY_CMYK			1	/* å¸¸ã�«BG/UCR */
+#define GRAY_K2K			2	/* é»’ã�®ã�¿é»’å¤‰æ�›orBG/UCR */
+#define GRAY_CMY			3	/* BG/UCRã�—ã�ªã�„(RGB->CMYã�®ã�¿) */
+#define GRAY_PIXELK  		4	/* ã‚«ãƒ©ãƒ¼ã‚¤ãƒ¡ãƒ¼ã‚¸ã�§ã‚‚ã‚°ãƒ¬ã‚¤ã�®ã�¿
+				   é»’å¤‰æ�›orBG/UCRï¼ˆæœ¬å½“ã�®G2Kï¼‰ */
+#define GRAY_MAYBEK  		5	/* ç”»ç´ å±¥æ­´ã‚’è¦‹ã�¦GRAY->Kå¤‰æ�›ã‚’è¡Œã�ªã�† */
+#define GRAY_ABOUTK   		6	/* Râ‰’Gâ‰’Bã�§GRAY->Kå¤‰æ�›ã‚’è¡Œã�ªã�† */
+#define GRAY_IMAGEK			7	/* ã‚¤ãƒ¡ãƒ¼ã‚¸ã�§ã‚‚K2Kã‚’è¡Œã�ªã�†      */
 #define GRAY_COMPBK			8	/* Gray change to composite k */
-#define GRAY_HGRG2K			10	/* ƒOƒŒƒC‚Ì‚Ý••ÏŠ·orBG/UCR(‚–n—p) */
-#define GRAY_HGRCMYK		11	/* í‚ÉBG/UCR(‚–n—p) */
+#define GRAY_HGRG2K			10	/* ã‚°ãƒ¬ã‚¤ã�®ã�¿é»’å¤‰æ�›orBG/UCR(é«˜å¢¨ç”¨) */
+#define GRAY_HGRCMYK		11	/* å¸¸ã�«BG/UCR(é«˜å¢¨ç”¨) */
 
 #define GRAY_MASK			0xff
 
+#define	SET_GRAY_IMAG(gmod)	((gmod & GRAY_MASK) << 24)
+#define	SET_GRAY_GRAP(gmod)	((gmod & GRAY_MASK) << 16)
+#define	SET_GRAY_TEXT(gmod)	((gmod & GRAY_MASK) << 8)
+#define	SET_GRAY_LINE(gmod)	((gmod & GRAY_MASK) << 0)
+
+/*
+ * ç¬¬2FG/BGç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç¨®é¡ž
+ *	æ��ç”»ç¨®é¡žã�Œ PR_DRAWALTFILL ã�‹ PR_DRAWWINDFILL ã�®å ´å�ˆã�«ã€�
+ *	DRAW æ��ç”»å±žæ€§ã�Œ PR_ATTR_DRAW_DEFAULT ä»¥å¤–ã� ã�£ã�Ÿå ´å�ˆã�«ä½¿ç”¨ã€‚
+ */
+#define	OBJ_DEF_2ND		0x00	/* ç¬¬1FG/BGã�¨å�Œã�˜å±žæ€§ */
+#define	OBJ_IMAG_2ND	0x10	/* ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define	OBJ_GRAP_2ND	0x20	/* ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯(å¡—ã‚Š)ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define	OBJ_TEXT_2ND	0x30	/* æ–‡å­—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define	OBJ_LINE_2ND	0x40	/* ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯(ç·š)ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
+#define	OBJ_MASK_2ND	0x70    /* OBJ_{IMAG,GRAP,TEXT,LINE}_2ND ç”¨ãƒžã‚¹ã‚¯ */
+/* GRAY MODE æŒ‡å®šã�®ã�Ÿã‚�ã�«ã‚«ãƒ©ãƒ¼ã�¨ãƒ¢ãƒŽã‚’åˆ†ã�‘ã‚‹å¿…è¦�ã�Œæœ‰ã‚‹ */
+#define OBJ_IMAG_COLOR_2ND	0x50
+#define OBJ_IMAG_MONO_2ND		0x60
+
+
 /* FROM PRGrawphicsDrawinfo.h*/
+
+/*
+ * ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç¨®é¡žæ¯Žã�®ãƒ‡ã‚£ã‚¶ç¨®é¡žãƒ¢ãƒ¼ãƒ‰
+ * 	å�„æ��ç”»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ (ã‚¤ãƒ¡ãƒ¼ã‚¸ã€�æ–‡å­—ã€�ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯(ç·šã€�å¡—ã‚Š)) ã�«ã€�
+ * 	ã��ã‚Œã�žã‚Œã�©ã�®ãƒ‡ã‚£ã‚¶ (å†™çœŸã€�æ–‡å­—ã€�CADã€�OPTION) ã�®ã�©ã‚Œã‚’ä½¿ã�†ã�‹ã‚’ç¤ºã�™ãƒ¢ãƒ¼ãƒ‰
+ * 	ditmod ã�¯8bitã�§æŒ‡å®šã�•ã‚Œã€�pagestart ã�® 'd' ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚„
+ *	setcolor ã�§æŒ‡å®šã�•ã‚Œã‚‹ã€‚
+ *
+ * ditmod: IIGGTTLL
+ *	II:	ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨ãƒ‡ã‚£ã‚¶ç¨®é¡ž
+ *	GG:	ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯(å¡—ã‚Š)ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨ãƒ‡ã‚£ã‚¶ç¨®é¡ž
+ *	TT:	æ–‡å­—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨ãƒ‡ã‚£ã‚¶ç¨®é¡ž
+ *	LL:	ç·šç”»ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨ãƒ‡ã‚£ã‚¶ç¨®é¡ž
+ */
+#define	DIT_IMAG_MODE(ditmod)	((ditmod >> 6) & DIT_MASK)
+#define	DIT_GRAP_MODE(ditmod)	((ditmod >> 4) & DIT_MASK)
+#define	DIT_TEXT_MODE(ditmod)	((ditmod >> 2) & DIT_MASK)
+#define	DIT_LINE_MODE(ditmod)	((ditmod >> 0) & DIT_MASK)
+
+#define	COLOR_GRAY			0	// GRAY mode.
+#define	COLOR_RGB			1	// RGB mode.
+#define	COLOR_CMYK			2	// CMYK mode.
+#define	COLOR_MASK			0x03
+#define	COLOR_MANUAL_DITHER	0x04	// manual dither mode
+#define	COLOR_BGMODE		0x08	// BG mode (0:FG,1:BG)
+#define	COLOR_2NDFGBG		0x10	// 2nd FG/BG (0:OFF,1:ON)
+#define	COLOR_2NDBGMODE		0x20	// 2nd BG mode (0:FG,1:BG)
+#define	COLOR_2NDMASK		0x30	/* 2nd ãƒ¢ãƒ¼ãƒ‰æŒ‡å®šã�®ãƒžã‚¹ã‚¯       */
+#define	COLOR_GRADATION		0x40	/* ã‚°ãƒ©ãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³æ��ç”»æŒ‡å®š       */
+#define	COLOR_SCANRULE		0x80	/* ã‚¹ã‚­ãƒ£ãƒ³ãƒ©ã‚¤ãƒ³å¤‰æ�›è¦�å‰‡       */
 
 /* FROM PRSpool.h*/
 #define FUSER_CTL_AREA_OVER		0x01	/* use FuserCtlTbl index of over area limit */
@@ -59,6 +209,12 @@
 #define	ICL_WG		601
 #define	IC_WB		117
 #define	IC_WBIAS	1024
+
+#define MAX_4C_TONER_LIMIT_RATIO 400
+#define	calc_tlimit(val)	(val * 255 / 100)
+#define REN_DIT_MAX 4
+#define REN_OBJ_MAX 4
+
 
 #define CR_OBJ_IMAG	0
 #define CR_OBJ_GRAP	1
@@ -83,8 +239,8 @@
 #define CR_GRAYABS(x)           ((x) < 0 ? -(x) : (x))
 #define CR_MAYBE_RANGE  8
 
-#define CR_JUDGE_GRAY_AFTER_CMM_ON	0	/* CMMãÌOC»èðsÈ€iftHgj */
-#define CR_JUDGE_GRAY_AFTER_CMM_OFF	1	/* CMMãÌOC»èðsÈíÈ¢ */
+#define CR_JUDGE_GRAY_AFTER_CMM_ON	0	/* CMMï¾‚å�¤ï½£ï¾‚ã�¥å€‹ã‚°ï¾‚Î´å€‹ã‚¤ï¾‚æ�¿ï½»ï¾‚æ´¥ï½¨ï¾‚æ¸‰æŒ‰çŒŸæ•–ã�¥ï½°ï¾‚è¡Œï¾‚ã�¥æŒ‰ã‚„ã�Žï¾‚ï¼ˆï¾‚ãƒ‡ï¾‚ãƒ•ï¾‚ã‚©ï¾‚Î´ä»°ãƒˆï¾‚ï¼‰ */
+#define CR_JUDGE_GRAY_AFTER_CMM_OFF	1	/* CMMï¾‚å�¤ï½£ï¾‚ã�¥å€‹ã‚°ï¾‚Î´å€‹ã‚¤ï¾‚æ�¿ï½»ï¾‚æ´¥ï½¨ï¾‚æ¸‰æŒ‰çŒŸæ•–ã�¥ï½°ï¾‚è¡Œï¾‚ã�¥æŒ‰ã�¥ï½­ï¾‚ã�¥æŒ‰ã�¤ï½¢ */
 
 #define	CR_STRBLT_BPP_MASK	0x00000007	// BPP Mask
 #define	CR_STRBLT_1BPP		0x00000000	// 1BPP
@@ -106,6 +262,36 @@
 #define	CR_STRBLT_SRCNOT	0x00200000
 #define	CR_ATTR_TEXT		0x04000000
 #define	CR_ATTR_MASK		0x07000000
+
+#define	CR_GRAYP_G2K		0x0400
+#define	CR_GRAYP_CMYK		0x0800
+#define	CR_GRAYP_K2K		0x0C00
+#define	CR_GRAYP_CMY		0x1000
+#define	CR_GRAYP_PIXELK		0x1400
+#define	CR_GRAYP_MAYBEK		0x1800
+#define	CR_GRAYP_ABOUTK		0x1C00
+#define	CR_GRAYP_IMAGEK		0x2000
+#define	CR_GRAYP_HGRG2K		0x2C00
+#define	CR_GRAYP_HGRCMYK	0x3000
+#define	CR_GRAYP_MASK		0x3C00
+
+#define	CR_OUTPUT_SPACE_MASK	0x70
+#define	CR_OUTPUT_SPACE_MONO	0x10
+#define	CR_OUTPUT_SPACE_RGB	0x20
+#define	CR_OUTPUT_SPACE_CMY	0x30
+#define	CR_OUTPUT_SPACE_CMYK	0x40
+#define	CR_OUTPUT_SPACE_RK	0x50
+#define	CR_OUTPUT_SPACE_XRGB	0x60
+#define	CR_OUTPUT_SPACE_RK2	0x70
+
+#define	CR_INPUT_ORDER_MASK	0x08
+#define	CR_INPUT_ORDER_NORMAL	0x08
+#define	CR_INPUT_ORDER_REVERSE	0x00
+
+#define	CR_INPUT_SPACE_MASK	0x03
+#define	CR_INPUT_SPACE_RGB	0x02
+#define	CR_INPUT_SPACE_CMYK	0x01
+#define	CR_INPUT_SPACE_GRAY	0x00
 
 /* Check CMM */
 #ifdef __cplusplus
@@ -221,7 +407,7 @@ extern "C" {
 
 void* getColorData( unsigned long pCmm, 
                     di_dropinfo_t* pDropInfo, 
-                    int limit, 
+                    di_tlimitinfo_t  *limit,
                     di_bgucrinfo_t* bgi_ptr,
                     di_gcrinfo_t* wishgcr, 
                     di_gcrinfo_t* gcrhgr_ptr, 
@@ -229,6 +415,17 @@ void* getColorData( unsigned long pCmm,
 void setRGB( void* pCPRColor, unsigned long ulFlag,
 			 int nGrayMode, unsigned char **ppucGamma, int nObjMode,
 			 int ucSpoolColor, unsigned char* pucPtr, int nOutputChannels);
+int
+SetcolorGG(unsigned long ulVectorGray,unsigned long ulGrayJudgeMode, unsigned char ucColorMode,
+	int	toner_limit, unsigned char ucDither, di_tlimitinfo_t usLimit,
+	unsigned long ulFlag,void* pCPRColor,
+	unsigned char* pucPtr,
+	unsigned char* pucoutPtr,
+	int nObjMode,
+	int nObjectType,
+	unsigned char **ppucSrcGam,
+	di_tlimitinfo_t  *tlimit);
+
 #ifdef __cplusplus
 }
 #endif
@@ -443,7 +640,7 @@ public:
 	LIMIT_Method_pfT m_pFuncLimit;
 	
 	int m_nRenderNColor;	// Number of Render color (equals prh->m_objRender.m_nNColor)
-	unsigned char m_ucIsGrayJudge;	//»ÝÌ`æR}hÉÂ¢ÄÌCMMãÌOC»èÌL³ðÛ¶
+	unsigned char m_ucIsGrayJudge;	//ï¾‚å€‹ï½»ï¾‚å‚¬æ•–ã�¥å€‹æ��ï¾‚å˜‰ï½¦ï¾‚ã‚³ï¾‚ãƒžï¾‚Î´ç�£ãƒ‰ï¾‚ã�¥å�¯ã�¥ã�¤ã�¤ï½¢ï¾‚ã�¥ï¿½ã�¥é�´MMï¾‚å�¤ï½£ï¾‚ã�¥å€‹ã‚°ï¾‚Î´å€‹ã‚¤ï¾‚æ�¿ï½»ï¾‚æ´¥ï½¨ï¾‚ã�¥å€‹æœ‰ï¾‚é³´ï½³ï¾‚ã�¥ï½°ï¾‚é™›å´¢å •ï½¶
 	clr_cache_t m_sCache[CR_CACHE_SIZE];
 
 public:
@@ -980,6 +1177,15 @@ public:
 		clr_tlimit_t *limit, int obj_mode);
 	int SetcolorGinfForDespool(prh_t *prh, ginf_t *ginf,
 		clr_tlimit_t *limit, int obj_mode);*/
+
+	void SetColorGinfColorMask(unsigned long ulVectorGray,unsigned long ulGrayJudgeMode,
+		unsigned char ucColorMode, int	toner_limit, unsigned long ulFlag,
+		int nObjMode, unsigned char *pucFGPointer, unsigned char *pucBGPointer,
+		unsigned char **ppucGamma, int nOrigObjMode, clr_tlimit_t *pLimit);
+	void SetcolorGinfIsColor(unsigned long ulVectorGray,unsigned long ulGrayJudgeMode,
+		unsigned char ucColorMode, int toner_limit, unsigned long ulFlag,int nObjMode,unsigned char *pucFGPointer, unsigned char *pucBGPointer, unsigned char **ppucGamma,
+		int nOrigObjMode, clr_tlimit_t *pLimit);
+	void SetIsGrayJudge (unsigned long ulGrayJudgeMode, int nObjMode);
 
 	void SetTransgcr(void);
 	// CMMvoid SetIsGrayJudge(prh_t *prh, int obj_mode);

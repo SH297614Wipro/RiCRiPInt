@@ -425,7 +425,7 @@ PMS_TyBandPacket *CreateBandPacketForPage(int nColorants, int nColorFamilyOffset
 #ifdef PMS_OIL_MERGE_DISABLE
     ptBandPacket->atColoredBand[j].ePlaneColorant = PMS_INVALID_COLOURANT;
 #else
-    ptBandPacket->atColoredBand[j].ePlaneColorant = OIL_InvalidColor;
+    ptBandPacket->atColoredBand[j].ePlaneColorant = OIL_TOTAL_NUMBER_OF_COLORANTS; //OIL_InvalidColor; Bala
 #endif  
   }
 
@@ -473,7 +473,7 @@ PMS_TyBandPacket *CreateBandPacketForPage(int nColorants, int nColorFamilyOffset
 #else
     if(g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_SINGLE &&
        g_ConfigurableFeatures.eBandDeliveryType != OIL_PUSH_BAND_DIRECT_FRAME &&
-       ptBandPacket->atColoredBand[j].ePlaneColorant != OIL_InvalidColor)
+       ptBandPacket->atColoredBand[j].ePlaneColorant != OIL_TOTAL_NUMBER_OF_COLORANTS/*OIL_InvalidColor*/)
 #endif
     {
         switch(Map[j])
@@ -495,7 +495,8 @@ PMS_TyBandPacket *CreateBandPacketForPage(int nColorants, int nColorFamilyOffset
                 PlaneID = -1;
                 break;
         }
-     
+
+        //PlaneID = GPS_COLOR_K; //Bala
         if(PlaneID != -1)
         {
             GPSFrameGetBandResretval = GPS_FrameGetBandRes(gps_client, 1, ptBandPacket->uBandNumber, PlaneID, &pFGBR); 

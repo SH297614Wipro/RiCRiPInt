@@ -48,10 +48,18 @@ userdict begin
       /Other 	[ /CMM (OtherColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
     >>
     /DeviceRGB
-    <<
-      /Default 	[ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
-    >>
- >> setinterceptcolorspace
+   <<
+	       /Text [ /CMM (DefaultColorMapFeaturesRGBText) /DeviceRGB /DeviceCMYK ]
+	       /Picture [ /CMM (DefaultColorMapFeaturesRGBImage) /DeviceRGB /DeviceCMYK ]  	      
+	       /Default 	[ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
+	>>
+	 /DeviceGray
+  	 <<
+	    /Text [ /CMM (DefaultColorMapFeaturesGrayText) /DeviceGray /DeviceCMYK ]
+	    /Picture [ /CMM (DefaultColorMapFeaturesGrayImage) /DeviceGray /DeviceCMYK ] 
+	    /Default [ /CMM (DefaultColorMapFeaturesGray) /DeviceGray /DeviceCMYK ]
+	>>
+   >> setinterceptcolorspace
   }def
 
 % procedure to control pure black text

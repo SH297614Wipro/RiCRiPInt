@@ -39,6 +39,7 @@
 #define kInternalName  "CMM_OILExample"  /**< Short CMM name for configuration. */
 #define kDisplayName   "Custom color space example OIL CMM"  /**< UTF-8 CMM name for display. */
 
+#define kGrayChannelCount   (1)
 #define kRGBChannelCount   (3)
 #define kCMYKChannelCount  (4)
 
@@ -49,6 +50,20 @@ unsigned char** ppucSrcGam;
 di_dropinfo_t* pDropinfo;
 
 #define GPS_CLR_PLANE 4
+#define	SET_GRAY_IMAG(gmod)	((gmod & GRAY_MASK) << 24)
+#define	SET_GRAY_GRAP(gmod)	((gmod & GRAY_MASK) << 16)
+#define	SET_GRAY_TEXT(gmod)	((gmod & GRAY_MASK) << 8)
+#define	SET_GRAY_LINE(gmod)	((gmod & GRAY_MASK) << 0)
+
+#define	DIT_IMAG_MODE(ditmod)	((ditmod >> 6) & DIT_MASK)
+#define	DIT_GRAP_MODE(ditmod)	((ditmod >> 4) & DIT_MASK)
+#define	DIT_TEXT_MODE(ditmod)	((ditmod >> 2) & DIT_MASK)
+#define	DIT_LINE_MODE(ditmod)	((ditmod >> 0) & DIT_MASK)
+
+#define	SET_DIT_IMAG(ditmod)	((ditmod & DIT_MASK) << 6)
+#define	SET_DIT_GRAP(ditmod)	((ditmod & DIT_MASK) << 4)
+#define	SET_DIT_TEXT(ditmod)	((ditmod & DIT_MASK) << 2)
+#define	SET_DIT_LINE(ditmod)	((ditmod & DIT_MASK) << 0)
 
 long CMMalloc(unsigned long size, void* lprh);
 void CMMfree(void* addr, void* lprh);
@@ -61,15 +76,45 @@ extern di_devinfo_GPS_t *devinfo;
 /* ------------ */
 int nGrayMode = 0;
 int nObjMode  = 0;
+int nOrigObjMode = 0;//For color image and mono image
 unsigned long ulFlag = 0/*16908811*/;
 void* ColorData;
 /* New */
 ulong ulOpe;
 unsigned char ucColorMode;
+int GrayReproduction;
+unsigned char m_ucIsGrayJudge;
+unsigned long ulVectorGray;
+unsigned long ulGrayJudgeMode;
+unsigned char ucDither;
+unsigned char ucDitherMode;
+di_tlimitinfo_t pLimit;
+unsigned short usTLimit[REN_DIT_MAX][REN_OBJ_MAX];
+//unsigned char ucFlag;
+int nNDither;
+int nObjectType = 0;//unused
 /* New */
 
-extern di_tlimitinfo_t  tlimit;
+di_tlimitinfo_t  *tlimit;
 extern di_ditinfo_t   dit[GPS_CLR_PLANE];
+
+void SetIsGrayJudge (int nObjMode,unsigned long ulGrayJudgeMode)
+{
+	switch (nObjMode & PR_OBJ_MASK)
+	{
+		case PR_OBJ_IMAG:
+			m_ucIsGrayJudge = GRAY_IMAG_MODE (ulGrayJudgeMode);
+			break;
+		case PR_OBJ_GRAP:
+			m_ucIsGrayJudge = GRAY_GRAP_MODE (ulGrayJudgeMode);
+			break;
+		case PR_OBJ_TEXT:
+			m_ucIsGrayJudge = GRAY_TEXT_MODE (ulGrayJudgeMode);
+			break;
+		default:
+			break;
+	}
+}
 
 void setColorProfile()
 {
@@ -93,11 +138,12 @@ void setColorProfile()
              break;    
         default: 
              break;
-            
     }
-}
+    GrayReproduction = pColorProfile->nGrayReproduction;
+ }
 
-void setColorMode()
+
+int setColorMode()
 { 
     switch( g_pstCurrentJob->eColorMode )
     {
@@ -147,10 +193,10 @@ void setColorMode()
 			// It corresponds with Gray conversion mode
 			if (devinfo->nplane >= 4)
 			{
-					/*m_ulVectorGray = SET_GRAY_IMAG(GRAY_CMY)
+					ulVectorGray = SET_GRAY_IMAG(GRAY_CMY)
 					| SET_GRAY_GRAP(GRAY_CMY)
 					| SET_GRAY_TEXT(GRAY_CMY)
-					| SET_GRAY_LINE(GRAY_CMY);*/
+					| SET_GRAY_LINE(GRAY_CMY);
 					ucColorMode |= PAGE_COLOR_CMY;
 			}
 			else
@@ -219,6 +265,203 @@ int getModeID()
     
 	return 0;
 }
+ int setGrayMode(ulVectorGray,nObjMode,nOrigObjMode)
+ {
+	unsigned long ulGmod = ulVectorGray;
+	 switch (nObjMode)
+	{
+		case PR_OBJ_IMAG:
+			ulGmod = GRAY_IMAG_MODE (ulGmod);
+			/*
+			 * StretchBlt(COLOR)‚Í�í‚ÉGRAY_CMYK
+			 * StretchBlt(MONO)‚ÌG2KˆÈŠO‚àGRAY_CMYK
+			 * ‚È‚Ì‚Å‘®�«Žw’è‚Å‚à“¯—l‚Ì“®‚«‚É‚·‚é�B
+			 */
+			switch (nOrigObjMode &
+				PR_OBJ_MASK_1ST)
+			{
+				case PR_OBJ_IMAG_COLOR:
+				/* ABOUTK‚ÌƒCƒ��[ƒW‚ÍG2K‚Æ“¯‚¶
+				   MAYBEK‚Ísetcolor‚É‚Í•K—v‚È‚¢ */
+					if ((ulGmod != GRAY_CMY)
+						&& (ulGmod != GRAY_HGRCMYK)
+						&& (ulGmod != GRAY_PIXELK)
+						&& (ulGmod != GRAY_IMAGEK))
+					{
+						if(ulGmod == GRAY_HGRG2K)
+						{
+							ulGmod = GRAY_HGRCMYK;
+						}
+						else
+						{
+							ulGmod = GRAY_CMYK;
+						}
+					}
+					break;
+				case PR_OBJ_IMAG_MONO:
+					if ((ulGmod != GRAY_G2K)
+						&& (ulGmod != GRAY_HGRG2K)
+						&& (ulGmod != GRAY_HGRCMYK)
+						&& (ulGmod != GRAY_CMY)
+						&& (ulGmod != GRAY_PIXELK)
+#ifdef SUPPORT_COMPOSITEBLACK
+						&& (ulGmod != GRAY_COMPBK)
+#endif
+						&& (ulGmod != GRAY_MAYBEK)
+						&& (ulGmod != GRAY_ABOUTK)
+						&& (ulGmod != GRAY_IMAGEK))
+					{
+						ulGmod = GRAY_CMYK;
+					}
+					else if(ulGmod == GRAY_IMAGEK)
+					{//ƒ‚ƒmƒCƒ��[ƒW‚ÌIMAGEK‚ÍG2K
+						ulGmod = GRAY_G2K;
+					}
+					break;
+				default:
+					/* Stretchblt, Bitblt‚È‚ç‚±‚¿‚ç */
+					break;
+			}
+			break;
+		case PR_OBJ_GRAP:
+			ulGmod = GRAY_GRAP_MODE (ulGmod);
+			break;
+		case PR_OBJ_TEXT:
+			ulGmod = GRAY_TEXT_MODE (ulGmod);
+			break;
+	}
+	 ulFlag |= ulGmod;
+}
+ unsigned char
+ IsValidDither(int nNDither, int nDither)
+ {
+ 	if ((DIT_IMAG_MODE(nDither) >= nNDither) ||
+ 		(DIT_GRAP_MODE(nDither) >= nNDither) ||
+ 		(DIT_TEXT_MODE(nDither) >= nNDither) ||
+ 		(DIT_LINE_MODE(nDither) >= nNDither))
+ 	{
+ 		return FALSE;
+ 	}
+ 	return TRUE;
+ }
+
+ int setDitherMode(int nNDither)
+ {
+	 int nDit = SET_DIT_IMAG(DIT_PHOT)|SET_DIT_GRAP(DIT_PHOT)|
+	 	SET_DIT_TEXT(DIT_TEXT)|SET_DIT_LINE(DIT_PHOT);
+	 // Check whether you can use PHOT and TEXT both dither,
+	if (IsValidDither(nNDither, nDit) == TRUE)
+	{
+		ucDitherMode = nDit;
+	}
+	else
+	{
+		// It sets to all PHOT dither
+		ucDitherMode = SET_DIT_IMAG(DIT_PHOT)|SET_DIT_GRAP(DIT_PHOT)
+		|SET_DIT_TEXT(DIT_PHOT)|SET_DIT_LINE(DIT_PHOT);
+	}
+	// Using the initial value of PAGE, setting one for drawing
+	ucDither = ucDitherMode;
+ }
+
+ int GetGrayMode(unsigned long ulFlag)
+ {
+ 	int nGrayFlag = ulFlag & CR_GRAYP_MASK;
+
+ 	switch (nGrayFlag) {
+ 		case CR_GRAYP_G2K:
+ 			nGrayMode = GRAY_G2K;
+ 			break;
+ 		case CR_GRAYP_HGRG2K:
+ 			nGrayMode = GRAY_HGRG2K;
+ 			break;
+ 		case CR_GRAYP_CMYK:
+ 			nGrayMode = GRAY_CMYK;
+ 			break;
+ 		case CR_GRAYP_HGRCMYK:
+ 			nGrayMode = GRAY_HGRCMYK;
+ 			break;
+ 		case CR_GRAYP_K2K:
+ 			nGrayMode = GRAY_K2K;
+ 			break;
+ 		case CR_GRAYP_CMY:
+ 			nGrayMode = GRAY_CMY;
+ 			break;
+ 		case CR_GRAYP_IMAGEK:
+ 			nGrayMode = GRAY_IMAGEK;
+ 			break;
+ 		case CR_GRAYP_PIXELK:
+ 			nGrayMode = GRAY_PIXELK;
+ 			break;
+ 		case CR_GRAYP_MAYBEK:
+ 			nGrayMode = GRAY_MAYBEK;
+ 			break;
+ 		case CR_GRAYP_ABOUTK:
+ 			nGrayMode = GRAY_ABOUTK;
+ 			break;
+ 		default:
+ 			break;
+ 	}
+ 	return nGrayMode;
+ }
+
+ //Commented as if drop in PRcolor this will be handled.
+ /*int SubPRSetTonerLimitRatio(int nDit,int nText, int nLine, int nPhot, int nFill)
+ {
+ 	 if (nText != -1)
+ 	{
+ 		pLimit.text =  calc_tlimit(nText);
+ 	}
+ 	if (nLine != -1)
+ 	{
+ 		pLimit.line = calc_tlimit(nLine);
+ 	}
+ 	if (nPhot != -1)
+ 	{
+ 		pLimit.phot = calc_tlimit(nPhot);
+ 	}
+ 	if (nFill != -1)
+ 	{
+ 		pLimit.fill = calc_tlimit(nFill);
+ 	}
+
+ 	return PR_OK;
+ }*/
+
+ int setPageStartDefault(int nObjMode)
+ {
+	int nI = 0;
+	 // Default of PageStart option
+	ulVectorGray = SET_GRAY_IMAG(GRAY_G2K)|SET_GRAY_GRAP(GRAY_G2K)|
+		SET_GRAY_TEXT(GRAY_G2K)|SET_GRAY_LINE(GRAY_G2K);
+	ulGrayJudgeMode = SET_GRAY_IMAG(CR_JUDGE_GRAY_AFTER_CMM_ON)
+	| SET_GRAY_GRAP(CR_JUDGE_GRAY_AFTER_CMM_ON)
+	| SET_GRAY_TEXT(CR_JUDGE_GRAY_AFTER_CMM_ON)
+	| SET_GRAY_LINE(CR_JUDGE_GRAY_AFTER_CMM_ON);
+	//SetIsGrayJudge (nObjMode,ulGrayJudgeMode);
+	//setGrayMode(ulVectorGray,nObjMode,nOrigObjMode);
+	//nGrayMode = GetGrayMode(ulFlag);
+	nNDither = devinfo->ndit;
+	setDitherMode(nNDither);
+
+//Commented as if drop in PRcolor this will be handled.
+//	// Regulation of total emission is NOT applied
+//
+//	// Is regulation of total emission supported?: Yes
+//	// Is regulation of total emission applied?: No
+//	// Is regulation of total emission value appointed?: Don't care
+//
+//	// When is, regulation of total emission value is designated as 0
+//	for (nI = 0; nI < DIT_MAX; nI++)
+//	{
+//		SubPRSetTonerLimitRatio(nI,
+//			MAX_4C_TONER_LIMIT_RATIO,
+//			MAX_4C_TONER_LIMIT_RATIO,
+//			MAX_4C_TONER_LIMIT_RATIO,
+//			MAX_4C_TONER_LIMIT_RATIO);
+//	}
+
+ }
 
 /**
  * @brief  Array of supported custom color spaces.
@@ -228,8 +471,20 @@ static sw_cmm_custom_colorspace gCCSArray[] = {
   { (uint8*) "TextColorMapFeaturesCMYK", kCMYKChannelCount, kCMYKChannelCount },
   #define kCCS_OtherColorMapFeaturesCMYKIndex  (1)
   { (uint8*) "OtherColorMapFeaturesCMYK", kCMYKChannelCount, kCMYKChannelCount },
-  #define kCCS_DefaultColorMapFeaturesRGBIndex  (2)
-  { (uint8*) "DefaultColorMapFeaturesRGB", kRGBChannelCount, kCMYKChannelCount },
+
+  #define kCCS_DefaultColorMapFeaturesRGBTextIndex  (2)
+  { (uint8*) "DefaultColorMapFeaturesRGBText", kRGBChannelCount, kCMYKChannelCount },
+ #define kCCS_DefaultColorMapFeaturesRGBImageIndex  (3)
+ { (uint8*) "DefaultColorMapFeaturesRGBImage", kRGBChannelCount, kCMYKChannelCount },
+ #define kCCS_DefaultColorMapFeaturesRGBIndex  (4)
+ { (uint8*) "DefaultColorMapFeaturesRGB", kRGBChannelCount, kCMYKChannelCount },
+
+#define kCCS_DefaultColorMapFeaturesGrayTextIndex  (5)
+ { (uint8*) "DefaultColorMapFeaturesGrayText", kGrayChannelCount, kCMYKChannelCount },
+#define kCCS_DefaultColorMapFeaturesGrayImageIndex  (6)
+{ (uint8*) "DefaultColorMapFeaturesGrayImage", kGrayChannelCount, kCMYKChannelCount },
+#define kCCS_DefaultColorMapFeaturesGrayIndex  (7)
+{ (uint8*) "DefaultColorMapFeaturesGray", kGrayChannelCount, kCMYKChannelCount },
 };
 
 typedef void (*CMYKColorMappingFunc)(float cmykValue[]); /**< Typedef for the color modifying callback function. */
@@ -446,28 +701,37 @@ static void DefaultColorMapFeaturesRGB(float rgbInCMYKOutValue[])
 {
     unsigned char ucRGB[4];
 
+    nObjMode = PR_OBJ_GRAP;
+    ulFlag = PR_COLOR_RGB ;
+
+    setPageStartDefault(nObjMode);
+
     HQASSERT((rgbInCMYKOutValue != NULL), "CMM: DefaultColorMapFeaturesRGB invalid color array");
 
-    ucRGB[1]=(unsigned char)(rgbInCMYKOutValue[0]*255);
-    ucRGB[2]=(unsigned char)(rgbInCMYKOutValue[1]*255);
-    ucRGB[3]=(unsigned char)(rgbInCMYKOutValue[2]*255);
+    ucRGB[0]=(unsigned char)(rgbInCMYKOutValue[0]*255);
+    ucRGB[1]=(unsigned char)(rgbInCMYKOutValue[1]*255);
+    ucRGB[2]=(unsigned char)(rgbInCMYKOutValue[2]*255);
+    ucRGB[3]=0;
 
     if( ucColorMode )
     {
-        ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB;
+       //ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB | CR_INPUT_SPACE_RGB;
     }
     else
     {
         //ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB;
     }
     
-    setRGB( (void*)ColorData, ulFlag, nGrayMode, ppucSrcGam, nObjMode,
-			 	ucColorMode, (unsigned char*) ucRGB, kCMYKChannelCount);
+   // setRGB( (void*)ColorData, ulFlag, nGrayMode, ppucSrcGam, nObjMode,
+			 	//ucColorMode, (unsigned char*) ucRGB, kCMYKChannelCount);
+    SetcolorGG(ulVectorGray,ulGrayJudgeMode,ucColorMode,devinfo->toner_limit, ucDither,pLimit, ulFlag,
+   			    		(void*)ColorData, (unsigned char*) ucRGB,(unsigned char*)rgbInCMYKOutValue, nObjMode,
+   			    		nObjectType, ppucSrcGam,tlimit);
 
-    rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
-    rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
-    rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
-    rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
+       rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
+       rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
+       rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
+       rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
 
       /* ORIGINAL */
       /*float rgbValue[3];
@@ -480,6 +744,164 @@ static void DefaultColorMapFeaturesRGB(float rgbInCMYKOutValue[])
       (void)PMS_RGBtoCMYK(rgbValue, rgbInCMYKOutValue);*/
 
 }
+
+static void DefaultColorMapFeaturesRGBText(float rgbInCMYKOutValue[])
+ {
+ 	printf("\n Entered DefaultColorMapFeaturesRGBText");
+	unsigned char ucRGB[4];
+	nObjMode = PR_OBJ_TEXT;
+    // Default of PageStart option
+	setPageStartDefault(nObjMode);
+
+	ulFlag = PR_COLOR_RGB;
+
+	 ucRGB[0]=(unsigned char)(rgbInCMYKOutValue[0]*255);
+	 ucRGB[1]=(unsigned char)(rgbInCMYKOutValue[1]*255);
+	 ucRGB[2]=(unsigned char)(rgbInCMYKOutValue[2]*255);
+	 ucRGB[3]=0;
+
+
+
+		if( ucColorMode )
+		{
+			//ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB | CR_INPUT_SPACE_RGB;
+		}
+		else
+		{
+			//ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB;
+		}
+
+		//setRGB( (void*)ColorData, ulFlag, nGrayMode, ppucSrcGam, nObjMode,
+					//ucColorMode, (unsigned char*) ucRGB, kCMYKChannelCount,m_ulColorFlag);
+		 SetcolorGG(ulVectorGray,ulGrayJudgeMode,ucColorMode,devinfo->toner_limit, ucDither, pLimit, ulFlag,
+		   			    		(void*)ColorData, (unsigned char*) ucRGB,(unsigned char*)rgbInCMYKOutValue, nObjMode,
+		   			    		nObjectType, ppucSrcGam,&tlimit);
+
+		rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
+		rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
+		rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
+		rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
+
+ }
+
+static void DefaultColorMapFeaturesRGBImage(float rgbInCMYKOutValue[])
+ {
+ 	printf("\n Entered DefaultColorMapFeaturesRGBImage");
+	unsigned char ucRGB[4];
+	nObjMode = PR_OBJ_IMAG;
+	setPageStartDefault(nObjMode);
+	nObjMode |= PR_OBJ_IMAG_COLOR;
+
+	//ulFlag = PR_COLOR_RGB | COLOR_BGMODE | PR_RULE_PS;
+
+	 ucRGB[0]=(unsigned char)(rgbInCMYKOutValue[0]*255);
+	 ucRGB[1]=(unsigned char)(rgbInCMYKOutValue[1]*255);
+	 ucRGB[2]=(unsigned char)(rgbInCMYKOutValue[2]*255);
+	 ucRGB[3]=0;
+
+
+		if( ucColorMode )
+		{
+			//ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB | CR_INPUT_SPACE_RGB;
+		}
+		else
+		{
+			//ulFlag = ulFlag | CR_STRBLT_24BPP | CR_STRBLT_RGB_ORDER | CR_STRBLT_RGB;
+		}
+
+		//setRGB( (void*)ColorData, ulFlag, nGrayMode, ppucSrcGam, nObjMode,
+					//ucColorMode, (unsigned char*) ucRGB, kCMYKChannelCount,m_ulColorFlag);
+		 SetcolorGG(ulVectorGray,ulGrayJudgeMode,ucColorMode,devinfo->toner_limit, ucDither, pLimit, ulFlag,
+		   			    		(void*)ColorData, (unsigned char*) ucRGB,(unsigned char*)rgbInCMYKOutValue, nObjMode,
+		   			    		nObjectType, ppucSrcGam,&tlimit);
+
+		rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
+		rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
+		rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
+		rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
+
+ }
+
+static void DefaultColorMapFeaturesGray(float rgbInCMYKOutValue[])
+{
+    unsigned char ucRGB[4];
+
+    nObjMode = PR_OBJ_GRAP;
+    ulFlag = PR_COLOR_GRAY ;
+
+    setPageStartDefault(nObjMode);
+
+    HQASSERT((rgbInCMYKOutValue != NULL), "CMM: DefaultColorMapFeaturesRGB invalid color array");
+
+    ucRGB[0]=(unsigned char)(rgbInCMYKOutValue[0]*255);
+    ucRGB[1]=(unsigned char)(rgbInCMYKOutValue[1]*255);
+    ucRGB[2]=(unsigned char)(rgbInCMYKOutValue[2]*255);
+    ucRGB[3]=0;
+
+    SetcolorGG(ulVectorGray,ulGrayJudgeMode,ucColorMode,devinfo->toner_limit, ucDither,pLimit, ulFlag,
+   			    		(void*)ColorData, (unsigned char*) ucRGB,(unsigned char*)rgbInCMYKOutValue, nObjMode,
+   			    		nObjectType, ppucSrcGam,tlimit);
+
+       rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
+       rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
+       rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
+       rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
+}
+
+static void DefaultColorMapFeaturesGrayText(float rgbInCMYKOutValue[])
+{
+    unsigned char ucRGB[4];
+
+    nObjMode = PR_OBJ_TEXT;
+    ulFlag = PR_COLOR_GRAY ;
+
+    setPageStartDefault(nObjMode);
+
+    HQASSERT((rgbInCMYKOutValue != NULL), "CMM: DefaultColorMapFeaturesRGB invalid color array");
+
+    ucRGB[0]=(unsigned char)(rgbInCMYKOutValue[0]*255);
+    ucRGB[1]= 0; //(unsigned char)(rgbInCMYKOutValue[1]*255);
+    ucRGB[2]= 0; //(unsigned char)(rgbInCMYKOutValue[2]*255);
+    ucRGB[3]= 0; //(unsigned char)(rgbInCMYKOutValue[3]*255);
+
+    SetcolorGG(ulVectorGray,ulGrayJudgeMode,ucColorMode,devinfo->toner_limit, ucDither,pLimit, ulFlag,
+   			    		(void*)ColorData, (unsigned char*) ucRGB,(unsigned char*)rgbInCMYKOutValue, nObjMode,
+   			    		nObjectType, ppucSrcGam,tlimit);
+
+       rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
+       rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
+       rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
+       rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
+}
+
+static void DefaultColorMapFeaturesGrayImage(float rgbInCMYKOutValue[])
+{
+    unsigned char ucRGB[4];
+
+    nObjMode = PR_OBJ_IMAG;
+    nObjMode |= PR_OBJ_IMAG_MONO;
+    ulFlag = PR_COLOR_GRAY ;
+
+    setPageStartDefault(nObjMode);
+
+    HQASSERT((rgbInCMYKOutValue != NULL), "CMM: DefaultColorMapFeaturesRGB invalid color array");
+
+    ucRGB[0]=(unsigned char)(rgbInCMYKOutValue[0]*255);
+    ucRGB[1]=(unsigned char)(rgbInCMYKOutValue[1]*255);
+    ucRGB[2]=(unsigned char)(rgbInCMYKOutValue[2]*255);
+    ucRGB[3]=0;
+
+    SetcolorGG(ulVectorGray,ulGrayJudgeMode,ucColorMode,devinfo->toner_limit, ucDither,pLimit, ulFlag,
+   			    		(void*)ColorData, (unsigned char*) ucRGB,(unsigned char*)rgbInCMYKOutValue, nObjMode,
+   			    		nObjectType, ppucSrcGam,tlimit);
+
+       rgbInCMYKOutValue[3]=(float)(ucRGB[0]);///255.0;
+       rgbInCMYKOutValue[0]=(float)(ucRGB[1])/255.0;
+       rgbInCMYKOutValue[1]=(float)(ucRGB[2])/255.0;
+       rgbInCMYKOutValue[2]=(float)(ucRGB[3])/255.0;
+}
+
+
 
 /**
  * @brief  Singleton instance describing this alternate CMM.
@@ -759,13 +1181,36 @@ static sw_cmm_result RIPCALL ccs_open_custom_colorspace(sw_cmm_instance *instanc
     pProfile->nInputChannels = kCMYKChannelCount;
     pProfile->nOutputChannels = kCMYKChannelCount;
     break;
-
+  case kCCS_DefaultColorMapFeaturesRGBTextIndex:
+      pProfile->pMappingFunc = DefaultColorMapFeaturesRGBText;
+      pProfile->nInputChannels = kRGBChannelCount;
+      pProfile->nOutputChannels = kCMYKChannelCount;
+      break;
+  case kCCS_DefaultColorMapFeaturesRGBImageIndex:
+      pProfile->pMappingFunc = DefaultColorMapFeaturesRGBImage;
+      pProfile->nInputChannels = kRGBChannelCount;
+      pProfile->nOutputChannels = kCMYKChannelCount;
+      break;
   case kCCS_DefaultColorMapFeaturesRGBIndex:
     pProfile->pMappingFunc = DefaultColorMapFeaturesRGB;
     pProfile->nInputChannels = kRGBChannelCount;
     pProfile->nOutputChannels = kCMYKChannelCount;
     break;
-
+  case kCCS_DefaultColorMapFeaturesGrayTextIndex:
+      pProfile->pMappingFunc = DefaultColorMapFeaturesGrayText;
+      pProfile->nInputChannels = kGrayChannelCount;
+      pProfile->nOutputChannels = kCMYKChannelCount;
+      break;
+  case kCCS_DefaultColorMapFeaturesGrayImageIndex:
+      pProfile->pMappingFunc = DefaultColorMapFeaturesGrayImage;
+      pProfile->nInputChannels = kGrayChannelCount;
+      pProfile->nOutputChannels = kCMYKChannelCount;
+      break;
+  case kCCS_DefaultColorMapFeaturesGrayIndex:
+    pProfile->pMappingFunc = DefaultColorMapFeaturesGray;
+    pProfile->nInputChannels = kGrayChannelCount;
+    pProfile->nOutputChannels = kCMYKChannelCount;
+    break;
   default:
     /* index out of bounds - Should never be reached */
     HQFAIL("Colorspace index out of bounds");
@@ -914,8 +1359,9 @@ static sw_cmm_result RIPCALL ccs_invoke_transform(sw_cmm_instance *instance,
   pGcrhgr     = (di_gcrinfo_t *) devinfo->gcrhgr_info + id;
   pDropinfo   = (di_dropinfo_t*) devinfo->drop_info;
   ppucSrcGam  = devinfo->gamma_info + (id * GPS_CLR_PLANE);
+  tlimit =    (di_tlimitinfo_t  *)devinfo->tlimit_val;
 
-  ColorData   = getColorData( cmm, pDropinfo, 663, pBgucr, pWishgcr, pGcrhgr, cmmProfile );
+  ColorData   = getColorData( cmm, pDropinfo, tlimit, pBgucr, pWishgcr, pGcrhgr, cmmProfile );
     
   /* Call array of CMYKColorMappingFunc values for each pixel */
   nPixelInIndex = 0;

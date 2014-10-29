@@ -258,6 +258,24 @@
 #define	PR_OBJ_LINE		3
 #define	PR_OBJ_MASK		3
 
+
+/*
+ * オブジェクト種類毎のグレイ印刷種類モード
+ * 	各描画オブジェクト (イメージ、文字、グラフィック(線、塗り)) に、
+ * 	それぞれどのグレイ印刷方式 (G2K,CMYK,K2K) のどれを使うかを示すモード
+ * 	gmod は pagestart の 'g' オプションで指定される vec_gray を使う。
+ *
+ * gmod: IIGGTTLL
+ *	II:	イメージオブジェクト用グレイ印刷方式
+ *	GG:	グラフィック(塗り)オブジェクト用グレイ印刷方式
+ *	TT:	文字オブジェクト用グレイ印刷方式
+ *	LL:	線画オブジェクト用グレイ印刷方式
+ */
+#define	GRAY_IMAG_MODE(gmod)	((gmod >> 24) & GRAY_MASK)
+#define	GRAY_GRAP_MODE(gmod)	((gmod >> 16) & GRAY_MASK)
+#define	GRAY_TEXT_MODE(gmod)	((gmod >> 8)  & GRAY_MASK)
+#define	GRAY_LINE_MODE(gmod)	((gmod >> 0)  & GRAY_MASK)
+
 /*
  *	graphic object flag
  */

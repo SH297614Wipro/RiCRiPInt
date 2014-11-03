@@ -1617,6 +1617,7 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
                 g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_SINGLE ||
                 g_ConfigurableFeatures.eBandDeliveryType == OIL_PUSH_BAND_DIRECT_FRAME)
             {
+#if 0
               /* submit the band to pms here */
               if(!SubmitBandToPMS(ptCurrentBandPacket))
               {
@@ -1627,6 +1628,7 @@ int32 RIPCALL OIL_RasterCallback(void *pJobContext,
 #endif
                   return FALSE;
               }
+#endif
               ptCurrentBandPacket = NULL;
             }
           }

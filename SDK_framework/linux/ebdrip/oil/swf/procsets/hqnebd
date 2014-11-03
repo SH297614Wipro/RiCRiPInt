@@ -1063,20 +1063,21 @@ currentglobal false setglobal
 	    /DeviceCMYK
 	    <<
 	      /Text 	[ /CMM (TextColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
-	      /Other 	[ /CMM (OtherColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
-	    >>
+	      /Picture 	[ /CMM (PictureColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
+	      /Default 	[ /CMM (DefaultColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
+	    >>		
 		 /DeviceRGB
 	  	 <<
-		   /Text 	[ /CMM (DefaultColorMapFeaturesRGBText) /DeviceRGB /DeviceCMYK ]
-		   /Picture [ /CMM (DefaultColorMapFeaturesRGBImage) /DeviceRGB /DeviceCMYK ]	     
-		   /Default [ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
-		 >>
-		 /DeviceGray
+		  /Text 	[ /CMM (DefaultColorMapFeaturesRGBText) /DeviceRGB /DeviceCMYK ]
+		  /Picture [ /CMM (DefaultColorMapFeaturesRGBImage) /DeviceRGB /DeviceCMYK ]	     
+		  /Default [ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]		  
+		>>	
+		/DeviceGray
 	  	 <<
-		    /Text [ /CMM (DefaultColorMapFeaturesGrayText) /DeviceGray /DeviceCMYK ]
-		    /Picture [ /CMM (DefaultColorMapFeaturesGrayImage) /DeviceGray /DeviceCMYK ] 
-		    /Default [ /CMM (DefaultColorMapFeaturesGray) /DeviceGray /DeviceCMYK ]
-		>>
+		  /Text 	[ /CMM (DefaultColorMapFeaturesGrayText) /DeviceGray /DeviceGray ]
+		  /Picture [ /CMM (DefaultColorMapFeaturesGrayImage) /DeviceGray /DeviceGray ]	     
+		  /Default [ /CMM (DefaultColorMapFeaturesGray) /DeviceGray /DeviceGray ]
+		>>									
 	  >> setinterceptcolorspace
     } {
       dup 1 eq {

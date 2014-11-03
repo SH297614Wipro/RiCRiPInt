@@ -411,11 +411,11 @@ OIL_TyJob * CreateOILJob(OIL_TyJob *pms_ptJob, int ePDL)
     pstJob->eColorMode = OIL_Mono;
   }
 
-  /* For PCL5e jobs force to Mono 1bpp.
+   /* For PCL5e jobs force to Mono 1bpp.
      This is optional, but it makes sense to output all PCL5e jobs using 
      1bpp Mono - anything else is wasteful. */
   if (ePDL == OIL_PDL_PCL5e) {
-    g_ConfigurableFeatures.nDefaultColorMode = OIL_Mono;
+	g_ConfigurableFeatures.nDefaultColorMode = OIL_Mono;
     pstJob->uRIPDepth = 1;     /* 1bpp */
   } else {
     g_ConfigurableFeatures.nDefaultColorMode = pstJob->eColorMode;

@@ -46,18 +46,10 @@ userdict begin
     <<
       /Text 	[ /CMM (TextColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
       /Other 	[ /CMM (OtherColorMapFeaturesCMYK) /DeviceCMYK /DeviceCMYK ]
-    >>
-    /DeviceRGB
-   <<
-	       /Text [ /CMM (DefaultColorMapFeaturesRGBText) /DeviceRGB /DeviceCMYK ]
-	       /Picture [ /CMM (DefaultColorMapFeaturesRGBImage) /DeviceRGB /DeviceCMYK ]  	      
-	       /Default 	[ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
-	>>
-	 /DeviceGray
+    >>   
+	  /DeviceRGB
   	 <<
-	    /Text [ /CMM (DefaultColorMapFeaturesGrayText) /DeviceGray /DeviceCMYK ]
-	    /Picture [ /CMM (DefaultColorMapFeaturesGrayImage) /DeviceGray /DeviceCMYK ] 
-	    /Default [ /CMM (DefaultColorMapFeaturesGray) /DeviceGray /DeviceCMYK ]
+	    /Default [ /CMM (DefaultColorMapFeaturesRGB) /DeviceRGB /DeviceCMYK ]
 	>>
    >> setinterceptcolorspace
   }def

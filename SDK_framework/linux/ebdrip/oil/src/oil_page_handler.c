@@ -444,16 +444,35 @@ PMS_TyBandPacket *CreateBandPacketForPage(int nColorants, int nColorFamilyOffset
   }
   else /* composite job */
   {
-    
+    int index;
     for(j=0; j < nColorants; j++)
     {
-      if(Map[j] != -1)
+       	switch(Map[j])
+		{
+			case OIL_Cyan:
+				index = GPS_COLOR_C;
+				break;
+			case OIL_Magenta:
+				index = GPS_COLOR_M;
+				break;
+			case OIL_Yellow:
+				index = GPS_COLOR_Y;
+				break;
+			case OIL_Black:
+				index = GPS_COLOR_K;
+				break;
+			case OIL_InvalidColor:
+			default:
+				PlaneID = -1;
+				break;
+		}
+    	if(Map[j] != -1)
       {
         /* determine the colorants of the planes */
 #ifdef PMS_OIL_MERGE_DISABLE
         ptBandPacket->atColoredBand[Map[j]].ePlaneColorant = (PMS_eColourant)(Map[j] + nColorFamilyOffset);
 #else
-        ptBandPacket->atColoredBand[Map[j]].ePlaneColorant = (OIL_eColorant)(Map[j] + nColorFamilyOffset);
+        ptBandPacket->atColoredBand[index].ePlaneColorant = (OIL_eColorant)(Map[index] + nColorFamilyOffset);
 #endif
       }
     }

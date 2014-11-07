@@ -55,7 +55,7 @@ struct di_devinfo_GPS
 		int	support_drop;
 		int toner_limit;	/* ç·�é‡�è¦�åˆ¶ã�®ã‚µãƒ�ãƒ¼ãƒˆ[1:ã�‚ã‚Š, 0:ã�ªã�—] */
 		unsigned int tlimit_num;	/* æ©Ÿç¨®ã�Œã‚µãƒ�ãƒ¼ãƒˆã�—ã�¦ã�„ã‚‹ç·�é‡�è¦�åˆ¶å€¤ã�®ç¨®é¡žæ•° */
-		di_tlimit_info_t *tlimit_val;
+		di_tlimitinfo_t *tlimit_val;
 };
 typedef struct di_devinfo_GPS di_devinfo_GPS_t;
 

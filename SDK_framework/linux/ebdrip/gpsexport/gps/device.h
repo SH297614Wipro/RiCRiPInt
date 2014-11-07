@@ -1052,7 +1052,7 @@ typedef  struct {
 	void (*fchecker)(unsigned short, unsigned char, unsigned char);
 #define   FILENAME_LEN         14
 	unsigned char  filename[FILENAME_LEN];   /* ƒtƒ@ƒCƒ‹ƒl�[ƒ€ */
-	unsigned char  panel_lock_stat; /* ƒpƒlƒ‹ƒ�ƒbƒN�ó‘Ô�î•ñ */       
+	unsigned char  panel_lock_stat; /* ƒpƒlƒ‹ƒ�ƒbƒN�ó‘Ô�î•ñ */
 	unsigned char  ucReserved[3];   /* –¢Žg—p */
 	unsigned char  reserve_cid[4];  /* ƒNƒ‰ƒCƒAƒ“ƒg‚h‚c—p—\–ñ—Ìˆæ */
 	unsigned char  ucItem;          /* ƒAƒCƒeƒ€ƒ^ƒCƒv  */
@@ -1510,7 +1510,7 @@ typedef struct di_async_para {
 	 */
 	long	pid;
 	/*
-	 * ƒvƒ�ƒOƒ‰ƒ€”Ô�† 
+	 * ƒvƒ�ƒOƒ‰ƒ€”Ô�†
 	 * ƒVƒXƒeƒ€‚©‚çƒvƒ�ƒOƒ‰ƒ€“o˜^/�í�œ—v‹�‚ª‚ ‚Á‚½Žž‚É�X�V‚³‚ê‚é�iMSISŒnPDL�ê—p�j
 	 * ’l‚ÌƒNƒŠƒA‚Íƒ†�[ƒU‚ª–¾Ž¦“I‚É�s‚Á‚Ä‚­‚¾‚³‚¢
 	 */

@@ -1077,7 +1077,7 @@ currentglobal false setglobal
 		  /Text 	[ /CMM (DefaultColorMapFeaturesGrayText) /DeviceGray /DeviceGray ]
 		  /Picture [ /CMM (DefaultColorMapFeaturesGrayImage) /DeviceGray /DeviceGray ]	     
 		  /Default [ /CMM (DefaultColorMapFeaturesGray) /DeviceGray /DeviceGray ]
-		>>									
+		>>											
 	  >> setinterceptcolorspace
     } {
       dup 1 eq {

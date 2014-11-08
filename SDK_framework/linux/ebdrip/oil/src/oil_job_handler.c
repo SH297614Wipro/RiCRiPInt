@@ -415,11 +415,13 @@ OIL_TyJob * CreateOILJob(OIL_TyJob *pms_ptJob, int ePDL)
      This is optional, but it makes sense to output all PCL5e jobs using 
      1bpp Mono - anything else is wasteful. */
   if (ePDL == OIL_PDL_PCL5e) {
-	g_ConfigurableFeatures.nDefaultColorMode = OIL_Mono;
+    pstJob->eColorMode = OIL_Mono;
     pstJob->uRIPDepth = 1;     /* 1bpp */
   } else {
-    g_ConfigurableFeatures.nDefaultColorMode = pstJob->eColorMode;
+    pstJob->eColorMode = OIL_CMYK_Composite;
   }
+    g_ConfigurableFeatures.nDefaultColorMode = pstJob->eColorMode;
+
   /* this function currently usese oil variable values, which is not ideal for a PMS callback !!!*/
   PMS_SetJobRIPConfig(ePDL, &(pstJob->uRIPDepth), &(g_ConfigurableFeatures.nDefaultColorMode));
 

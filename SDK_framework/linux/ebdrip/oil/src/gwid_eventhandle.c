@@ -276,6 +276,7 @@ void Get_Env_var_From_GPS(OIL_TyJob *pstJob)
     long penv_val;
     long gps_value;
 	long gps_var = 8;
+	char    str[16];
 		
 	#define YET_TO_FIND_0 200
 	#define YET_TO_FIND_1 201
@@ -288,7 +289,27 @@ void Get_Env_var_From_GPS(OIL_TyJob *pstJob)
 	
     //int job_id= g_pstCurrentJob->>uJobId;
     /*************Call to gpsPmDispSetEmulation***********************************************/
-     GPS_PmDispSetEmulation(SET_DISP, SET_DISP, SET_DISP, "PCL5e");
+    switch(pstJob->ePDLType)
+    {
+		case OIL_PDL_XPS:
+			strcpy( str, "XPS" );
+			break;
+		case OIL_PDL_PDF:
+			//strcpy( str, "PDF" ); todo Bala
+			break;
+		case OIL_PDL_PS:
+		   strcpy( str, "PS" );
+			break;
+		case OIL_PDL_PCL5c:
+			strcpy( str, "PCL5c" );
+			break;
+		case OIL_PDL_PCL5e:
+			strcpy( str, "PCL5e" );
+			break;
+		default:
+			return -1;
+    }
+    GPS_PmDispSetEmulation(SET_DISP, SET_DISP, SET_DISP, str);
 
      /*************Call to gpsGetPdlPrintCondtionShm*******************************************/
 

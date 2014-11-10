@@ -33,6 +33,7 @@
 #include "oil_main.h"
 #include "oil_stream.h"
 #include <string.h>
+#include "gps/di_info.h"
 #ifndef PMS_OIL_MERGE_DISABLE_JS
 #include "gwid_eventhandle.h"
 #endif
@@ -51,6 +52,7 @@
 #else
 #define DEBUG_STR   "V"
 #endif
+
 
 /* Version information */
 /*
@@ -85,6 +87,7 @@ static void GetRIPFeatures(OIL_tyRIPFeatures  *);
 static void ShowRIPFeatures();
 extern char *GG_build_variants[];      /* corerip features */
 extern OIL_TyJob g_tJob;
+extern di_devinfo_GPS_t *devinfo;
 #ifndef PMS_OIL_MERGE_DISABLE_JS
 extern int current_pdlid;
 int  find_PDLType(int* );
@@ -789,8 +792,11 @@ int  find_PDLType(int *pPDL)
                 break;	
 
 	case GPS_PDL_PCL:
-		ePDLType = OIL_PDL_PCL5c;
-                break;
+		if(devinfo->nplane >= 4)
+			ePDLType = OIL_PDL_PCL5c;
+		else
+			ePDLType = OIL_PDL_PCL5e;
+		break;
 
 	case GPS_PDL_PCLXL:
 		ePDLType = OIL_PDL_PCLXL;

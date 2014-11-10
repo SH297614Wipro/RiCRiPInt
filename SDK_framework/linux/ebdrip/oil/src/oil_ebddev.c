@@ -799,26 +799,26 @@ static void SetJobParams() {
   switch(g_pstCurrentJob->ePDLType)
   {
     case OIL_PDL_PS:
-      stEBDDeviceParams.nJobPDL = 1;
+      stEBDDeviceParams.nJobPDL = OIL_PDL_PS;
     break;
     case OIL_PDL_XPS:
-      stEBDDeviceParams.nJobPDL = 2;
+      stEBDDeviceParams.nJobPDL = OIL_PDL_XPS;
     break;
     case OIL_PDL_PDF:
-      stEBDDeviceParams.nJobPDL = 3;
+      stEBDDeviceParams.nJobPDL = OIL_PDL_PDF;
     break;
     case OIL_PDL_PCL5e:
-      stEBDDeviceParams.nJobPDL = 4;
+      stEBDDeviceParams.nJobPDL = OIL_PDL_PCL5e;
     break;
     case OIL_PDL_PCL5c:
-      stEBDDeviceParams.nJobPDL = 5;
+      stEBDDeviceParams.nJobPDL = OIL_PDL_PCL5c;
     break;
     case OIL_PDL_PCLXL:
-      stEBDDeviceParams.nJobPDL = 6;
+      stEBDDeviceParams.nJobPDL = OIL_PDL_PCLXL;
     break;
 
     default:
-      stEBDDeviceParams.nJobPDL = 0;
+      stEBDDeviceParams.nJobPDL = OIL_PDL_Unknown;
       ebd_devparams[EBD_JOB_PDL].flags &= ~PARAM_SET;
     break;
   }

@@ -2171,8 +2171,8 @@ Bool pcl5op_ampersand_b_M(PCL5Context *pcl5_ctxt, int32 explicit_sign, PCL5Numer
   if (! handle_pcl5_page_change(pcl5_ctxt, buffer, PCL5_STATE_MAINTENANCE, FALSE))
     return FALSE ;
 
-  /* Also set the current color mode */
-  print_state->current_color_mode = color_mode;
+  /* Also set the current color mode - This has to be default*/
+  print_state->current_color_mode = print_state->default_color_mode;
 
   /** \todo Although the page is not being reset here, perhaps because we do
    * not want to change the default cursor position, it seems likely we may

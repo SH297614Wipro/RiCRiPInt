@@ -1279,6 +1279,8 @@ static void ebd_process_param(int index)
     g_pstCurrentJob->tCurrentJobMedia.uInputTray = stEBDDeviceParams.MediaSourceFromJob;
     break;
   case EBD_JOB_COLORMODE:
+	 /* Set device from MPE id overiding the gray setting - so avoid it */
+	 if(g_pstCurrentJob->eColorMode != 1 /* Gray mode */)
     g_pstCurrentJob->eColorMode = stEBDDeviceParams.ColorModeFromJob;
     break;
   case EBD_JOB_SCREENMODE:

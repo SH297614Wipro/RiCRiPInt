@@ -792,12 +792,13 @@ int  find_PDLType(int *pPDL)
                 break;	
 
 	case GPS_PDL_PCL:
-		if(devinfo->nplane >= 4)
-			ePDLType = OIL_PDL_PCL5c;
-		else
-			ePDLType = OIL_PDL_PCL5e;
+//		if(devinfo->nplane >= 4)
+//			ePDLType = OIL_PDL_PCL5c;
+//		else
+//			ePDLType = OIL_PDL_PCL5e;
+//		break;
+		ePDLType = OIL_PDL_PCL5c;
 		break;
-
 	case GPS_PDL_PCLXL:
 		ePDLType = OIL_PDL_PCLXL;
                 break;

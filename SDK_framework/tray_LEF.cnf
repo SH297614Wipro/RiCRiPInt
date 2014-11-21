@@ -1,0 +1,36 @@
+
+$InputTrays
+[
+	{
+		$MediaSource	TRAY1
+		$PaperSize		LETTER_R
+		$MediaType		PLAIN
+		$MediaColor		WHITE
+		$MediaWeight	80
+		$Priority		0
+		$Sheets			200
+	}
+	{
+		$MediaSource	TRAY2
+		$PaperSize		A4_R
+		$MediaType		PLAIN
+		$MediaColor		WHITE
+		$MediaWeight	80
+		$Priority		0
+		$Sheets			200
+	}
+	{
+		$MediaSource	TRAY3
+		$PaperSize		A3_R
+		$MediaType		PLAIN
+		$MediaColor		WHITE
+		$MediaWeight	80
+		$Priority		0
+		$Sheets			200
+	}
+]
+
+
+
+
+

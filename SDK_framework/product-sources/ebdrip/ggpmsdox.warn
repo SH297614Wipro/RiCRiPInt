@@ -1,0 +1,61 @@
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_hwa1_out.c:312: Warning: argument 'ptPMSPage' of command @param is not found in the argument list of HWA_FPGA_FileHandler(unsigned char *orderlist, size_t orderlen, unsigned char *assets, size_t assetlen, int complete, int index)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_hwa1_out.c:312: Warning: The following parameters of HWA_FPGA_FileHandler(unsigned char *orderlist, size_t orderlen, unsigned char *assets, size_t assetlen, int complete, int index) are not documented:
+  parameter 'orderlist'
+  parameter 'orderlen'
+  parameter 'assets'
+  parameter 'assetlen'
+  parameter 'complete'
+  parameter 'index'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:268: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Close(void *handle)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:268: Warning: The following parameters of File_Close(void *handle) are not documented:
+  parameter 'handle'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:281: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Read(unsigned char *buffer, int nBytesToRead, void *handle)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:281: Warning: The following parameters of File_Read(unsigned char *buffer, int nBytesToRead, void *handle) are not documented:
+  parameter 'handle'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:307: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Seek(void *handle, long *pPosition, int nWhence)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:307: Warning: argument 'nBytesToSeek' of command @param is not found in the argument list of File_Seek(void *handle, long *pPosition, int nWhence)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:307: Warning: The following parameters of File_Seek(void *handle, long *pPosition, int nWhence) are not documented:
+  parameter 'handle'
+  parameter 'pPosition'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:346: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Bytes(void *handle)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:346: Warning: The following parameters of File_Bytes(void *handle) are not documented:
+  parameter 'handle'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:281: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Read(unsigned char *buffer, int nBytesToRead, void *handle)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:281: Warning: The following parameters of File_Read(unsigned char *buffer, int nBytesToRead, void *handle) are not documented:
+  parameter 'handle'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:307: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Seek(void *handle, long *pPosition, int nWhence)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:307: Warning: argument 'nBytesToSeek' of command @param is not found in the argument list of File_Seek(void *handle, long *pPosition, int nWhence)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:307: Warning: The following parameters of File_Seek(void *handle, long *pPosition, int nWhence) are not documented:
+  parameter 'handle'
+  parameter 'pPosition'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:346: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Bytes(void *handle)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:346: Warning: The following parameters of File_Bytes(void *handle) are not documented:
+  parameter 'handle'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:268: Warning: argument 'pHandle' of command @param is not found in the argument list of File_Close(void *handle)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_file_in.c:268: Warning: The following parameters of File_Close(void *handle) are not documented:
+  parameter 'handle'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_hwa1_out.c:201: Warning: argument 'ptPMSPage' of command @param is not found in the argument list of HWA_WriteHeaderFile(const char *HeaderFileName, unsigned char *orderlist, size_t orderlen, unsigned char *assets, size_t assetlen, int clear)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_hwa1_out.c:201: Warning: The following parameters of HWA_WriteHeaderFile(const char *HeaderFileName, unsigned char *orderlist, size_t orderlen, unsigned char *assets, size_t assetlen, int clear) are not documented:
+  parameter 'HeaderFileName'
+  parameter 'orderlist'
+  parameter 'orderlen'
+  parameter 'assets'
+  parameter 'assetlen'
+  parameter 'clear'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_hwa1_out.c:312: Warning: argument 'ptPMSPage' of command @param is not found in the argument list of HWA_FPGA_FileHandler(unsigned char *orderlist, size_t orderlen, unsigned char *assets, size_t assetlen, int complete, int index)
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_hwa1_out.c:312: Warning: The following parameters of HWA_FPGA_FileHandler(unsigned char *orderlist, size_t orderlen, unsigned char *assets, size_t assetlen, int complete, int index) are not documented:
+  parameter 'orderlist'
+  parameter 'orderlen'
+  parameter 'assets'
+  parameter 'assetlen'
+  parameter 'complete'
+  parameter 'index'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_interface_oil2pms.c:768: Warning: The following parameters of PMS_MediaSelect(PMS_TyMedia *pstPMSMedia, PMS_TyTrayInfo **ppTrayInfo, int *rotate) are not documented:
+  parameter 'rotate'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_interface_oil2pms.c:1223: Warning: The following parameters of PMS_RasterLayout(int nPageWidthPixels, int nPageHeightPixels, unsigned int uBitDepth, unsigned int uComponents, int *pValid, unsigned int *puLineBytes, int *pLineStride, int *pColorantStride) are not documented:
+  parameter 'nPageWidthPixels'
+  parameter 'nPageHeightPixels'
+  parameter 'uBitDepth'
+  parameter 'uComponents'
+/home/build/Builds/Rips/SWprod_hqnrip/EBDSDK_P_HWA1/20141014.140000/source/EBDSDK_P_HWA1/obj/expsrc-EBDEVAL-nd-le-ebd/ebdrip/obj/skinsrc-na-ns-ic-EBDEVAL-nd-epdfouty-le-xps-pcl-ebd/pms/src/pms_pdf_out.c:172: Warning: The following parameters of PDF_WriteOutputAtLoc(char *pBuffer, int nLength, unsigned long ulLocation) are not documented:
+  parameter 'ulLocation'
